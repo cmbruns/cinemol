@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Cinemol by Christopher Bruns</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="PyVolCanvas" name="glCanvas" native="true"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionLoad_movie_script"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_image"/>
+    <addaction name="actionSave_Lenticular_Series"/>
+    <addaction name="actionSave_movie"/>
+    <addaction name="actionSave_movie_script"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <widget class="QMenu" name="menuStereo_3D">
+     <property name="title">
+      <string>Stereo 3D</string>
+     </property>
+     <addaction name="actionMono_None"/>
+     <addaction name="separator"/>
+     <addaction name="actionRed_Cyan_anaglyph"/>
+     <addaction name="actionGreen_Magenta_anaglyph"/>
+     <addaction name="separator"/>
+     <addaction name="actionRight_Left_cross_eye"/>
+     <addaction name="actionLeft_Right_parallel"/>
+     <addaction name="actionLeft_eye_view"/>
+     <addaction name="actionRight_eye_view"/>
+     <addaction name="separator"/>
+     <addaction name="actionQuadro_120_Hz"/>
+     <addaction name="actionRow_interleaved"/>
+     <addaction name="actionColumn_interleaved"/>
+     <addaction name="actionChecker_interleaved"/>
+     <addaction name="separator"/>
+     <addaction name="actionSwap_Eyes"/>
+    </widget>
+    <widget class="QMenu" name="menuBookmarks">
+     <property name="title">
+      <string>Bookmarks</string>
+     </property>
+     <addaction name="actionPlay_movie"/>
+     <addaction name="actionMeasure_fps"/>
+     <addaction name="separator"/>
+     <addaction name="actionAdd_new_bookmark"/>
+     <addaction name="actionGo_to_previous_bookmark"/>
+     <addaction name="actionGo_to_next_bookmark"/>
+     <addaction name="actionClear_all_bookmarks"/>
+    </widget>
+    <addaction name="menuBookmarks"/>
+    <addaction name="menuStereo_3D"/>
+    <addaction name="actionSet_size"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Load molecule...</string>
+   </property>
+  </action>
+  <action name="actionSave_image">
+   <property name="text">
+    <string>Save image...</string>
+   </property>
+  </action>
+  <action name="actionSet_size">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Set window size...</string>
+   </property>
+  </action>
+  <action name="actionAdd_bookmark">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Bookmark this view</string>
+   </property>
+  </action>
+  <action name="actionMono_None">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mono/None</string>
+   </property>
+  </action>
+  <action name="actionRight_Left_cross_eye">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Right:Left cross-eye</string>
+   </property>
+  </action>
+  <action name="actionLeft_Right_parallel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Left:Right parallel</string>
+   </property>
+  </action>
+  <action name="actionLeft_eye_view">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Left eye view</string>
+   </property>
+  </action>
+  <action name="actionRight_eye_view">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Right eye view</string>
+   </property>
+  </action>
+  <action name="actionRow_interleaved">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Row interleaved</string>
+   </property>
+  </action>
+  <action name="actionColumn_interleaved">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Column interleaved</string>
+   </property>
+  </action>
+  <action name="actionChecker_interleaved">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Checker interleaved</string>
+   </property>
+  </action>
+  <action name="actionSwap_Eyes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Swap Eyes</string>
+   </property>
+  </action>
+  <action name="actionRed_Cyan_anaglyph">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Red:Cyan anaglyph</string>
+   </property>
+  </action>
+  <action name="actionGreen_Magenta_anaglyph">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Green:Magenta anaglyph</string>
+   </property>
+  </action>
+  <action name="actionQuadro_120_Hz">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Quadro 120 Hz</string>
+   </property>
+  </action>
+  <action name="actionSave_Lenticular_Series">
+   <property name="text">
+    <string>Save Lenticular Series...</string>
+   </property>
+  </action>
+  <action name="actionAdd_new_bookmark">
+   <property name="text">
+    <string>Add new bookmark</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionGo_to_previous_bookmark">
+   <property name="text">
+    <string>Go to previous bookmark</string>
+   </property>
+   <property name="shortcut">
+    <string>PgUp</string>
+   </property>
+  </action>
+  <action name="actionGo_to_next_bookmark">
+   <property name="text">
+    <string>Go to next bookmark</string>
+   </property>
+   <property name="shortcut">
+    <string>PgDown</string>
+   </property>
+  </action>
+  <action name="actionClear_all_bookmarks">
+   <property name="text">
+    <string>Clear all bookmarks</string>
+   </property>
+  </action>
+  <action name="actionPlay_movie">
+   <property name="text">
+    <string>Play movie</string>
+   </property>
+  </action>
+  <action name="actionSave_movie">
+   <property name="text">
+    <string>Save movie frames...</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="actionMeasure_fps">
+   <property name="text">
+    <string>Measure fps</string>
+   </property>
+  </action>
+  <action name="actionSave_movie_script">
+   <property name="text">
+    <string>Save movie script...</string>
+   </property>
+  </action>
+  <action name="actionLoad_movie_script">
+   <property name="text">
+    <string>Load movie script...</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PyVolCanvas</class>
+   <extends>QWidget</extends>
+   <header>pyvolcanvas</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
