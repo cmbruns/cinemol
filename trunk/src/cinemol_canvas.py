@@ -10,7 +10,7 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 from PySide import QtCore
 
-class PyVolCanvas(QGLWidget):
+class CinemolCanvas(QGLWidget):
     # Singleton thread for all OpenGL actions
     
     def __init__(self, parent=None):

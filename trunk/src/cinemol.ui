@@ -25,7 +25,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="PyVolCanvas" name="glCanvas" native="true"/>
+     <widget class="CinemolCanvas" name="glCanvas" native="true"/>
     </item>
    </layout>
   </widget>
@@ -307,9 +307,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PyVolCanvas</class>
+   <class>CinemolCanvas</class>
    <extends>QWidget</extends>
-   <header>pyvolcanvas</header>
+   <header>cinemol_canvas</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

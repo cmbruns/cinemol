@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'pyvol.ui'
+# Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Sun Jul 15 16:04:42 2012
+# Created: Sat Jul 21 14:11:21 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.glCanvas = PyVolCanvas(self.centralwidget)
+        self.glCanvas = CinemolCanvas(self.centralwidget)
         self.glCanvas.setObjectName("glCanvas")
         self.horizontalLayout.addWidget(self.glCanvas)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -195,4 +195,4 @@ class Ui_MainWindow(object):
         self.actionSave_movie_script.setText(QtGui.QApplication.translate("MainWindow", "Save movie script...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_movie_script.setText(QtGui.QApplication.translate("MainWindow", "Load movie script...", None, QtGui.QApplication.UnicodeUTF8))
 
-from pyvolcanvas import PyVolCanvas
+from cinemol_canvas import CinemolCanvas
