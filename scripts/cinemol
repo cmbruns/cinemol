@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+from cinemol import Cinemol
+
+Cinemol()
