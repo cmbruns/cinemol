@@ -1,7 +1,6 @@
-from pyvol_ui import Ui_MainWindow
+from cinemol_ui import Ui_MainWindow
 from size_dialog import SizeDialog
 from imposter import SphereImposterArray
-from scenes import GlutSphereActor
 from movie import Movie, KeyFrame
 import stereo3d
 from rotation import Vec3
@@ -333,9 +332,7 @@ before you can save a movie.""")
             ren = self.ui.glCanvas.renderer
             ren.actors = []
             self.bookmarks.clear()
-            do_use_array = True
-            if do_use_array:
-                ren.actors.append(sphere_array)
+            ren.actors.append(sphere_array)
             atom_count = 0
             for atom in atoms:
                 atom_count += 1
@@ -349,8 +346,6 @@ before you can save a movie.""")
                             max[i] = atom[i]
                         if atom[i] < min[i]:
                             min[i] = atom[i]
-                if not do_use_array:
-                    ren.actors.append(SphereImposter(atom, radius=atom.radius, color=atom.color))
             # center on molecule
             new_focus = 0.5 * (min + max)
             ren.camera_position.focus_in_ground = new_focus

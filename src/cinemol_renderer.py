@@ -15,7 +15,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GL.ARB.seamless_cube_map import *
 
-class PyVolRenderer(glrenderer.GlRenderer):
+class CinemolRenderer(glrenderer.GlRenderer):
     def __init__(self):
         glrenderer.GlRenderer.__init__(self)
         self.camera_position = CameraPosition()
