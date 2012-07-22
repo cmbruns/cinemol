@@ -1,9 +1,9 @@
 from cinemol_ui import Ui_MainWindow
 from size_dialog import SizeDialog
-from imposter import SphereImposterArray
-from movie import Movie, KeyFrame
-import stereo3d
-from rotation import Vec3
+from cinemol.gui.console import Console
+from cinemol.imposter import SphereImposterArray
+from cinemol.movie import Movie, KeyFrame
+from cinemol.rotation import Vec3
 from PySide import QtCore
 from PySide.QtGui import *
 from PySide.QtCore import *
@@ -17,6 +17,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.console = Console(self)
         if platform.system() == "Darwin":
             self.ui.menubar.setParent(None) # Show menu on mac
         self.bookmarks = Movie()
@@ -42,6 +43,10 @@ class MainWindow(QMainWindow):
     def camera(self):
         return self.ui.glCanvas.renderer.camera_position
 
+    @QtCore.Slot(bool)
+    def on_actionShow_console_triggered(self, checked):
+        self.console.setVisible(checked)
+        
     @QtCore.Slot(bool)
     def on_actionLoad_movie_script_triggered(self, checked):
         self.bookmarks.clear()
@@ -181,7 +186,8 @@ before you can save a movie script.""")
         dialog.blockSignals(False)
         dialog.exec_()
         if dialog.result() == QDialog.Accepted:
-            print "Accepted"
+            pass # keep this size
+            # print "Accepted"
         else:
             self.resize_canvas(old_size.width(), old_size.height())
 

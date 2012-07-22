@@ -29,7 +29,6 @@ class CinemolRenderer(glrenderer.GlRenderer):
         # print "init_gl"
         if glInitSeamlessCubeMapARB():
             glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS)
-            print "seamlesss"
         glEnable(GL_DEPTH_TEST)
         bg = self.background_color
         glClearColor(bg[0], bg[1], bg[2], bg[3])

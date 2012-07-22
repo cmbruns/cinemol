@@ -1,8 +1,6 @@
 from actor import Actor
 from OpenGL.GL import *
-import array
-import numpy
-from math import pi, cos, sin
+
 
 class ShaderProgram:
     "Base class for shader programs."

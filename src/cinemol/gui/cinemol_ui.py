@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Sat Jul 21 14:11:21 2012
+# Created: Sun Jul 22 17:16:14 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,6 +38,10 @@ class Ui_MainWindow(object):
         self.menuStereo_3D.setObjectName("menuStereo_3D")
         self.menuBookmarks = QtGui.QMenu(self.menuView)
         self.menuBookmarks.setObjectName("menuBookmarks")
+        self.menuWindow = QtGui.QMenu(self.menubar)
+        self.menuWindow.setObjectName("menuWindow")
+        self.menuHelp = QtGui.QMenu(self.menubar)
+        self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -117,6 +121,9 @@ class Ui_MainWindow(object):
         self.actionSave_movie_script.setObjectName("actionSave_movie_script")
         self.actionLoad_movie_script = QtGui.QAction(MainWindow)
         self.actionLoad_movie_script.setObjectName("actionLoad_movie_script")
+        self.actionShow_console = QtGui.QAction(MainWindow)
+        self.actionShow_console.setCheckable(True)
+        self.actionShow_console.setObjectName("actionShow_console")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionLoad_movie_script)
         self.menuFile.addSeparator()
@@ -151,9 +158,12 @@ class Ui_MainWindow(object):
         self.menuBookmarks.addAction(self.actionClear_all_bookmarks)
         self.menuView.addAction(self.menuBookmarks.menuAction())
         self.menuView.addAction(self.menuStereo_3D.menuAction())
-        self.menuView.addAction(self.actionSet_size)
+        self.menuWindow.addAction(self.actionSet_size)
+        self.menuWindow.addAction(self.actionShow_console)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
+        self.menubar.addAction(self.menuWindow.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -164,9 +174,11 @@ class Ui_MainWindow(object):
         self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
         self.menuStereo_3D.setTitle(QtGui.QApplication.translate("MainWindow", "Stereo 3D", None, QtGui.QApplication.UnicodeUTF8))
         self.menuBookmarks.setTitle(QtGui.QApplication.translate("MainWindow", "Bookmarks", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuWindow.setTitle(QtGui.QApplication.translate("MainWindow", "Window", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setText(QtGui.QApplication.translate("MainWindow", "Load molecule...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_image.setText(QtGui.QApplication.translate("MainWindow", "Save image...", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSet_size.setText(QtGui.QApplication.translate("MainWindow", "Set window size...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSet_size.setText(QtGui.QApplication.translate("MainWindow", "Set canvas size...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_bookmark.setText(QtGui.QApplication.translate("MainWindow", "Bookmark this view", None, QtGui.QApplication.UnicodeUTF8))
         self.actionMono_None.setText(QtGui.QApplication.translate("MainWindow", "Mono/None", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRight_Left_cross_eye.setText(QtGui.QApplication.translate("MainWindow", "Right:Left cross-eye", None, QtGui.QApplication.UnicodeUTF8))
@@ -194,5 +206,6 @@ class Ui_MainWindow(object):
         self.actionMeasure_fps.setText(QtGui.QApplication.translate("MainWindow", "Measure fps", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_movie_script.setText(QtGui.QApplication.translate("MainWindow", "Save movie script...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_movie_script.setText(QtGui.QApplication.translate("MainWindow", "Load movie script...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionShow_console.setText(QtGui.QApplication.translate("MainWindow", "Show console", None, QtGui.QApplication.UnicodeUTF8))
 
-from cinemol_canvas import CinemolCanvas
+from cinemol.cinemol_canvas import CinemolCanvas
