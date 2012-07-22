@@ -23,16 +23,16 @@ void main()
 {
     // Ray casting for actual surface point
     // Use quadratic equation - factor of 2 is elided
+    // x = (-b +- sqrt(b^2 - 4ac)) / 2a // quadratic equation
     float qe_half_a = dot(undot_qe_half_a, undot_qe_half_a); // compute in frag shader because non linear
     float det = qe_half_b*qe_half_b - qe_half_a*qe_c; // (b^2-4ac) / 4.0
     if (det <= 0.0) {
-        discard;  // No tangent? past sphere edge
+        discard;  // No solution? means ray misses sphere
         // for debugging...
         // gl_FragColor = vec4(1,0,0,1);
         // return;
     }
-    float alpha1 = (-qe_half_b - sqrt(det))/qe_half_a;
-    float alpha2 = (-qe_half_b + sqrt(det))/qe_half_a;
+    float alpha1 = (-qe_half_b - sqrt(det))/qe_half_a; // front of sphere
     vec3 surface_in_eye = alpha1 * position_in_eye.xyz;
     
     // cull by front and rear clip planes
@@ -40,6 +40,9 @@ void main()
     float depth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
     if (depth >= 1.0)
         discard; // front of sphere is behind back clip plane
+        
+    // If sphere is solid core, clip on back of sphere
+    float alpha2 = (-qe_half_b + sqrt(det))/qe_half_a; // back of sphere
     vec3 back_surface_in_eye = alpha2 * position_in_eye;
     depth_vec = cameraToClipMatrix * vec4(back_surface_in_eye, 1);
     float depth2 = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
