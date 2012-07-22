@@ -1,4 +1,4 @@
-from main_window import MainWindow
+from gui.main_window import MainWindow
 from scenes import FiveBallScene, TeapotActor
 from cinemol_renderer import CinemolRenderer
 from PySide.QtGui import QApplication
@@ -14,3 +14,6 @@ class CinemolApp(QApplication):
         mainWin.ui.glCanvas.set_gl_renderer(renderer)
         mainWin.show()
         sys.exit(self.exec_())
+        
+if __name__ == "__main__":
+    CinemolApp()

@@ -1,4 +1,3 @@
-
 from size_dialog_ui import Ui_windowSizeDialog
 from PySide.QtGui import QDialog
 from PySide import QtCore

@@ -3,6 +3,7 @@ import shader
 from OpenGL.GL import *
 import numpy
 from math import pi, cos, sin
+import os
 
 
 class SphereImposterShaderProgram(ShaderProgram):
@@ -19,8 +20,9 @@ class SphereImposterShaderProgram(ShaderProgram):
 
     def __init__(self):
         ShaderProgram.__init__(self)
-        self.vertex_shader = open("shaders/sphere_vtx.glsl").read()
-        self.fragment_shader = open("shaders/sphere_frg.glsl").read()
+        this_dir, this_filename = os.path.split(__file__)
+        self.vertex_shader = open(os.path.join(this_dir, "shaders/sphere_vtx.glsl")).read()
+        self.fragment_shader = open(os.path.join(this_dir, "shaders/sphere_frg.glsl")).read()
 
 
 sphereImposterShaderProgram = SphereImposterShaderProgram()

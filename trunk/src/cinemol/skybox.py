@@ -1,11 +1,10 @@
-
-import shader
-from rotation import Rotation
+import cinemol.shader as shader
 from PySide.QtGui import QImage
 from PySide.QtOpenGL import QGLWidget
 from OpenGL.GL import *
 import numpy
 from math import sqrt
+import os
 
 class SkyBoxShaderProgram(shader.ShaderProgram):
     def __init__(self):
@@ -40,12 +39,19 @@ void main()
         self.eye_shift = glGetUniformLocation(self.shader_program, "eye_shift")
 
 
+def fname_to_qimage(file_name):
+    this_dir, this_filename = os.path.split(__file__)
+    fn = os.path.join(this_dir, "skybox", file_name)
+    img = QImage()
+    img.load(fn)
+    return img    
+
 def fname_to_tex(file_name):
-        img = QImage()
-        img.load(file_name)
-        img2 = QGLWidget.convertToGLFormat(img)
-        img3 = str(img2.bits())
-        return img3
+    img = fname_to_qimage(file_name)
+    img2 = QGLWidget.convertToGLFormat(img)
+    img3 = str(img2.bits())
+    return img3
+
 
 class SkyBox:
     def __init__(self):
@@ -61,20 +67,19 @@ class SkyBox:
         # Define all 6 faces
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)
         if True:
-            img = QImage()
-            img.load("skybox/miramar_lf.tif")
+            img = fname_to_qimage("miramar_lf.tif")
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, img.width(), img.height(), 
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("skybox/miramar_ft.tif"))
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_ft.tif"))
             glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8, img.width(), img.height(), 
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("skybox/miramar_bk.tif"))
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_bk.tif"))
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8, img.width(), img.height(), 
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("skybox/miramar_dn.tif"))
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_dn.tif"))
             glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8, img.width(), img.height(), 
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("skybox/miramar_up.tif"))
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_up.tif"))
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, img.width(), img.height(), 
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("skybox/miramar_rt.tif"))
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_rt.tif"))
             glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, img.width(), img.height(), 
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("skybox/miramar_lf.tif"))
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_lf.tif"))
         else:
             test_img = numpy.array(256 * [50,50,128,255], 'uint8')
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)

@@ -91,10 +91,23 @@
     </widget>
     <addaction name="menuBookmarks"/>
     <addaction name="menuStereo_3D"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
     <addaction name="actionSet_size"/>
+    <addaction name="actionShow_console"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
@@ -112,7 +125,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Set window size...</string>
+    <string>Set canvas size...</string>
    </property>
   </action>
   <action name="actionAdd_bookmark">
@@ -304,12 +317,20 @@
     <string>Load movie script...</string>
    </property>
   </action>
+  <action name="actionShow_console">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show console</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>CinemolCanvas</class>
    <extends>QWidget</extends>
-   <header>cinemol_canvas</header>
+   <header>cinemol.cinemol_canvas</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

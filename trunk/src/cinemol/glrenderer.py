@@ -7,8 +7,7 @@ Created on Jun 19, 2012
 import stereo3d
 from PySide.QtCore import QObject, QElapsedTimer
 from PySide import QtCore
-from OpenGL.GL import glViewport
-from math import pi, atan2
+from math import atan2
 import os
 
 class GlRenderer(QObject):
