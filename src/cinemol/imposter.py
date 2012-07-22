@@ -16,7 +16,7 @@ class SphereImposterShaderProgram(ShaderProgram):
         glUniform4f(glGetUniformLocation(self.shader_program, "background_color"), 
                     bg[0], bg[1], bg[2], bg[3])
         return self
-        
+
     def __init__(self):
         ShaderProgram.__init__(self)
         self.vertex_shader = """
