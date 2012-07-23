@@ -18,8 +18,8 @@ void main()
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     vec4 eye_position_in_camera = vec4(-eye_shift, 0, 0, 0); // compensate for parallax asymmetric frustum shift for stereo 3D
     position = gl_ModelViewMatrix * gl_Vertex - eye_position_in_camera;
-    position.y *= -1; // put sun at top
-    position.x *= -1; // keep coordinate frame right handed
+    position.y *= -1.0; // put sun at top
+    position.x *= -1.0; // keep coordinate frame right handed
 }
 """
         self.fragment_shader = """
