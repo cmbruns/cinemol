@@ -8,7 +8,9 @@ from console_ui import Ui_ConsoleWindow
 from PySide import QtCore
 from PySide.QtCore import *
 from PySide.QtGui import *
+import cgi
 from traceback import print_exc
+import code
 import sys
 
 
@@ -24,6 +26,8 @@ class ConsoleStderrStream(object):
         sys.__stderr__.write(text)
         cursor = self.text_edit.textCursor()
         cursor.movePosition(QTextCursor.End)
+        # html = cgi.escape(text)
+        # cursor.insertHtml('<font color="red"><pre>'+html+'</pre></font>')
         cursor.insertText(text)
         self.text_edit.setTextCursor(cursor)
         self.text_edit.ensureCursorVisible()
@@ -56,7 +60,9 @@ class Console(QMainWindow):
         QMainWindow.__init__(self, parent)
         self.ui = Ui_ConsoleWindow()
         self.ui.setupUi(self)
-        self.prompt = ">>> "
+        self.regular_prompt = ">>> "
+        self.more_prompt = "... "
+        self.prompt = self.regular_prompt
         QApplication.clipboard().dataChanged.connect(self.on_clipboard_data_changed)
         self.te = self.ui.plainTextEdit
         self.te.selectionChanged.connect(self.on_selection_changed)
@@ -156,14 +162,14 @@ class Console(QMainWindow):
         self.te.setUndoRedoEnabled(False)
         # Scroll down after command, if and only if bottom is visible now.
         end_is_visible = self.te.document().lastBlock().isVisible()
-        command = self.get_current_command()    
+        command = self.get_current_command()
         self.command_ring.add_history(command)
         if len(self.multiline_command) > 0:
             # multi-line command can only be ended with a blank line.
             if len(command) == 0:
-                command = self.multiline_command # execute it now
+                command = self.multiline_command + "\n" # execute it now
             else:
-                self.multiline_command = self.multiline_command + command + "\n"
+                self.multiline_command = self.multiline_command + "\n" + command
                 command = "" # skip execution until next time
         # Add carriage return, so output will appear on subsequent line.
         # (It would be too late if we waited for plainTextEdit
@@ -171,14 +177,18 @@ class Console(QMainWindow):
         self.te.moveCursor(QTextCursor.End)
         self.append("")  # We consumed the key event, so we have to add the newline.
         if len(command) > 0:
+            self.prompt = self.regular_prompt
             try:
-                result = eval(command)
-                print result
-            except:
-                try:
-                    exec command in globals()
-                except: # Exception e:
-                    print_exc()
+                co = code.compile_command(command, filename="<console>")
+                if co is None: # incomplete command
+                    self.multiline_command = command
+                    self.prompt = self.more_prompt
+                else:
+                    exec co in globals()
+                    self.multiline_command = ""
+            except: # Exception e:
+                print_exc()
+                self.multiline_command = ""
         self.place_new_prompt(end_is_visible)
 
     def get_current_command(self):
