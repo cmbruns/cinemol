@@ -1,7 +1,8 @@
 from cinemol_ui import Ui_MainWindow
 from size_dialog import SizeDialog
+from atom_size_dialog import AtomSizeDialog
 from cinemol.gui.console import Console
-from cinemol.imposter import SphereImposterArray
+from cinemol.imposter import SphereImposterArray, sphereImposterShaderProgram
 from cinemol.movie import Movie, KeyFrame
 from cinemol.rotation import Vec3
 from PySide import QtCore
@@ -38,11 +39,28 @@ class MainWindow(QMainWindow):
         self.size_dialog.size_changed.connect(self.resize_canvas)
         self.size_dialog.ui.comboBox.activated[str].connect(self.parse_size_box_string)
         # print QImageWriter.supportedImageFormats()
+        self.atom_size_dialog = AtomSizeDialog(self)
+        self.atom_size_dialog.value_changed.connect(self.set_atom_scale)
 
     @property
     def camera(self):
         return self.ui.glCanvas.renderer.camera_position
 
+    @QtCore.Slot(float)
+    def set_atom_scale(self, s):
+        sphereImposterShaderProgram.atom_scale = s
+        self.ui.glCanvas.update()
+
+    @QtCore.Slot(bool)
+    def on_actionAtom_size_triggered(self, checked):
+        dialog = self.atom_size_dialog
+        old_scale = dialog.value()
+        dialog.exec_()
+        if dialog.result() == QDialog.Accepted:
+            pass # keep this size
+        else:
+            dialog.set_value(old_scale)
+        
     @QtCore.Slot(bool)
     def on_actionShow_console_triggered(self, checked):
         self.console.setVisible(checked)

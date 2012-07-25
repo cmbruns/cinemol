@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Sun Jul 22 17:16:14 2012
+# Created: Wed Jul 25 00:57:36 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -124,6 +124,8 @@ class Ui_MainWindow(object):
         self.actionShow_console = QtGui.QAction(MainWindow)
         self.actionShow_console.setCheckable(True)
         self.actionShow_console.setObjectName("actionShow_console")
+        self.actionAtom_size = QtGui.QAction(MainWindow)
+        self.actionAtom_size.setObjectName("actionAtom_size")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionLoad_movie_script)
         self.menuFile.addSeparator()
@@ -158,6 +160,7 @@ class Ui_MainWindow(object):
         self.menuBookmarks.addAction(self.actionClear_all_bookmarks)
         self.menuView.addAction(self.menuBookmarks.menuAction())
         self.menuView.addAction(self.menuStereo_3D.menuAction())
+        self.menuView.addAction(self.actionAtom_size)
         self.menuWindow.addAction(self.actionSet_size)
         self.menuWindow.addAction(self.actionShow_console)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -207,5 +210,6 @@ class Ui_MainWindow(object):
         self.actionSave_movie_script.setText(QtGui.QApplication.translate("MainWindow", "Save movie script...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_movie_script.setText(QtGui.QApplication.translate("MainWindow", "Load movie script...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionShow_console.setText(QtGui.QApplication.translate("MainWindow", "Show console", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAtom_size.setText(QtGui.QApplication.translate("MainWindow", "Atom size...", None, QtGui.QApplication.UnicodeUTF8))
 
 from cinemol.cinemol_canvas import CinemolCanvas

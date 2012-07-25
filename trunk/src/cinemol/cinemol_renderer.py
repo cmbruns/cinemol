@@ -47,6 +47,8 @@ class CinemolRenderer(glrenderer.GlRenderer):
         for actor in self.actors:
             actor.init_gl()
         self.shader.init_gl()
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def resize_gl(self, w, h):
         self.camera_position.set_window_size_in_pixels(w, h)

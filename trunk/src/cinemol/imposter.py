@@ -1,5 +1,7 @@
 from shader import ShaderProgram
 import shader
+from PySide import QtCore
+from PySide.QtCore import *
 from OpenGL.GL import *
 import numpy
 from math import pi, cos, sin
@@ -7,6 +9,13 @@ import os
 
 
 class SphereImposterShaderProgram(ShaderProgram):
+    def __init__(self):
+        ShaderProgram.__init__(self)
+        this_dir, this_filename = os.path.split(__file__)
+        self.vertex_shader = open(os.path.join(this_dir, "shaders/sphere_vtx.glsl")).read()
+        self.fragment_shader = open(os.path.join(this_dir, "shaders/sphere_frg.glsl")).read()
+        self.atom_scale = 1.0
+        
     def __enter__(self):
         ShaderProgram.__enter__(self)
         # print self.zNear, type(self.zNear), self.shader_program, glGetUniformLocation(self.shader_program, "zNear")
@@ -16,13 +25,8 @@ class SphereImposterShaderProgram(ShaderProgram):
         bg = self.background_color
         glUniform4f(glGetUniformLocation(self.shader_program, "background_color"), 
                     bg[0], bg[1], bg[2], bg[3])
+        glUniform1f(glGetUniformLocation(self.shader_program, "atom_scale"), self.atom_scale)
         return self
-
-    def __init__(self):
-        ShaderProgram.__init__(self)
-        this_dir, this_filename = os.path.split(__file__)
-        self.vertex_shader = open(os.path.join(this_dir, "shaders/sphere_vtx.glsl")).read()
-        self.fragment_shader = open(os.path.join(this_dir, "shaders/sphere_frg.glsl")).read()
 
 
 sphereImposterShaderProgram = SphereImposterShaderProgram()
@@ -85,10 +89,9 @@ class ImposterQuadArray:
     def __init__(self):
         self.vertex_count = 4 # one quadrilateral per sphere
         self.triangle_count = self.vertex_count - 2
-       
     
     
-class SphereImposterArray:
+class SphereImposterArray(QObject):
     def __init__(self, spheres):
         self.vertex_count = 4 # one quadrilateral per sphere
         self.triangle_count = self.vertex_count - 2

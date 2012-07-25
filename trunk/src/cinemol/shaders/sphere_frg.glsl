@@ -102,5 +102,6 @@ void main()
         fog_ratio = (fog_start - depth) / (fog_start - 1.0);
     fog_ratio = clamp(fog_ratio, 0.0, 1.0);
 
-    gl_FragColor = mix(objectColor, fogColor, fog_ratio);
+    // gl_FragColor = mix(objectColor, fogColor, fog_ratio);
+    gl_FragColor = vec4(objectColor.xyz, 1.0 - fog_ratio);
 }
