@@ -1,4 +1,5 @@
 import cinemol.shader as shader
+from cinemol.rotation import Vec3
 from PySide.QtGui import QImage
 from PySide.QtOpenGL import QGLWidget
 from OpenGL.GL import *
@@ -107,8 +108,12 @@ class SkyBox:
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR) 
         # Construct a giant cube, almost as big as possible without clipping
-        max_coord = 1.0 / sqrt(2.0) * 0.5 * camera.zFar
+        max_coord = 1.0 / sqrt(3.0) * 0.5 * camera.zFar
         m = max_coord
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        cam_g = camera.focus_in_ground + camera.rotation * Vec3([0, 0, camera.zFocus])
+        glTranslate(cam_g[0], cam_g[1], cam_g[2])
         with self.shader:
             glUniform1i(self.shader.skybox, 0)
             glUniform1f(self.shader.eye_shift, camera.eye_shift_in_ground)
@@ -145,4 +150,5 @@ class SkyBox:
             glVertex3f( m,  m, -m)
             #
             glEnd()
+        glPopMatrix()
         glPopAttrib()

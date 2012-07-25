@@ -91,6 +91,7 @@
     </widget>
     <addaction name="menuBookmarks"/>
     <addaction name="menuStereo_3D"/>
+    <addaction name="actionAtom_size"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -323,6 +324,11 @@
    </property>
    <property name="text">
     <string>Show console</string>
+   </property>
+  </action>
+  <action name="actionAtom_size">
+   <property name="text">
+    <string>Atom size...</string>
    </property>
   </action>
  </widget>

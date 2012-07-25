@@ -22,11 +22,13 @@ varying vec3 undot_qe_half_a; // must be dotted with itself to produce quadratic
 varying float qe_half_b;
 varying float qe_c;
 
+uniform float atom_scale;
+
 void main()
 {
     // We store a quad as 4 points with the same vertex, but different normals.
     // Reconstruct the quad by adding the normal to the vertex.
-    radius = gl_Normal.z;
+    radius = gl_Normal.z * atom_scale;
     vec4 sc = gl_ModelViewMatrix * gl_Vertex;
     vec3 sphere_center_in_camera = sc.xyz * 1.0/sc.w;
 
