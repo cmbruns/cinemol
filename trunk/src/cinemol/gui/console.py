@@ -15,8 +15,9 @@ import sys
 
 
 class ConsoleStderrStream(object):
-    def __init__(self, text_edit):
-        self.text_edit = text_edit
+    def __init__(self, console):
+        self.text_edit = console.te
+        self.console = console
         sys.stderr = self
         
     def __del__(self):
@@ -34,8 +35,9 @@ class ConsoleStderrStream(object):
 
 
 class ConsoleStdoutStream(object):
-    def __init__(self, text_edit):
-        self.text_edit = text_edit
+    def __init__(self, console):
+        self.text_edit = console.te
+        self.console = console
         sys.stdout = self
         
     def __del__(self):
@@ -72,7 +74,6 @@ class Console(QMainWindow):
         self.append("Python " + sys.version + " on " + sys.platform)
         self.append('Type "help", "copyright", "credits" or "license" for more information.')
         self.append("") # Need return before prompt
-        self.place_new_prompt()
         # make cursor about the size of a letter
         cursor_size = QFontMetrics(self.te.font()).width("m")
         if cursor_size > 0:
@@ -83,8 +84,23 @@ class Console(QMainWindow):
         self.multiline_command = ""
         self.te.installEventFilter(self)
         self.te.viewport().installEventFilter(self)
-        self.stdout = ConsoleStdoutStream(self.te)
-        self.stderr = ConsoleStderrStream(self.te)
+        self.command_buffer = ""
+        self.current_command_start_position = None
+        self.place_new_prompt()
+        self.stdout = ConsoleStdoutStream(self)
+        self.stderr = ConsoleStderrStream(self)
+        
+    def pause_command_capture(self):
+        self.command_buffer = self.get_current_command()
+        self.te.moveCursor(QTextCursor.End)
+        self.latest_good_cursor = self.te.textCursor()
+        self.current_command_start_position = self.latest_good_cursor.position()
+        # self.latest_good_cursor = None
+
+    def resume_command_capture(self):
+        self.te.moveCursor(QTextCursor.End)
+        self.latest_good_cursor = self.te.textCursor()
+        self.current_command_start_position = self.latest_good_cursor.position()
         
     def show_previous_command(self):
         pass # TODO
@@ -154,7 +170,7 @@ class Console(QMainWindow):
                 # If this is a printing character, make sure the editing console is activated
                 if len(keyEvent.text()) > 0:
                     if not self.cursor_is_in_editing_region(self.te.textCursor()):
-                        self.te.setTextCursor(self.latestGoodCursorPosition)
+                        self.te.setTextCursor(self.latest_good_cursor.position)
         return QMainWindow.eventFilter(self, watched, event)
 
     def run_console_command(self):
@@ -163,6 +179,7 @@ class Console(QMainWindow):
         # Scroll down after command, if and only if bottom is visible now.
         end_is_visible = self.te.document().lastBlock().isVisible()
         command = self.get_current_command()
+        self.command_buffer = ""
         self.command_ring.add_history(command)
         if len(self.multiline_command) > 0:
             # multi-line command can only be ended with a blank line.
@@ -192,15 +209,17 @@ class Console(QMainWindow):
         self.place_new_prompt(end_is_visible)
 
     def get_current_command(self):
+        command = ""
         cursor = self.te.textCursor()
         cursor.setPosition(self.current_command_start_position, QTextCursor.MoveAnchor)
         cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
         command = cursor.selectedText()
         cursor.clearSelection()
-        return command
+        return self.command_buffer + command
         
     def place_new_prompt(self, make_visible=True):
         self.te.setUndoRedoEnabled(False)
+        # self.pause_command_capture()
         self.te.moveCursor(QTextCursor.End)
         self.te.insertPlainText(self.prompt)
         self.te.moveCursor(QTextCursor.End)
@@ -208,6 +227,9 @@ class Console(QMainWindow):
             self.te.ensureCursorVisible()
         self.latest_good_cursor = self.te.textCursor()
         self.current_command_start_position = self.latest_good_cursor.position()
+        # self.te.insertPlainText(self.command_buffer)
+        self.command_buffer = ""
+        # self.resume_command_capture()
         self.te.setUndoRedoEnabled(True)
     
     def append(self, message):
