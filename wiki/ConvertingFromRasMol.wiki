@@ -1,4 +1,4 @@
 =Converting From RasMol=
 
 || RasMol Command || Corresponding Cinemol Command(s) || Description ||
-|| center {<expression>} ||  || Set center of rotation ||
+|| center <expression> ||  || Set center of rotation ||
