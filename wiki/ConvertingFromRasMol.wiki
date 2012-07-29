@@ -1,3 +1,5 @@
+#summary How to convert from RasMol
+
 =Converting From RasMol=
 
 || *RasMol Command* || *Corresponding Cinemol Command(s)* || *Description* ||
