@@ -13,6 +13,14 @@ From the Cinemol windows select the menu {{{Window->Show Console}}}
 
 Commands are preceded with "{{{cm.}}}".
 
+== center ==
+
+Shifts the center of rotation and viewing.
+
+Example:
+
+{{{>>> cm.center([1.0, 0.0, 0.3])}}}
+
 == refresh ==
 
 Used in script files to redraw the image.
