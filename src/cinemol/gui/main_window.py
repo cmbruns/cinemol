@@ -7,6 +7,7 @@ from cinemol.movie import Movie, KeyFrame
 from cinemol.model import model
 from cinemol.console_context import cm as command
 from cinemol.rotation import Vec3
+import cinemol.stereo3d as stereo3d
 from PySide import QtCore
 from PySide.QtGui import *
 from PySide.QtCore import *
@@ -20,7 +21,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.console = Console(self)
+        self.console = Console()
         if platform.system() == "Darwin":
             self.ui.menubar.setParent(None) # Show menu on mac
         self.bookmarks = Movie()
@@ -81,9 +82,9 @@ class MainWindow(QMainWindow):
         if file_name == "":
             return
         print file_name;
-        file = QFile(file_name)
-        if file.open(QIODevice.ReadOnly):
-            reader = QXmlStreamReader(file)
+        script_file = QFile(file_name)
+        if script_file.open(QIODevice.ReadOnly):
+            reader = QXmlStreamReader(script_file)
             while (not reader.atEnd()) and (not reader.hasError()):
                 token = reader.readNext()
                 if token == QXmlStreamReader.StartElement:
@@ -93,7 +94,7 @@ class MainWindow(QMainWindow):
                 print "Error reading xml file"
             else:
                 self.statusBar().showMessage("Loaded movie script file" + file_name, 5000)
-            file.close()
+            script_file.close()
     
     @QtCore.Slot(bool)
     def on_actionSave_movie_script_triggered(self, checked):
@@ -109,15 +110,15 @@ before you can save a movie script.""")
                 self.tr("XML files (*.xml)"))
         if file_name == "":
             return
-        file = QFile(file_name)
-        if file.open(QIODevice.WriteOnly):
-            writer = QXmlStreamWriter(file)
+        script_file = QFile(file_name)
+        if script_file.open(QIODevice.WriteOnly):
+            writer = QXmlStreamWriter(script_file)
             writer.setAutoFormatting(True)
             writer.setAutoFormattingIndent(2)
             writer.writeStartDocument()
             self.bookmarks.write_xml(writer)
             writer.writeEndDocument()
-            file.close()
+            script_file.close()
             self.statusBar().showMessage("Saved movie script file" + file_name, 5000)
         
     @QtCore.Slot(bool)
@@ -319,14 +320,18 @@ before you can save a movie.""")
                 self.tr("images(*.jpg *.tif)"))
         if file_name == "":
             return
-        image = self.ui.glCanvas.save_image(file_name)
+        self.ui.glCanvas.save_image(file_name)
 
     @QtCore.Slot()
     def on_actionOpen_triggered(self):
+        settings = QSettings()
+        search_dir = None
+        if settings.contains("pdb_input_dir"):
+            search_dir = settings.value("pdb_input_dir")
         file_name, type = QFileDialog.getOpenFileName(
                 self, 
                 "Open PDB file", 
-                None, 
+                search_dir,
                 self.tr("PDB Files(*.pdb)"))
         if file_name == "":
             return
@@ -357,6 +362,10 @@ before you can save a movie.""")
                         atom.color = [0.5, 0.1, 0.1]
                         atom.radius = 1.52
                     atoms.append(atom)
+            # Remember the directory where we found this
+            if len(atoms) > 1:
+                pdb_input_dir = QFileInfo(file_name).absoluteDir().canonicalPath()
+                settings.setValue("pdb_input_dir", pdb_input_dir)
         print len(atoms), "atoms found"
         if len(atoms) > 0:
             sphere_array = SphereImposterArray(atoms)
@@ -364,10 +373,10 @@ before you can save a movie.""")
             ren.actors = []
             self.bookmarks.clear()
             ren.actors.append(sphere_array)
-            min, max = atoms.box_min_max()
-            new_focus = 0.5 * (max + min)
+            min_pos, max_pos = atoms.box_min_max()
+            new_focus = 0.5 * (max_pos + min_pos)
             ren.camera_position.focus_in_ground = new_focus
-            ren.camera_position.distance_to_focus = 4.0 * (max - min).norm()            
+            ren.camera_position.distance_to_focus = 4.0 * (max_pos - min_pos).norm()            
             ren.update()
         self.statusBar().showMessage("Finished loading PDB file " + file_name,
                              5000)

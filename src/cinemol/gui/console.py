@@ -9,20 +9,37 @@ import cinemol.console_context as console_context
 from PySide import QtCore
 from PySide.QtCore import *
 from PySide.QtGui import *
-import cgi
 from traceback import print_exc
 import code
 import sys
+
+
+class ConsoleStdinStream(object):
+    def __init__(self, console):
+        self.text_edit = console.te
+        self.console = console
+        self.old_stdin = sys.stdin
+        sys.stdin = self
+        
+    def __del__(self):
+        if sys.stdin is self:
+            sys.stdin = self.old_stdin
+            
+    def readline(self):
+        # Avoid hanging when the user types "help()".  This could be more elegant...
+        return "quit\n"
 
 
 class ConsoleStderrStream(object):
     def __init__(self, console):
         self.text_edit = console.te
         self.console = console
+        self.old_stderr = sys.stderr
         sys.stderr = self
         
     def __del__(self):
-        sys.stderr = sys.__stderr__
+        if sys.stderr is self:
+            sys.stderr = self.old_stderr
         
     def write(self, text):
         sys.__stderr__.write(text)
@@ -40,11 +57,13 @@ class ConsoleStdoutStream(object):
     def __init__(self, console):
         self.text_edit = console.te
         self.console = console
+        self.old_stdout = sys.stdout
         sys.stdout = self
         
     def __del__(self):
-        sys.stdout = sys.__stdout__
-        
+        if sys.stdout is self:
+            sys.stdout = self.old_stdout
+
     def write(self, text):
         sys.__stdout__.write(text)
         cursor = self.text_edit.textCursor()
@@ -76,7 +95,7 @@ class Console(QMainWindow):
         self.append("Welcome to the Cinemol python console!")
         # This header text is intended to look just like the standard python banner
         self.append("Python " + sys.version + " on " + sys.platform)
-        self.append('Type "help", "copyright", "credits" or "license" for more information.')
+        # self.append('Type "help", "copyright", "credits" or "license" for more information.')
         self.append("") # Need return before prompt
         # make cursor about the size of a letter
         cursor_size = QFontMetrics(self.te.font()).width("m")
@@ -93,6 +112,7 @@ class Console(QMainWindow):
         self.place_new_prompt()
         self.stdout = ConsoleStdoutStream(self)
         self.stderr = ConsoleStderrStream(self)
+        self.stdin = ConsoleStdinStream(self)
         
     def pause_command_capture(self):
         self.command_buffer = self.get_current_command()
@@ -319,7 +339,6 @@ class CommandRing:
             return provisional_command
         self.current_command_index = self._decrement(self.current_command_index)
         return self._commands[self.current_command_index]
-    
     
     def _increment(self, val):
         "circular increment"
