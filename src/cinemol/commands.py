@@ -4,16 +4,20 @@ Created on Jul 29, 2012
 @author: cmbruns
 '''
 
-from rotation import Vec3
+from cinemol.rotation import Vec3
+from cinemol.model import model
 
 class Commands(object):
     "Command dispatcher for Cinemol command line console and menus"
-    def __init__(self, app):
+    def __init__(self):
         "Create a new Commands object.  This should be called only once, by the CinemolApp()"
+        self.atoms = model.atoms
+        
+    def _set_app(self, app):
         self.app = app
         self.main_window = app.mainWin
         self.renderer = app.renderer
-        self.camera = self.renderer.camera_position        
+        self.camera = self.renderer.camera_position
 
     @property
     def focus(self):
@@ -26,7 +30,11 @@ class Commands(object):
 
     def center(self, pos):
         "Shift the center of rotation and viewing to pos, in nanometers"
-        self.focus = pos
+        try:
+            self.focus = pos
+        except TypeError:
+            # Not a vector?  Must be an atom expression
+            self.focus = self.atoms.select(pos).box_center()
     centre = center
         
     def refresh(self):

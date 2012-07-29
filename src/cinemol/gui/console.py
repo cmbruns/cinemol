@@ -140,6 +140,8 @@ class Console(QMainWindow):
                 self.te.setTextCursor(newCursor)
         elif event.type() == QEvent.KeyPress:
             keyEvent = event
+            if self.prompt_is_dirty:
+                self.place_new_prompt(True)
             # CONTROL-keystrokes
             key = keyEvent.key()
             if keyEvent.modifiers() & Qt.ControlModifier:

@@ -18,7 +18,7 @@ class CinemolApp(object):
         self.renderer.actors.append(FiveBallScene())
         # self.renderer.actors.append(TeapotActor())
         self.mainWin.ui.glCanvas.set_gl_renderer(self.renderer)
-        console_context.cm = Commands(self)
+        console_context.cm._set_app(self)
         self.mainWin.show()
         sys.exit(self.app.exec_())
 
