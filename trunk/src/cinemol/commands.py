@@ -27,6 +27,7 @@ class Commands(object):
     def center(self, pos):
         "Shift the center of rotation and viewing to pos, in nanometers"
         self.focus = pos
+    centre = center
         
     def refresh(self):
         "Used in script files to redraw the image"
