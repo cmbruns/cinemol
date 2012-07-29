@@ -119,8 +119,8 @@ class SphereImposterArray(QObject):
     def __del__(self):
         glDeleteBuffers(1, self.vertex_buffer)
         glDeleteBuffers(1, self.color_buffer)
-        glDeleteBuffers(1, self.index_buffer)
         glDeleteBuffers(1, self.normal_buffer)
+        glDeleteBuffers(1, self.index_buffer)
         
     def init_gl(self):
         if self.is_initialized:
