@@ -5,6 +5,7 @@ Created on Jul 22, 2012
 '''
 
 from console_ui import Ui_ConsoleWindow
+import cinemol.console_context as console_context
 from PySide import QtCore
 from PySide.QtCore import *
 from PySide.QtGui import *
@@ -32,6 +33,7 @@ class ConsoleStderrStream(object):
         cursor.insertText(text)
         self.text_edit.setTextCursor(cursor)
         self.text_edit.ensureCursorVisible()
+        self.console.prompt_is_dirty = True
 
 
 class ConsoleStdoutStream(object):
@@ -49,6 +51,7 @@ class ConsoleStdoutStream(object):
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(text)
         self.text_edit.setTextCursor(cursor)
+        self.console.prompt_is_dirty = True
 
 
 class Console(QMainWindow):
@@ -62,6 +65,7 @@ class Console(QMainWindow):
         QMainWindow.__init__(self, parent)
         self.ui = Ui_ConsoleWindow()
         self.ui.setupUi(self)
+        self.prompt_is_dirty = True
         self.regular_prompt = ">>> "
         self.more_prompt = "... "
         self.prompt = self.regular_prompt
@@ -201,7 +205,7 @@ class Console(QMainWindow):
                     self.multiline_command = command
                     self.prompt = self.more_prompt
                 else:
-                    exec co in globals()
+                    exec co in console_context._context()
                     self.multiline_command = ""
             except: # Exception e:
                 print_exc()
@@ -231,6 +235,7 @@ class Console(QMainWindow):
         self.command_buffer = ""
         # self.resume_command_capture()
         self.te.setUndoRedoEnabled(True)
+        self.prompt_is_dirty = False
     
     def append(self, message):
         self.ui.plainTextEdit.appendPlainText(message)

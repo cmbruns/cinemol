@@ -8,4 +8,4 @@ sys.path = sys.path[1:]
 sys.path.append(first)
 
 from cinemol.cinemol_app import CinemolApp
-CinemolApp()
+CinemolApp().launch()

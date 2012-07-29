@@ -1,19 +1,27 @@
 from gui.main_window import MainWindow
+import console_context
+from commands import Commands
 from scenes import FiveBallScene, TeapotActor
 from cinemol_renderer import CinemolRenderer
 from PySide.QtGui import QApplication
 import sys
 
-class CinemolApp(QApplication):
+
+class CinemolApp(object):
     def __init__(self):
-        QApplication.__init__(self, sys.argv)
-        mainWin = MainWindow()
-        renderer = CinemolRenderer()
-        renderer.actors.append(FiveBallScene())
-        # renderer.actors.append(TeapotActor())
-        mainWin.ui.glCanvas.set_gl_renderer(renderer)
-        mainWin.show()
-        sys.exit(self.exec_())
-        
+        pass
+    
+    def launch(self):
+        self.app = QApplication(sys.argv)
+        self.mainWin = MainWindow()
+        self.renderer = CinemolRenderer()
+        self.renderer.actors.append(FiveBallScene())
+        # self.renderer.actors.append(TeapotActor())
+        self.mainWin.ui.glCanvas.set_gl_renderer(self.renderer)
+        console_context.cm = Commands(self)
+        self.mainWin.show()
+        sys.exit(self.app.exec_())
+
+
 if __name__ == "__main__":
-    CinemolApp()
+    CinemolApp().launch()
