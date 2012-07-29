@@ -4,6 +4,7 @@ from atom_size_dialog import AtomSizeDialog
 from cinemol.gui.console import Console
 from cinemol.imposter import SphereImposterArray, sphereImposterShaderProgram
 from cinemol.movie import Movie, KeyFrame
+from cinemol.model import model
 from cinemol.rotation import Vec3
 from PySide import QtCore
 from PySide.QtGui import *
@@ -324,7 +325,8 @@ before you can save a movie.""")
                 self.tr("PDB Files(*.pdb)"))
         if file_name == "":
             return
-        atoms = []
+        atoms = model.atoms
+        atoms[:] = []
         with open(file_name, 'r') as f:
             print file_name
             for line in f:
@@ -357,21 +359,8 @@ before you can save a movie.""")
             ren.actors = []
             self.bookmarks.clear()
             ren.actors.append(sphere_array)
-            atom_count = 0
-            for atom in atoms:
-                atom_count += 1
-                if 1 == atom_count:
-                    # keep track of molecule bounds
-                    min = Vec3(atom[:])
-                    max = Vec3(atom[:])
-                else:
-                    for i in range(3):
-                        if atom[i] > max[i]:
-                            max[i] = atom[i]
-                        if atom[i] < min[i]:
-                            min[i] = atom[i]
-            # center on molecule
-            new_focus = 0.5 * (min + max)
+            min, max = atoms.box_min_max()
+            new_focus = 0.5 * (max + min)
             ren.camera_position.focus_in_ground = new_focus
             ren.camera_position.distance_to_focus = 4.0 * (max - min).norm()            
             ren.update()
