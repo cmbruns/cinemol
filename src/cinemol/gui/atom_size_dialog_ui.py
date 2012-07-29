@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'atom_size_dialog.ui'
 #
-# Created: Wed Jul 25 01:25:33 2012
+# Created: Sun Jul 29 19:25:35 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_AtomSizeDialog(object):
     def setupUi(self, AtomSizeDialog):
         AtomSizeDialog.setObjectName("AtomSizeDialog")
-        AtomSizeDialog.resize(225, 115)
+        AtomSizeDialog.resize(245, 115)
         self.verticalLayout = QtGui.QVBoxLayout(AtomSizeDialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.widget = QtGui.QWidget(AtomSizeDialog)
@@ -25,6 +25,7 @@ class Ui_AtomSizeDialog(object):
         self.horizontalLayout.addWidget(self.label)
         self.doubleSpinBox = QtGui.QDoubleSpinBox(self.widget)
         self.doubleSpinBox.setMinimum(0.01)
+        self.doubleSpinBox.setMaximum(1.5)
         self.doubleSpinBox.setSingleStep(0.05)
         self.doubleSpinBox.setProperty("value", 1.0)
         self.doubleSpinBox.setObjectName("doubleSpinBox")

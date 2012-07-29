@@ -101,16 +101,29 @@ class Console(QMainWindow):
         self.current_command_start_position = self.latest_good_cursor.position()
         # self.latest_good_cursor = None
 
+    # Replace current command with a new one
+    def replace_current_command(self, newCommand):
+        cursor = self.te.textCursor()
+        cursor.setPosition(self.current_command_start_position, QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+        cursor.insertText(newCommand)
+
     def resume_command_capture(self):
         self.te.moveCursor(QTextCursor.End)
         self.latest_good_cursor = self.te.textCursor()
         self.current_command_start_position = self.latest_good_cursor.position()
         
     def show_previous_command(self):
-        pass # TODO
+        provisional_command = self.get_current_command()
+        previous_command = self.command_ring.get_previous_command(provisional_command)
+        if previous_command != provisional_command:
+            self.replace_current_command(previous_command)
     
     def show_next_command(self):
-        pass # TODO
+        provisional_command = self.get_current_command()
+        next_command = self.command_ring.get_next_command(provisional_command)
+        if next_command != provisional_command:
+            self.replace_current_command(next_command)
 
     def cursor_is_in_editing_region(self, cursor):
         # Want to be to the right of the prompt...
@@ -279,10 +292,35 @@ class CommandRing:
         self.newest_command_index = self._increment(self.newest_command_index)
         if (self.oldest_command_index == self.newest_command_index):
             self.oldest_command_index = self._increment(self.oldest_command_index)
-        self.current_command_index = None
+        self.current_command_index = None # one past latest
         self._commands[self.newest_command_index] = command
         return True
         
+    def get_next_command(self, provisional_command):
+        if self.newest_command_index is None: # no commands yet
+            return provisional_command
+        if self.current_command_index is None: # one past newest
+            return provisional_command
+        if self.current_command_index == self.newest_command_index:
+            self.current_command_index = None
+            return self.stored_provisional_command
+        self.current_command_index = self._increment(self.current_command_index)
+        return self._commands[self.current_command_index]
+
+    def get_previous_command(self, provisional_command):
+        if self.newest_command_index is None: # no commands yet
+            return provisional_command
+        if self.current_command_index is None: # one past newest
+            self.current_command_index = self.newest_command_index
+            self.stored_provisional_command = provisional_command
+            return self._commands[self.current_command_index]
+        # Sorry, you cannot get the very oldest command.
+        if self.current_command_index == self.oldest_command_index:
+            return provisional_command
+        self.current_command_index = self._decrement(self.current_command_index)
+        return self._commands[self.current_command_index]
+    
+    
     def _increment(self, val):
         "circular increment"
         return (val+1) % len(self._commands)
