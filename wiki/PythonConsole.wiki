@@ -17,9 +17,13 @@ Commands are preceded with "{{{cm.}}}".
 
 Shifts the center of rotation and viewing.
 
-Example:
+Examples:
 
+====Center view about an absolute point====
 {{{>>> cm.center([1.0, 0.0, 0.3])}}}
+
+====Center view on the middle of all atoms====
+{{{>>> cm.center("*")}}}
 
 == refresh ==
 
