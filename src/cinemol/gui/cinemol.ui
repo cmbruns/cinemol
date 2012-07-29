@@ -92,6 +92,7 @@
     <addaction name="menuBookmarks"/>
     <addaction name="menuStereo_3D"/>
     <addaction name="actionAtom_size"/>
+    <addaction name="actionReset_center"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -328,7 +329,12 @@
   </action>
   <action name="actionAtom_size">
    <property name="text">
-    <string>Atom size...</string>
+    <string>Adjust atom size...</string>
+   </property>
+  </action>
+  <action name="actionReset_center">
+   <property name="text">
+    <string>Recenter view</string>
    </property>
   </action>
  </widget>
