@@ -5,6 +5,7 @@ from cinemol.gui.console import Console
 from cinemol.imposter import SphereImposterArray, sphereImposterShaderProgram
 from cinemol.movie import Movie, KeyFrame
 from cinemol.model import model
+from cinemol.console_context import cm as command
 from cinemol.rotation import Vec3
 from PySide import QtCore
 from PySide.QtGui import *
@@ -52,6 +53,10 @@ class MainWindow(QMainWindow):
         sphereImposterShaderProgram.atom_scale = s
         self.ui.glCanvas.update()
 
+    @QtCore.Slot(bool)
+    def on_actionReset_center_triggered(self, checked):
+        command.center("*")
+        
     @QtCore.Slot(bool)
     def on_actionAtom_size_triggered(self, checked):
         dialog = self.atom_size_dialog

@@ -34,7 +34,11 @@ class Commands(object):
             self.focus = pos
         except TypeError:
             # Not a vector?  Must be an atom expression
-            self.focus = self.atoms.select(pos).box_center()
+            new_focus = Vec3([0,0,0])
+            atoms = self.atoms.select(pos)
+            if len(atoms) > 0:
+                new_focus = atoms.box_center()
+            self.focus = new_focus
     centre = center
         
     def refresh(self):
