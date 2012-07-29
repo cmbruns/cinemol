@@ -28,7 +28,7 @@ class Commands(object):
         self.camera.focus_in_ground = Vec3(value)
         self.refresh()
 
-    def center(self, pos):
+    def center(self, pos="*"):
         "Shift the center of rotation and viewing to pos, in nanometers"
         try:
             self.focus = pos
