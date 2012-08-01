@@ -350,16 +350,16 @@ before you can save a movie.""")
                     atom.color = [0.5, 0, 0.5]
                     atom.radius = 1.0
                     if (atom.name[1:2] == 'H'):
-                        atom.color = [0.6, 0.6, 0.6]
+                        atom.color = [1.0, 1.0, 1.0]
                         atom.radius = 1.2
                     if (atom.name[1:2] == 'C'):
-                        atom.color = [0.4, 0.4, 0.4]
+                        atom.color = [0.5, 0.5, 0.5]
                         atom.radius = 1.70
                     if (atom.name[1:2] == 'N'):
-                        atom.color = [0.2, 0.2, 0.6]
-                        atom.radius = 1.55
+                        atom.color = [0.1, 0.1, 0.8]
+                        atom.radius = 1.555
                     if (atom.name[1:2] == 'O'):
-                        atom.color = [0.5, 0.1, 0.1]
+                        atom.color = [0.8, 0.05, 0.05]
                         atom.radius = 1.52
                     atoms.append(atom)
             # Remember the directory where we found this

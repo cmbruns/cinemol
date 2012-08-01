@@ -53,7 +53,7 @@ class FiveBallScene(Actor):
         Actor.__init__(self)
         self.glut_sphere = GlutSphereActor()
         self.glut_cylinder = GlutCylinderActor()
-        self.color = [0.2, 0.2, 0.5]
+        self.color = [0.15, 0.15, 0.80]
         sphere = Vec3([0,0,0])
         sphere.center = Vec3([0,0,0])
         sphere.radius = 1.0
