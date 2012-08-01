@@ -6,6 +6,8 @@ from OpenGL.GL import *
 import numpy
 from math import sqrt
 import os
+from OpenGL.GL.EXT.texture_sRGB import *
+
 
 class SkyBoxShaderProgram(shader.ShaderProgram):
     def __init__(self):
@@ -67,28 +69,29 @@ class SkyBox:
         glBindTexture(GL_TEXTURE_CUBE_MAP, self.texture_id)
         # Define all 6 faces
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)
+        rgba_format = GL_SRGB8_ALPHA8_EXT
         if True:
             img = fname_to_qimage("miramar_lf.tif")
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, img.width(), img.height(), 
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, rgba_format, img.width(), img.height(), 
                          0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_ft.tif"))
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8, img.width(), img.height(), 
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, rgba_format, img.width(), img.height(), 
                          0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_bk.tif"))
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8, img.width(), img.height(), 
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, rgba_format, img.width(), img.height(), 
                          0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_dn.tif"))
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8, img.width(), img.height(), 
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, rgba_format, img.width(), img.height(), 
                          0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_up.tif"))
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, img.width(), img.height(), 
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, rgba_format, img.width(), img.height(), 
                          0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_rt.tif"))
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, img.width(), img.height(), 
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, rgba_format, img.width(), img.height(), 
                          0, GL_RGBA, GL_UNSIGNED_BYTE, fname_to_tex("miramar_lf.tif"))
         else:
             test_img = numpy.array(256 * [50,50,128,255], 'uint8')
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, rgba_format, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, rgba_format, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, rgba_format, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, rgba_format, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, rgba_format, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, rgba_format, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_img)
         glDisable(GL_TEXTURE_CUBE_MAP)
         self.shader.init_gl()
         self.is_initialized = True
