@@ -11,5 +11,6 @@ class CinemolModel(object):
     def __init__(self):
         self.atoms = atom.AtomList()
         self.bonds = atom.BondList()
+        self.selected_atoms = self.atoms
 
 model = CinemolModel()

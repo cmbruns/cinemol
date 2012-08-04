@@ -34,7 +34,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
             glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS)
         if glInitFramebufferSrgbEXT():
             glEnable(GL_FRAMEBUFFER_SRGB_EXT)
-        print glGetString(GL_EXTENSIONS)
+        # print glGetString(GL_EXTENSIONS)
 
         glEnable(GL_DEPTH_TEST)
         bg = self.background_color

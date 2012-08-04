@@ -5,26 +5,7 @@ Created on Jul 29, 2012
 '''
 
 from cinemol.rotation import Vec3
-
-class AtomExpression(object):
-    def __init__(self, expression):
-        self.expression = expression
-        if "*" == expression:
-            self.always_matches = True
-            return
-        if "" == expression:
-            self.never_matches = True
-            return
-        raise SyntaxError
-
-    def matches(self, atom):
-        if self.always_matches:
-            return True
-        if self.never_matches:
-            return False
-        # TODO
-        return False
-
+from cinemol.atom_expression import AtomExpression
 
 class Atom(object):
     pass
