@@ -4,9 +4,16 @@ Created on Jul 29, 2012
 @author: cmbruns
 '''
 
+import cinemol.element as element
 from cinemol.rotation import Vec3
 from cinemol.atom_expression import AtomExpression
+import gzip
 import re
+
+# ATOM      1  O5' RU5 A   1     144.310 223.220  60.580  1.00  0.00
+# 000000000111111111122222222223333333333444444444455555555556666666666
+# 123456789012345678901234567890123456789012345678901234567890123456789
+# RRRRRRSSSSS AAAALRRR CNNNNN   XXXXXXXXYYYYYYYYZZZZZZZZOOOOOOTTTTTT
 
 pdb_atom_regex = re.compile(r"""^
     (?P<record_name>(?:ATOM\s\s)|(?:HETATM))
@@ -47,41 +54,46 @@ class Atom(object):
             x = nanometers_from_angstroms * float(d['x'])
             y = nanometers_from_angstroms * float(d['y'])
             z = nanometers_from_angstroms * float(d['z'])
-            self.center = Vec3(x, y, z)
+            self.center = Vec3([x, y, z])
+            # TODO - element, radius, color
         except:
-            raise SyntaxError("Bad PDB atom line")
+            raise SyntaxError("Bad PDB atom line: " + line)
         # TODO - vdw_radius and element
         
 
 
 class AtomList(list):
-    def select(self, expression):
-        expr = AtomExpression(expression)
-        result = AtomList()
-        result[:] = filter(expr.matches, self)
-        return result   
-    
     def box_min_max(self):
         if len(self) < 1:
             return None, None
-        min = Vec3(self[0].center[:])
-        max = Vec3(self[0].center[:])
+        box_min = Vec3(self[0].center[:])
+        box_max = Vec3(self[0].center[:])
         for atom in self:
             for i in range(3):
-                if atom[i] > max[i]:
-                    max[i] = atom[i]
-                if atom[i] < min[i]:
-                    min[i] = atom[i]
-        return min, max
+                if atom[i] > box_max[i]:
+                    box_max[i] = atom[i]
+                if atom[i] < box_min[i]:
+                    box_min[i] = atom[i]
+        return box_min, box_max
 
     def box_center(self):
         if len(self) < 1:
             return None
-        min, max = self.box_min_max()
-        return 0.5 * (min + max)
+        box_min, box_max = self.box_min_max()
+        return 0.5 * (box_min + box_max)
     
     def load(self, file_name):
-        with open(file_name, 'r') as f:
+        # Start by assuming its a gzipped file
+        fh = gzip.open(file_name, 'rb')
+        start_pos = fh.tell()
+        try:
+            fh.read(1)
+            fh.seek(start_pos)
+        except IOError:
+            # OK, maybe its not a gzipped file
+            fh.close()
+            fh = open(file_name, 'r')
+        with fh as f:
             self.load_stream(f)
             
     def load_stream(self, stream):
@@ -110,6 +122,12 @@ class AtomList(list):
                     atom.color = [0.8, 0.05, 0.05]
                     atom.radius = 1.52
                 self.append(atom)
+
+    def select(self, expression):
+        expr = AtomExpression(expression)
+        result = AtomList()
+        result[:] = filter(expr.matches, self)
+        return result
 
 
 class BondList(list):
