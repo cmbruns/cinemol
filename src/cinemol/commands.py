@@ -6,12 +6,13 @@ Created on Jul 29, 2012
 
 from cinemol.rotation import Vec3
 from cinemol.model import model
+from cinemol.atom_expression import AtomExpression
 
 class Commands(object):
     "Command dispatcher for Cinemol command line console and menus"
     def __init__(self):
         "Create a new Commands object.  This should be called only once, by the CinemolApp()"
-        self.atoms = model.atoms
+        pass
         
     def _set_app(self, app):
         self.app = app
@@ -35,7 +36,7 @@ class Commands(object):
         except TypeError:
             # Not a vector?  Must be an atom expression
             new_focus = Vec3([0,0,0])
-            atoms = self.atoms.select(pos)
+            atoms = model.atoms.select(pos)
             if len(atoms) > 0:
                 new_focus = atoms.box_center()
             self.focus = new_focus
@@ -44,3 +45,8 @@ class Commands(object):
     def refresh(self):
         "Used in script files to redraw the image"
         self.renderer.update()
+        
+    def select(self, atom_expression):
+        expr = AtomExpression(atom_expression)
+        model.selected_atoms = model.atoms.select(expr)
+        
