@@ -8,6 +8,17 @@ import cinemol.element as element
 import math
 
 
+class Color(list):
+    """
+    Color is a list of three sRGB color components.
+    With an additional "linear" member with a gamma of 2.2 applied.
+    """
+    def __init__(self, components):
+        self[:] = components # sRGB scale (brighter)
+        self.linear = list() # linear scale for opengl (darker)
+        for x in self:
+            self.linear.append(math.pow(x, 2.2))
+
 def from_hex(hex_string):
     shift = 8
     if len(hex_string) < 6:
@@ -21,19 +32,19 @@ def from_hex(hex_string):
     green = (imax & i) / fmax
     i = i >> shift
     red = (imax & i) / fmax
-    return [red, green, blue]
+    return Color([red, green, blue])
 
 
 # RGB primaries
-black   = [0.0, 0.0, 0.0]
-blue    = [0.0, 0.0, 1.0]
-cyan    = [0.0, 1.0, 1.0]
-# green   = [0.0, 1.0, 0.0] # conflicts with HTML green
-gray    = [0.5, 0.5, 0.5]
-magenta = [1.0, 0.0, 1.0]
-red     = [1.0, 0.0, 0.0]
-white   = [1.0, 1.0, 1.0]
-yellow  = [1.0, 1.0, 0.0]
+black   = Color([0.0, 0.0, 0.0])
+blue    = Color([0.0, 0.0, 1.0])
+cyan    = Color([0.0, 1.0, 1.0])
+# green   = Color([0.0, 1.0, 0.0]) # conflicts with HTML green
+gray    = Color([0.5, 0.5, 0.5])
+magenta = Color([1.0, 0.0, 1.0])
+red     = Color([1.0, 0.0, 0.0])
+white   = Color([1.0, 1.0, 1.0])
+yellow  = Color([1.0, 1.0, 0.0])
 
 # HTML 4.01 standard has only 16 "official" colors
 # Several of those are the primary colors above
