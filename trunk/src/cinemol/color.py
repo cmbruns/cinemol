@@ -200,13 +200,14 @@ YellowGreen = from_hex("#9ACD32")
 class ColorByElement(object):
     "Color atoms by the atom type"
     def __init__(self):
-        self.default_color = magenta
+        self.default_color = from_hex("#FF1493")
         self._colors = dict()
+        # Rasmol CPK colors
         self._add(element.hydrogen, white)
-        self._add(element.carbon, gray)
-        self._add(element.nitrogen, blue)
-        self._add(element.oxygen, red)
-        self._add(element.sulfur, red)
+        self._add(element.carbon, from_hex("#C8C8C8"))
+        self._add(element.nitrogen, from_hex("#8F8FFF"))
+        self._add(element.oxygen, from_hex('#F00000'))
+        self._add(element.sulfur, from_hex("#FFC832"))
         
     def _add(self, e, color):
         self._colors[e.atomic_number] = color
