@@ -35,31 +35,6 @@ def from_hex(hex_string):
     return Color([red, green, blue])
 
 
-# RGB primaries
-black   = Color([0.0, 0.0, 0.0])
-blue    = Color([0.0, 0.0, 1.0])
-cyan    = Color([0.0, 1.0, 1.0])
-# green   = Color([0.0, 1.0, 0.0]) # conflicts with HTML green
-gray    = Color([0.5, 0.5, 0.5])
-magenta = Color([1.0, 0.0, 1.0])
-red     = Color([1.0, 0.0, 0.0])
-white   = Color([1.0, 1.0, 1.0])
-yellow  = Color([1.0, 1.0, 0.0])
-
-# HTML 4.01 standard has only 16 "official" colors
-# Several of those are the primary colors above
-aqua    = cyan
-fuchsia = magenta
-green   = from_hex("#008000")
-grey    = gray
-lime    = from_hex("#00FF00")
-maroon  = from_hex("#800000")
-navy    = from_hex("#000080")
-olive   = from_hex("#808000")
-purple  = from_hex("#800080")
-silver  = from_hex("#C0C0C0")
-teal    = from_hex("#008080")
-
 alice_blue = from_hex("#f0f8ff")
 antique_white = from_hex("#faebd7")
 aqua = from_hex("#00ffff")
@@ -208,20 +183,74 @@ white_smoke = from_hex("#f5f5f5")
 yellow = from_hex("#ffff00")
 yellow_green = from_hex("#9acd32")
 
+
 class ColorByElement(object):
     "Color atoms by the atom type"
     def __init__(self):
         self.default_color = from_hex("#FF1493")
         self._colors = dict()
-        # Rasmol CPK colors
-        self._add(element.hydrogen, white)
-        self._add(element.carbon, from_hex("#C8C8C8"))
-        self._add(element.nitrogen, from_hex("#8F8FFF"))
-        self._add(element.oxygen, from_hex('#F00000'))
-        self._add(element.sulfur, from_hex("#FFC832"))
         
     def _add(self, e, color):
         self._colors[e.atomic_number] = color
         
     def color(self, atom):
         return self._colors.get(atom.element.atomic_number, self.default_color)
+
+
+class ColorByRasmolCpk(ColorByElement):
+    def __init__(self):
+        ColorByElement.__init__(self)
+        # Rasmol CPK colors original darker version
+        self._add(element.hydrogen, white)
+        self._add(element.helium, pink)
+        self._add(element.lithium, fire_brick)
+        self._add(element.boron, lime)      
+        self._add(element.carbon, from_hex("#C8C8C8"))
+        self._add(element.nitrogen, from_hex("#8F8FFF"))
+        self._add(element.oxygen, from_hex('#F00000'))
+        self._add(element.fluorine, goldenrod)
+        self._add(element.sodium, blue)
+        self._add(element.magnesium, forest_green)
+        self._add(element.aluminum, from_hex("#808090"))
+        self._add(element.silicon, goldenrod)
+        self._add(element.phosphorus, orange)      
+        self._add(element.sulfur, from_hex("#FFC832"))
+        self._add(element.chlorine, lime)
+        self._add(element.calcium, from_hex("#808090"))
+        self._add(element.titanium, from_hex("#808090"))
+        self._add(element.chromium, from_hex("#808090"))
+        self._add(element.manganese, from_hex("#808090"))
+        self._add(element.iron, orange)
+        self._add(element.nickel, brown)
+        self._add(element.copper, brown)
+        self._add(element.zinc, brown)
+        self._add(element.bromine, brown)
+        self._add(element.silver, from_hex("#808090"))
+        self._add(element.iodine, from_hex("#A020F0"))
+        self._add(element.barium, orange)
+        self._add(element.gold, goldenrod)
+
+
+class ColorByRasmolCpkNewLighter(ColorByRasmolCpk):
+    def __init__(self):
+        ColorByElement.__init__(self)
+        # Rasmol CPK colors "new CPK brighter version"
+        self._add(element.carbon, light_gray)
+        self._add(element.nitrogen, from_hex("#87CEE6"))
+        self._add(element.oxygen, red)
+        self._add(element.aluminum, dim_gray)
+        self._add(element.phosphorus, from_hex("#FFAA00"))      
+        self._add(element.sulfur, yellow)
+        self._add(element.calcium, dim_gray)
+        self._add(element.titanium, dim_gray)
+        self._add(element.chromium, dim_gray)
+        self._add(element.manganese, dim_gray)
+        self._add(element.iron, from_hex("#FFAA00"))      
+        self._add(element.nickel, from_hex("#802828"))      
+        self._add(element.copper, from_hex("#802828"))      
+        self._add(element.zinc, from_hex("#802828"))      
+        self._add(element.bromine, from_hex("#802828"))      
+        self._add(element.silver, dim_gray)
+        self._add(element.barium, from_hex("#FFAA00"))      
+
+
