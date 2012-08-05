@@ -135,5 +135,7 @@ unknown       = Element( 0, "??", "unknown element")
 
 caesium = cesium
 aluminium = aluminum
+sulphur = sulfur
+ununnilium = darmstadtium
 
 
