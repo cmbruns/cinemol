@@ -48,10 +48,16 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionRun_script"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
   </widget>
+  <action name="actionRun_script">
+   <property name="text">
+    <string>Run script...</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
