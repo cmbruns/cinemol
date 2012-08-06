@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'console.ui'
 #
-# Created: Sun Jul 22 20:15:05 2012
+# Created: Mon Aug 06 01:28:20 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,7 +33,17 @@ class Ui_ConsoleWindow(object):
         self.menuEdit.setObjectName("menuEdit")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuOpen_recent = QtGui.QMenu(self.menuFile)
+        self.menuOpen_recent.setObjectName("menuOpen_recent")
         ConsoleWindow.setMenuBar(self.menubar)
+        self.actionRun_script = QtGui.QAction(ConsoleWindow)
+        self.actionRun_script.setObjectName("actionRun_script")
+        self.actionRun_recent = QtGui.QAction(ConsoleWindow)
+        self.actionRun_recent.setObjectName("actionRun_recent")
+        self.actionFoo = QtGui.QAction(ConsoleWindow)
+        self.actionFoo.setObjectName("actionFoo")
+        self.menuFile.addAction(self.actionRun_script)
+        self.menuFile.addAction(self.menuOpen_recent.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
 
@@ -44,4 +54,8 @@ class Ui_ConsoleWindow(object):
         ConsoleWindow.setWindowTitle(QtGui.QApplication.translate("ConsoleWindow", "Cinemol command window", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("ConsoleWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("ConsoleWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuOpen_recent.setTitle(QtGui.QApplication.translate("ConsoleWindow", "Open recent", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRun_script.setText(QtGui.QApplication.translate("ConsoleWindow", "Run script...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRun_recent.setText(QtGui.QApplication.translate("ConsoleWindow", "Run recent", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFoo.setText(QtGui.QApplication.translate("ConsoleWindow", "Foo", None, QtGui.QApplication.UnicodeUTF8))
 
