@@ -48,7 +48,13 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuOpen_recent">
+     <property name="title">
+      <string>Open recent</string>
+     </property>
+    </widget>
     <addaction name="actionRun_script"/>
+    <addaction name="menuOpen_recent"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -56,6 +62,16 @@
   <action name="actionRun_script">
    <property name="text">
     <string>Run script...</string>
+   </property>
+  </action>
+  <action name="actionRun_recent">
+   <property name="text">
+    <string>Run recent</string>
+   </property>
+  </action>
+  <action name="actionFoo">
+   <property name="text">
+    <string>Foo</string>
    </property>
   </action>
  </widget>

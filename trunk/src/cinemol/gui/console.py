@@ -6,12 +6,14 @@ Created on Jul 22, 2012
 
 from console_ui import Ui_ConsoleWindow
 import cinemol.console_context as console_context
+import cinemol.gui.recent_file as recent_file
 from PySide import QtCore
 from PySide.QtCore import *
 from PySide.QtGui import *
 from traceback import print_exc
 import code
 import sys
+import os
 
 
 class ConsoleStdinStream(object):
@@ -113,6 +115,18 @@ class Console(QMainWindow):
         self.stdout = ConsoleStdoutStream(self)
         self.stderr = ConsoleStderrStream(self)
         self.stdin = ConsoleStdinStream(self)
+        self.interactive_console = code.InteractiveConsole()
+        self.recent_files = recent_file.RecentFileList(self.run_script_file, "input_script_files")
+        self.update_recent_files()
+        
+    def update_recent_files(self):
+        if len(self.recent_files) > 0:
+            self.ui.menuOpen_recent.clear()
+            for a in self.recent_files:
+                self.ui.menuOpen_recent.addAction(a)
+            self.ui.menuOpen_recent.setVisible(True)
+        else:
+            self.ui.menuOpen_recent.setVisible(False)        
         
     def pause_command_capture(self):
         self.command_buffer = self.get_current_command()
@@ -212,7 +226,7 @@ class Console(QMainWindow):
                         self.te.setTextCursor(self.latest_good_cursor.position)
         return QMainWindow.eventFilter(self, watched, event)
 
-    def run_console_command(self):
+    def run_console_command_not_working_with_context(self):
         # Clear undo/redo buffer, we don't want prompts and output in there.
         self.te.setUndoRedoEnabled(False)
         # Scroll down after command, if and only if bottom is visible now.
@@ -220,32 +234,20 @@ class Console(QMainWindow):
         command = self.get_current_command()
         self.command_buffer = ""
         self.command_ring.add_history(command)
-        if len(self.multiline_command) > 0:
-            # multi-line command can only be ended with a blank line.
-            if len(command) == 0:
-                command = self.multiline_command + "\n" # execute it now
-            else:
-                self.multiline_command = self.multiline_command + "\n" + command
-                command = "" # skip execution until next time
-        # Add carriage return, so output will appear on subsequent line.
-        # (It would be too late if we waited for plainTextEdit
-        #  to process the <Return>)
-        self.te.moveCursor(QTextCursor.End)
-        self.append("")  # We consumed the key event, so we have to add the newline.
-        if len(command) > 0:
+        self.append("")
+        if self.interactive_console.push(command):
+            self.prompt = self.more_prompt
+        else:
             self.prompt = self.regular_prompt
-            try:
-                co = code.compile_command(command, filename="<console>")
-                if co is None: # incomplete command
-                    self.multiline_command = command
-                    self.prompt = self.more_prompt
-                else:
-                    exec co in console_context._context()
-                    self.multiline_command = ""
-            except: # Exception e:
-                print_exc()
-                self.multiline_command = ""
         self.place_new_prompt(end_is_visible)
+
+    def run_console_command(self):
+        # Scroll down after command, if and only if bottom is visible now.
+        end_is_visible = self.te.document().lastBlock().isVisible()
+        command = self.get_current_command()
+        self.command_buffer = ""
+        self.command_ring.add_history(command)
+        self.run_command_string(command, end_is_visible)
 
     def get_current_command(self):
         command = ""
@@ -275,6 +277,62 @@ class Console(QMainWindow):
     def append(self, message):
         self.ui.plainTextEdit.appendPlainText(message)
 
+    def run_command_string(self, command, end_is_visible = True):
+        "Used for both interactive commands and script files"
+        # Clear undo/redo buffer, we don't want prompts and output in there.
+        self.te.setUndoRedoEnabled(False)
+        if len(self.multiline_command) > 0:
+            # multi-line command can only be ended with a blank line.
+            if len(command) == 0:
+                command = self.multiline_command + "\n" # execute it now
+            else:
+                self.multiline_command = self.multiline_command + "\n" + command
+                command = "" # skip execution until next time
+        # Add carriage return, so output will appear on subsequent line.
+        # (It would be too late if we waited for plainTextEdit
+        #  to process the <Return>)
+        self.te.moveCursor(QTextCursor.End)
+        self.append("")  # We consumed the key event, so we have to add the newline.
+        if len(command) > 0:
+            self.prompt = self.regular_prompt
+            try:
+                co = code.compile_command(command, filename="<console>")
+                if co is None: # incomplete command
+                    self.multiline_command = command
+                    self.prompt = self.more_prompt
+                else:
+                    exec co in console_context._context()
+                    self.multiline_command = ""
+            except: # Exception e:
+                print_exc()
+                self.multiline_command = ""
+        self.place_new_prompt(end_is_visible)        
+        
+    @QtCore.Slot(str)
+    def run_script_file(self, file_name):
+        # print "run_script_file", file_name
+        self.te.moveCursor(QTextCursor.End)
+        self.append("[Running script file " + file_name + "]")
+        with open(file_name, 'r') as f:
+            file_string = f.read()
+            self.multiline_command = ""
+            self.run_command_string(file_string)
+            self.recent_files.add_file(file_name)
+            self.update_recent_files()
+
+    @QtCore.Slot()
+    def on_actionRun_script_triggered(self):
+        dir = QSettings().value("script_input_dir")
+        file_name, type = QFileDialog.getOpenFileName(
+                self, 
+                "Open cinemol python script file", 
+                dir,
+                self.tr("Python files(*.py)"))
+        if file_name == "":
+            return
+        self.run_script_file(file_name)
+        QSettings().setValue("script_input_dir", os.path.dirname(file_name))
+    
     @QtCore.Slot()
     def on_clipboard_data_changed(self):
         pass
@@ -286,6 +344,7 @@ class Console(QMainWindow):
     @QtCore.Slot()
     def on_cursor_position_changed(self):
         pass
+
 
 class CommandRing:
     "Stores command history"
