@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Sun Jul 29 19:25:35 2012
+# Created: Tue Aug 07 00:31:44 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,6 +32,8 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuLoad_recent = QtGui.QMenu(self.menuFile)
+        self.menuLoad_recent.setObjectName("menuLoad_recent")
         self.menuView = QtGui.QMenu(self.menubar)
         self.menuView.setObjectName("menuView")
         self.menuStereo_3D = QtGui.QMenu(self.menuView)
@@ -128,13 +130,17 @@ class Ui_MainWindow(object):
         self.actionAtom_size.setObjectName("actionAtom_size")
         self.actionReset_center = QtGui.QAction(MainWindow)
         self.actionReset_center.setObjectName("actionReset_center")
+        self.actionFoo = QtGui.QAction(MainWindow)
+        self.actionFoo.setObjectName("actionFoo")
         self.menuFile.addAction(self.actionOpen)
-        self.menuFile.addAction(self.actionLoad_movie_script)
+        self.menuFile.addAction(self.menuLoad_recent.menuAction())
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSave_image)
         self.menuFile.addAction(self.actionSave_Lenticular_Series)
-        self.menuFile.addAction(self.actionSave_movie)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionLoad_movie_script)
         self.menuFile.addAction(self.actionSave_movie_script)
+        self.menuFile.addAction(self.actionSave_movie)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuStereo_3D.addAction(self.actionMono_None)
@@ -177,6 +183,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Cinemol by Christopher Bruns", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuLoad_recent.setTitle(QtGui.QApplication.translate("MainWindow", "Load recent", None, QtGui.QApplication.UnicodeUTF8))
         self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
         self.menuStereo_3D.setTitle(QtGui.QApplication.translate("MainWindow", "Stereo 3D", None, QtGui.QApplication.UnicodeUTF8))
         self.menuBookmarks.setTitle(QtGui.QApplication.translate("MainWindow", "Bookmarks", None, QtGui.QApplication.UnicodeUTF8))
@@ -215,5 +222,6 @@ class Ui_MainWindow(object):
         self.actionShow_console.setText(QtGui.QApplication.translate("MainWindow", "Show console", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAtom_size.setText(QtGui.QApplication.translate("MainWindow", "Adjust atom size...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset_center.setText(QtGui.QApplication.translate("MainWindow", "Recenter view", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFoo.setText(QtGui.QApplication.translate("MainWindow", "Foo", None, QtGui.QApplication.UnicodeUTF8))
 
 from cinemol.cinemol_canvas import CinemolCanvas

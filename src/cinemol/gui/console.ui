@@ -50,7 +50,7 @@
     </property>
     <widget class="QMenu" name="menuOpen_recent">
      <property name="title">
-      <string>Open recent</string>
+      <string>Run recent</string>
      </property>
     </widget>
     <addaction name="actionRun_script"/>

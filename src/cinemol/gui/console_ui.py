@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'console.ui'
 #
-# Created: Mon Aug 06 01:28:20 2012
+# Created: Tue Aug 07 00:26:14 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -54,7 +54,7 @@ class Ui_ConsoleWindow(object):
         ConsoleWindow.setWindowTitle(QtGui.QApplication.translate("ConsoleWindow", "Cinemol command window", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("ConsoleWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("ConsoleWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuOpen_recent.setTitle(QtGui.QApplication.translate("ConsoleWindow", "Open recent", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuOpen_recent.setTitle(QtGui.QApplication.translate("ConsoleWindow", "Run recent", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun_script.setText(QtGui.QApplication.translate("ConsoleWindow", "Run script...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun_recent.setText(QtGui.QApplication.translate("ConsoleWindow", "Run recent", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFoo.setText(QtGui.QApplication.translate("ConsoleWindow", "Foo", None, QtGui.QApplication.UnicodeUTF8))

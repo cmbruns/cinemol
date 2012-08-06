@@ -8,8 +8,8 @@ from console_ui import Ui_ConsoleWindow
 import cinemol.console_context as console_context
 import cinemol.gui.recent_file as recent_file
 from PySide import QtCore
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide.QtCore import Qt, QSettings, QEvent
+from PySide.QtGui import QApplication, QMainWindow, QFontMetrics, QFileDialog, QTextCursor
 from traceback import print_exc
 import code
 import sys
@@ -115,18 +115,7 @@ class Console(QMainWindow):
         self.stdout = ConsoleStdoutStream(self)
         self.stderr = ConsoleStderrStream(self)
         self.stdin = ConsoleStdinStream(self)
-        self.interactive_console = code.InteractiveConsole()
-        self.recent_files = recent_file.RecentFileList(self.run_script_file, "input_script_files")
-        self.update_recent_files()
-        
-    def update_recent_files(self):
-        if len(self.recent_files) > 0:
-            self.ui.menuOpen_recent.clear()
-            for a in self.recent_files:
-                self.ui.menuOpen_recent.addAction(a)
-            self.ui.menuOpen_recent.setVisible(True)
-        else:
-            self.ui.menuOpen_recent.setVisible(False)        
+        self.recent_files = recent_file.RecentFileList(self.run_script_file, "input_script_files", self.ui.menuOpen_recent)
         
     def pause_command_capture(self):
         self.command_buffer = self.get_current_command()
@@ -226,21 +215,6 @@ class Console(QMainWindow):
                         self.te.setTextCursor(self.latest_good_cursor.position)
         return QMainWindow.eventFilter(self, watched, event)
 
-    def run_console_command_not_working_with_context(self):
-        # Clear undo/redo buffer, we don't want prompts and output in there.
-        self.te.setUndoRedoEnabled(False)
-        # Scroll down after command, if and only if bottom is visible now.
-        end_is_visible = self.te.document().lastBlock().isVisible()
-        command = self.get_current_command()
-        self.command_buffer = ""
-        self.command_ring.add_history(command)
-        self.append("")
-        if self.interactive_console.push(command):
-            self.prompt = self.more_prompt
-        else:
-            self.prompt = self.regular_prompt
-        self.place_new_prompt(end_is_visible)
-
     def run_console_command(self):
         # Scroll down after command, if and only if bottom is visible now.
         end_is_visible = self.te.document().lastBlock().isVisible()
@@ -250,7 +224,6 @@ class Console(QMainWindow):
         self.run_command_string(command, end_is_visible)
 
     def get_current_command(self):
-        command = ""
         cursor = self.te.textCursor()
         cursor.setPosition(self.current_command_start_position, QTextCursor.MoveAnchor)
         cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
@@ -318,16 +291,15 @@ class Console(QMainWindow):
             self.multiline_command = ""
             self.run_command_string(file_string)
             self.recent_files.add_file(file_name)
-            self.update_recent_files()
 
     @QtCore.Slot()
     def on_actionRun_script_triggered(self):
-        dir = QSettings().value("script_input_dir")
-        file_name, type = QFileDialog.getOpenFileName(
+        start_dir = QSettings().value("script_input_dir")
+        file_name = QFileDialog.getOpenFileName(
                 self, 
                 "Open cinemol python script file", 
-                dir,
-                self.tr("Python files(*.py)"))
+                start_dir,
+                self.tr("Python files(*.py)"))[0]
         if file_name == "":
             return
         self.run_script_file(file_name)

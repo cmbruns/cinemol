@@ -6,6 +6,7 @@ from cinemol.imposter import SphereImposterArray, sphereImposterShaderProgram
 from cinemol.movie import Movie, KeyFrame
 from cinemol.model import model
 from cinemol.console_context import cm as command
+import recent_file
 from cinemol.rotation import Vec3
 import cinemol.stereo3d as stereo3d
 from PySide import QtCore
@@ -44,6 +45,10 @@ class MainWindow(QMainWindow):
         # print QImageWriter.supportedImageFormats()
         self.atom_size_dialog = AtomSizeDialog(self)
         self.atom_size_dialog.value_changed.connect(self.set_atom_scale)
+        self.recent_files = recent_file.RecentFileList(
+                self.open_pdb_file, 
+                "input_pdb_files", 
+                self.ui.menuLoad_recent)
 
     @property
     def camera(self):
@@ -75,10 +80,10 @@ class MainWindow(QMainWindow):
     @QtCore.Slot(bool)
     def on_actionLoad_movie_script_triggered(self, checked):
         self.bookmarks.clear()
-        file_name, type = QFileDialog.getOpenFileName(self, 
+        file_name = QFileDialog.getOpenFileName(self, 
                                                 "Open movie script file",
                                                 None, # TODO directory
-                                                self.tr("XML files (*.xml)"))
+                                                self.tr("XML files (*.xml)"))[0]
         if file_name == "":
             return
         print file_name;
@@ -103,11 +108,11 @@ class MainWindow(QMainWindow):
                                 """You must create some bookmarks(key frames)
 before you can save a movie script.""")
             return
-        file_name, type = QFileDialog.getSaveFileName(
+        file_name = QFileDialog.getSaveFileName(
                 self, 
                 "Save movie script file", 
                 None,
-                self.tr("XML files (*.xml)"))
+                self.tr("XML files (*.xml)"))[0]
         if file_name == "":
             return
         script_file = QFile(file_name)
@@ -223,12 +228,12 @@ before you can save a movie script.""")
                                 """You must create some bookmarks(key frames)
 before you can save a movie.""")
             return
-        base_file_name, type = QFileDialog.getSaveFileName(
+        base_file_name = QFileDialog.getSaveFileName(
                 self, 
                 "Save movie frame images", 
                 None, 
                 # PNG format silently does not work
-                self.tr("images(*.ppm *.tif *.jpg)"))
+                self.tr("images(*.ppm *.tif *.jpg)"))[0]
         if base_file_name == "":
             return
         frame_number = 0
@@ -251,12 +256,12 @@ before you can save a movie.""")
         
     @QtCore.Slot(bool)
     def on_actionSave_Lenticular_Series_triggered(self, checked):
-        file_name, type = QFileDialog.getSaveFileName(
+        file_name = QFileDialog.getSaveFileName(
                 self, 
                 "Save lenticular series", 
                 None, 
                 # PNG format silently does not work
-                self.tr("images(*.tif)"))
+                self.tr("images(*.tif)"))[0]
         if file_name == "":
             return
         self.ui.glCanvas.save_lenticular_series(file_name=file_name, 
@@ -312,29 +317,18 @@ before you can save a movie.""")
     @QtCore.Slot(bool)
     def on_actionSave_image_triggered(self, checked):
         print "save image"
-        file_name, type = QFileDialog.getSaveFileName(
+        file_name = QFileDialog.getSaveFileName(
                 self, 
                 "Save screen shot", 
                 None, 
                 # PNG format silently does not work
-                self.tr("images(*.jpg *.tif)"))
+                self.tr("images(*.jpg *.tif)"))[0]
         if file_name == "":
             return
         self.ui.glCanvas.save_image(file_name)
 
-    @QtCore.Slot()
-    def on_actionOpen_triggered(self):
-        settings = QSettings()
-        search_dir = None
-        if settings.contains("pdb_input_dir"):
-            search_dir = settings.value("pdb_input_dir")
-        file_name, type = QFileDialog.getOpenFileName(
-                self, 
-                "Open PDB file", 
-                search_dir,
-                self.tr("PDB Files(*.pdb)"))
-        if file_name == "":
-            return
+    @QtCore.Slot(str)
+    def open_pdb_file(self, file_name):
         atoms = model.atoms
         atoms[:] = []
         with open(file_name, 'r') as f:
@@ -362,10 +356,6 @@ before you can save a movie.""")
                         atom.color = [0.8, 0.05, 0.05]
                         atom.radius = 1.52
                     atoms.append(atom)
-            # Remember the directory where we found this
-            if len(atoms) > 1:
-                pdb_input_dir = QFileInfo(file_name).absoluteDir().canonicalPath()
-                settings.setValue("pdb_input_dir", pdb_input_dir)
         print len(atoms), "atoms found"
         if len(atoms) > 0:
             sphere_array = SphereImposterArray(atoms)
@@ -379,6 +369,28 @@ before you can save a movie.""")
             ren.camera_position.distance_to_focus = 4.0 * (max_pos - min_pos).norm()            
             ren.update()
         self.statusBar().showMessage("Finished loading PDB file " + file_name,
-                             5000)
+                             5000)        
+        
+    @QtCore.Slot()
+    def on_actionOpen_triggered(self):
+        settings = QSettings()
+        search_dir = None
+        if settings.contains("pdb_input_dir"):
+            search_dir = settings.value("pdb_input_dir")
+        file_name = QFileDialog.getOpenFileName(
+                self, 
+                "Open PDB file", 
+                search_dir,
+                self.tr("PDB Files(*.pdb)"))[0]
+        if file_name == "":
+            return
+        try:
+            self.open_pdb_file(file_name)
+            # Remember the directory where we found this
+            pdb_input_dir = QFileInfo(file_name).absoluteDir().canonicalPath()
+            settings.setValue("pdb_input_dir", pdb_input_dir)
+            self.recent_files.add_file(file_name)
+        except:
+            pass
 
             
