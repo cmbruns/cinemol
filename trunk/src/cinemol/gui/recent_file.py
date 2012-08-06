@@ -31,14 +31,16 @@ class RecentFile(QAction):
 
 class RecentFileList(list):
     "Memorized collection of recently opened files"
-    def __init__(self, open_file_slot, key="recent_file_list"):
-        self.settings_key = key
+    def __init__(self, open_file_slot, key, menu):
         self.open_file_slot = open_file_slot
+        self.settings_key = key
+        self.menu = menu
         settings = QSettings()
         file_list = settings.value(key)
         if file_list is not None:
             for file_name in file_list:
                 self.append(RecentFile(file_name, self.open_file_slot))
+        self.update()
         
     def add_file(self, file_name):
         item = RecentFile(file_name, self.open_file_slot)
@@ -53,3 +55,15 @@ class RecentFileList(list):
         settings = QSettings()
         file_list = [x.file_name for x in self]
         settings.setValue(self.settings_key, file_list)
+        self.update()
+        
+    def update(self):
+        if len(self) > 0:
+            self.menu.clear()
+            for a in self:
+                self.menu.addAction(a)
+            self.menu.menuAction().setVisible(True)
+        else:
+            self.menu.menuAction().setVisible(False)        
+        
+

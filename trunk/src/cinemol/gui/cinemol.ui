@@ -42,13 +42,20 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuLoad_recent">
+     <property name="title">
+      <string>Load recent</string>
+     </property>
+    </widget>
     <addaction name="actionOpen"/>
-    <addaction name="actionLoad_movie_script"/>
+    <addaction name="menuLoad_recent"/>
     <addaction name="separator"/>
     <addaction name="actionSave_image"/>
     <addaction name="actionSave_Lenticular_Series"/>
-    <addaction name="actionSave_movie"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_movie_script"/>
     <addaction name="actionSave_movie_script"/>
+    <addaction name="actionSave_movie"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -335,6 +342,11 @@
   <action name="actionReset_center">
    <property name="text">
     <string>Recenter view</string>
+   </property>
+  </action>
+  <action name="actionFoo">
+   <property name="text">
+    <string>Foo</string>
    </property>
   </action>
  </widget>
