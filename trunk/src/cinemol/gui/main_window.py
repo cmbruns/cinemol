@@ -12,6 +12,7 @@ import cinemol.stereo3d as stereo3d
 from PySide import QtCore
 from PySide.QtGui import *
 from PySide.QtCore import *
+import gzip
 from math import pi
 import re
 import platform
@@ -331,7 +332,17 @@ before you can save a movie.""")
     def load_pdb_file(self, file_name):
         atoms = model.atoms
         atoms[:] = []
-        with open(file_name, 'r') as f:
+        # Start by assuming its a gzipped file
+        fh = gzip.open(file_name, 'rb')
+        start_pos = fh.tell()
+        try:
+            fh.read(1)
+            fh.seek(start_pos)
+        except IOError:
+            # OK, maybe its not a gzipped file
+            fh.close()
+            fh = open(file_name, 'r')
+        with fh as f:
             print file_name
             for line in f:
                 if line.startswith("ATOM"):
@@ -368,8 +379,6 @@ before you can save a movie.""")
             ren.camera_position.focus_in_ground = new_focus
             ren.camera_position.distance_to_focus = 4.0 * (max_pos - min_pos).norm()            
             ren.update()
-        self.statusBar().showMessage("Finished loading PDB file " + file_name,
-                             5000)        
         
     @QtCore.Slot()
     def on_actionOpen_triggered(self):
@@ -381,7 +390,7 @@ before you can save a movie.""")
                 self, 
                 "Open PDB file", 
                 search_dir,
-                self.tr("PDB Files(*.pdb)"))[0]
+                self.tr("PDB Files(*.pdb *.pdb.gz)"))[0]
         if file_name == "":
             return
         try:
@@ -390,6 +399,8 @@ before you can save a movie.""")
             pdb_input_dir = QFileInfo(file_name).absoluteDir().canonicalPath()
             settings.setValue("pdb_input_dir", pdb_input_dir)
             self.recent_files.add_file(file_name)
+            self.statusBar().showMessage("Finished loading PDB file " + file_name,
+                             5000)        
         except:
             pass
 
