@@ -78,6 +78,7 @@ class CameraPosition(QtCore.QObject):
         # 5.0 for our TV
         # should not change dynamically, unless we do head tracking
         self.distance_to_screen_in_screen_heights = 2.5
+        # self.distance_to_screen_in_screen_heights = 0.5 # exaggerated perspective for testing
         dt = QApplication.desktop()
         self.set_screen_size_in_pixels(dt.width(), dt.height())
         # Object/ground/gl-units measures:

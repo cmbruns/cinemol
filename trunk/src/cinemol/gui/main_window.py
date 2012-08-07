@@ -46,7 +46,7 @@ class MainWindow(QMainWindow):
         self.atom_size_dialog = AtomSizeDialog(self)
         self.atom_size_dialog.value_changed.connect(self.set_atom_scale)
         self.recent_files = recent_file.RecentFileList(
-                self.open_pdb_file, 
+                self.load_pdb_file, 
                 "input_pdb_files", 
                 self.ui.menuLoad_recent)
 
@@ -328,7 +328,7 @@ before you can save a movie.""")
         self.ui.glCanvas.save_image(file_name)
 
     @QtCore.Slot(str)
-    def open_pdb_file(self, file_name):
+    def load_pdb_file(self, file_name):
         atoms = model.atoms
         atoms[:] = []
         with open(file_name, 'r') as f:
@@ -385,7 +385,7 @@ before you can save a movie.""")
         if file_name == "":
             return
         try:
-            self.open_pdb_file(file_name)
+            self.load_pdb_file(file_name)
             # Remember the directory where we found this
             pdb_input_dir = QFileInfo(file_name).absoluteDir().canonicalPath()
             settings.setValue("pdb_input_dir", pdb_input_dir)
