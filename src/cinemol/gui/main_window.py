@@ -5,6 +5,8 @@ from cinemol.gui.console import Console
 from cinemol.imposter import SphereImposterArray, sphereImposterShaderProgram
 from cinemol.movie import Movie, KeyFrame
 from cinemol.model import model
+from cinemol.atom import Atom
+import cinemol.color as color
 from cinemol.console_context import cm as command
 import recent_file
 from cinemol.rotation import Vec3
@@ -344,36 +346,24 @@ before you can save a movie.""")
             fh = open(file_name, 'r')
         with fh as f:
             print file_name
+            colorizer = color.ColorByRasmolCpk()
             for line in f:
-                if line.startswith("ATOM"):
-                    x = float(line[30:38])
-                    y = float(line[38:46])
-                    z = float(line[46:54])
-                    atom = Vec3([x, y, z])
-                    atom.center = Vec3([x, y, z])
-                    atom.name = line[12:16]
-                    atom.color = [0.5, 0, 0.5]
-                    atom.radius = 1.0
-                    if (atom.name[1:2] == 'H'):
-                        atom.color = [1.0, 1.0, 1.0]
-                        atom.radius = 1.2
-                    if (atom.name[1:2] == 'C'):
-                        atom.color = [0.5, 0.5, 0.5]
-                        atom.radius = 1.70
-                    if (atom.name[1:2] == 'N'):
-                        atom.color = [0.1, 0.1, 0.8]
-                        atom.radius = 1.555
-                    if (atom.name[1:2] == 'O'):
-                        atom.color = [0.8, 0.05, 0.05]
-                        atom.radius = 1.52
+                try:
+                    atom = Atom()
+                    atom.from_pdb_atom_string(line)
+                    atom.colorizer = colorizer
                     atoms.append(atom)
+                except:
+                    pass
         print len(atoms), "atoms found"
         if len(atoms) > 0:
+            print "creating representation"
             sphere_array = SphereImposterArray(atoms)
             ren = self.ui.glCanvas.renderer
             ren.actors = []
             self.bookmarks.clear()
             ren.actors.append(sphere_array)
+            print "centering"
             min_pos, max_pos = atoms.box_min_max()
             new_focus = 0.5 * (max_pos + min_pos)
             ren.camera_position.focus_in_ground = new_focus

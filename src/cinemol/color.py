@@ -216,6 +216,7 @@ class ColorByRasmolCpk(ColorByElement):
         self._add(element.phosphorus, orange)      
         self._add(element.sulfur, from_hex("#FFC832"))
         self._add(element.chlorine, lime)
+        self._add(element.potassium, blue)
         self._add(element.calcium, from_hex("#808090"))
         self._add(element.titanium, from_hex("#808090"))
         self._add(element.chromium, from_hex("#808090"))
@@ -254,3 +255,12 @@ class ColorByRasmolCpkNewLighter(ColorByRasmolCpk):
         self._add(element.barium, from_hex("#FFAA00"))      
 
 
+class ConstantColorizer():
+    def __init__(self, color):
+        self.col = color
+
+    def color(self, atom):
+        return self.col
+
+
+green_colorizer = ConstantColorizer(green)

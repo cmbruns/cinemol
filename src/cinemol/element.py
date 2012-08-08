@@ -4,12 +4,18 @@ Created on Aug 4, 2012
 @author: cmbruns
 '''
 
+_elements_by_symbol = dict()
+
+
 class Element(object):
     # In nanometers!
     def __init__(self, atomic_number, symbol, name, mass=10.0, vdw_radius=0.20, covalent_radius=0.08):
         self.atomic_number = atomic_number
         self.symbol = symbol
         self.name = name
+        self.vdw_radius = vdw_radius
+        self.covalent_radius = covalent_radius
+        _elements_by_symbol[symbol.upper().strip()] = self
 
 
 hydrogen      = Element( 1,  "H", "hydrogen", 1.008, 0.120, 0.023)
@@ -138,4 +144,5 @@ aluminium = aluminum
 sulphur = sulfur
 ununnilium = darmstadtium
 
-
+def from_symbol(symbol):
+    return _elements_by_symbol.get(symbol.upper().strip(), unknown)
