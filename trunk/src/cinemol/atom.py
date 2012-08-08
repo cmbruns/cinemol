@@ -5,6 +5,7 @@ Created on Jul 29, 2012
 '''
 
 import cinemol.element as element
+import cinemol.color as color
 from cinemol.rotation import Vec3
 from cinemol.atom_expression import AtomExpression
 import gzip
@@ -29,18 +30,23 @@ pdb_atom_regex = re.compile(r"""^
     (?P<x>[-0-9\. ]{8})
     (?P<y>[-0-9\. ]{8})
     (?P<z>[-0-9\. ]{8})
+    (?: # allow weird/wrong/missing occupancy and temperature factor
     (?P<occupancy>[0-9\. ]{6})
     (?P<temperature_factor>[0-9\. ]{6})
     (?: # final fields are not always present
         (?P<seg_id>.{4})
         (?P<element>.{2})
         (?P<charge>.{2})
-    )?
+    )?)?
     # $ # end of line varies
     """, flags=re.VERBOSE)
 
 
 class Atom(object):
+    def __init__(self):
+        self.colorizer = color.green_colorizer
+        self.element = element.unknown
+
     def from_pdb_atom_string(self, line):
         try:
             d = pdb_atom_regex.match(line).groupdict()
@@ -55,11 +61,24 @@ class Atom(object):
             y = nanometers_from_angstroms * float(d['y'])
             z = nanometers_from_angstroms * float(d['z'])
             self.center = Vec3([x, y, z])
+            # Figure out element
+            element_symbol = self.full_name[0:2].strip().upper()
+            if "H" in element_symbol and len(self.name) == 4:
+                element_symbol = "H"
+            self.element = element.from_symbol(element_symbol)
+            if self.element is element.unknown and self.full_name.startswith(" "):
+                self.element = element.from_symbol(self.full_name[1:3])
             # TODO - element, radius, color
         except:
             raise SyntaxError("Bad PDB atom line: " + line)
-        # TODO - vdw_radius and element
         
+    @property
+    def color(self):
+        return self.colorizer.color(self).linear
+    
+    @property
+    def radius(self):
+        return self.element.vdw_radius
 
 
 class AtomList(list):
@@ -70,10 +89,10 @@ class AtomList(list):
         box_max = Vec3(self[0].center[:])
         for atom in self:
             for i in range(3):
-                if atom[i] > box_max[i]:
-                    box_max[i] = atom[i]
-                if atom[i] < box_min[i]:
-                    box_min[i] = atom[i]
+                if atom.center[i] > box_max[i]:
+                    box_max[i] = atom.center[i]
+                if atom.center[i] < box_min[i]:
+                    box_min[i] = atom.center[i]
         return box_min, box_max
 
     def box_center(self):
