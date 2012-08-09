@@ -74,8 +74,8 @@ class UnitVec3(object):
 
 
 class Vec3(UnitVec3):
-    def __init__(self, val=[0,0,0]):
-        self.data = [1.0*val[x] for x in range(3)]
+    def __init__(self, val=[0.0, 0.0, 0.0]):
+        self.data = [val[0], val[1], val[2]]
         
     def __setitem__(self, key, value):
         self.data[key] = value
