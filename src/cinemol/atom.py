@@ -41,6 +41,8 @@ pdb_atom_regex = re.compile(r"""^
     # $ # end of line varies
     """, flags=re.VERBOSE)
 
+def my_strip(string):
+    return string.replace(" ", "")
 
 class Atom(object):
     def __init__(self):
@@ -117,29 +119,10 @@ class AtomList(list):
             
     def load_stream(self, stream):
         for line in stream:
-            if line.startswith("ATOM") or line.startswith("HETATM"):
+            # if line.startswith("ATOM") or line.startswith("HETATM"):
+            if line[0:4] == "ATOM" or line[0:6] == "HETATM":
                 atom = Atom()
                 atom.from_pdb_atom_string(line)
-                x = float(line[30:38])
-                y = float(line[38:46])
-                z = float(line[46:54])
-                atom = Atom()
-                atom.center = Vec3([x, y, z])
-                atom.name = line[12:16]
-                atom.color = [0.5, 0, 0.5]
-                atom.radius = 1.0
-                if (atom.name[1:2] == 'H'):
-                    atom.color = [1.0, 1.0, 1.0]
-                    atom.radius = 1.2
-                if (atom.name[1:2] == 'C'):
-                    atom.color = [0.5, 0.5, 0.5]
-                    atom.radius = 1.70
-                if (atom.name[1:2] == 'N'):
-                    atom.color = [0.1, 0.1, 0.8]
-                    atom.radius = 1.555
-                if (atom.name[1:2] == 'O'):
-                    atom.color = [0.8, 0.05, 0.05]
-                    atom.radius = 1.52
                 self.append(atom)
 
     def select(self, expression):

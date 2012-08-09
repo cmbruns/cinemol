@@ -145,4 +145,4 @@ sulphur = sulfur
 ununnilium = darmstadtium
 
 def from_symbol(symbol):
-    return _elements_by_symbol.get(symbol.upper().strip(), unknown)
+    return _elements_by_symbol.get(symbol, unknown)
