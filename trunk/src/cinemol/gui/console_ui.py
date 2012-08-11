@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'console.ui'
 #
-# Created: Tue Aug 07 00:26:14 2012
+# Created: Sat Aug 11 01:25:19 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,6 +42,15 @@ class Ui_ConsoleWindow(object):
         self.actionRun_recent.setObjectName("actionRun_recent")
         self.actionFoo = QtGui.QAction(ConsoleWindow)
         self.actionFoo.setObjectName("actionFoo")
+        self.actionCopy = QtGui.QAction(ConsoleWindow)
+        self.actionCopy.setObjectName("actionCopy")
+        self.actionPaste = QtGui.QAction(ConsoleWindow)
+        self.actionPaste.setObjectName("actionPaste")
+        self.actionCut = QtGui.QAction(ConsoleWindow)
+        self.actionCut.setObjectName("actionCut")
+        self.menuEdit.addAction(self.actionCopy)
+        self.menuEdit.addAction(self.actionPaste)
+        self.menuEdit.addAction(self.actionCut)
         self.menuFile.addAction(self.actionRun_script)
         self.menuFile.addAction(self.menuOpen_recent.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
@@ -58,4 +67,7 @@ class Ui_ConsoleWindow(object):
         self.actionRun_script.setText(QtGui.QApplication.translate("ConsoleWindow", "Run script...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun_recent.setText(QtGui.QApplication.translate("ConsoleWindow", "Run recent", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFoo.setText(QtGui.QApplication.translate("ConsoleWindow", "Foo", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCopy.setText(QtGui.QApplication.translate("ConsoleWindow", "Copy", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPaste.setText(QtGui.QApplication.translate("ConsoleWindow", "Paste", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCut.setText(QtGui.QApplication.translate("ConsoleWindow", "Cut", None, QtGui.QApplication.UnicodeUTF8))
 

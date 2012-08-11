@@ -332,43 +332,7 @@ before you can save a movie.""")
 
     @QtCore.Slot(str)
     def load_pdb_file(self, file_name):
-        atoms = model.atoms
-        atoms[:] = []
-        # Start by assuming its a gzipped file
-        fh = gzip.open(file_name, 'rb')
-        start_pos = fh.tell()
-        try:
-            fh.read(1)
-            fh.seek(start_pos)
-        except IOError:
-            # OK, maybe its not a gzipped file
-            fh.close()
-            fh = open(file_name, 'r')
-        with fh as f:
-            print file_name
-            colorizer = color.ColorByRasmolCpk()
-            for line in f:
-                try:
-                    atom = Atom()
-                    atom.from_pdb_atom_string(line)
-                    atom.colorizer = colorizer
-                    atoms.append(atom)
-                except:
-                    pass
-        print len(atoms), "atoms found"
-        if len(atoms) > 0:
-            print "creating representation"
-            sphere_array = SphereImposterArray(atoms)
-            ren = self.ui.glCanvas.renderer
-            ren.actors = []
-            self.bookmarks.clear()
-            ren.actors.append(sphere_array)
-            print "centering"
-            min_pos, max_pos = atoms.box_min_max()
-            new_focus = 0.5 * (max_pos + min_pos)
-            ren.camera_position.focus_in_ground = new_focus
-            ren.camera_position.distance_to_focus = 4.0 * (max_pos - min_pos).norm()            
-            ren.update()
+        command.load(file_name)
         
     @QtCore.Slot()
     def on_actionOpen_triggered(self):
