@@ -291,7 +291,7 @@ class Console(QMainWindow):
         if len(command) > 0:
             self.prompt = self.regular_prompt
             try:
-                co = code.compile_command(command, filename="<console>")
+                co = code.compile_command(command, filename='<console>')
                 if co is None: # incomplete command
                     self.multiline_command = command
                     self.prompt = self.more_prompt
@@ -300,19 +300,23 @@ class Console(QMainWindow):
                     self.multiline_command = ""
             except: # Exception e:
                 print_exc()
-                self.multiline_command = ""
+                self.multiline_command = ""   
         self.place_new_prompt(end_is_visible)        
         
     @QtCore.Slot(str)
     def run_script_file(self, file_name):
         # print "run_script_file", file_name
+        end_is_visible = self.te.document().lastBlock().isVisible()
         self.te.moveCursor(QTextCursor.End)
-        self.append("[Running script file " + file_name + "]")
-        with open(file_name, 'r') as f:
-            file_string = f.read()
-            self.multiline_command = ""
-            self.run_command_string(file_string)
-            self.recent_files.add_file(file_name)
+        self.multiline_command = ""
+        self.prompt = self.regular_prompt
+        self.append_blue("\n[Running script file " + file_name + "]\n")
+        try:
+            execfile(file_name, console_context._context())
+        except:
+            print_exc()
+        self.recent_files.add_file(file_name)
+        self.place_new_prompt(end_is_visible)
 
     @QtCore.Slot()
     def on_actionRun_script_triggered(self):

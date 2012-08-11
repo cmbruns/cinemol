@@ -3,6 +3,7 @@ import shader
 from PySide import QtCore
 from PySide.QtCore import *
 from OpenGL.GL import *
+from OpenGL.GL import glBufferSubData
 import numpy
 import array
 from math import pi, cos, sin
@@ -46,6 +47,8 @@ class SphereImposterArray(QObject):
         self.vertex_count = 4 # one quadrilateral per sphere
         self.triangle_count = self.vertex_count - 2
         self.normal_offsets = []
+        self.spheres = []
+        self.spheres[:] = spheres[:]
         # Compute unit offsets from center of sphere to imposter polygon vertices
         # Scaled so apothem length is 1.0
         angle = 0.0
@@ -111,7 +114,21 @@ class SphereImposterArray(QObject):
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
             glDrawElements(GL_TRIANGLES, len(self.vertex_array), GL_UNSIGNED_INT, None)
             glPopClientAttrib()
-        
+
+    def update_atom_colors(self):
+        c = self.color_array
+        i = 0
+        for x in list(self._color_generator(self.spheres)):
+            c[i] = x
+            i += 1
+        if self.is_initialized:
+            print "updating atom colors"
+            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+            glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
+            # glBufferData(GL_ARRAY_BUFFER, c, GL_STATIC_DRAW)
+            glBufferSubData(GL_ARRAY_BUFFER, 0, c)
+            glPopClientAttrib()
+
     def _vertex_generator(self, spheres):
         for sphere in spheres:
             p = sphere.center
@@ -129,6 +146,7 @@ class SphereImposterArray(QObject):
                 yield p[0]
                 yield p[1]
                 yield p[2]
+                # print p
                 # yield 1.0
             
     def _normal_generator(self, spheres):

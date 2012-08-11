@@ -12,6 +12,7 @@ import urllib
 from StringIO import StringIO
 import gzip
 import re
+import os
 
 # ATOM      1  O5' RU5 A   1     144.310 223.220  60.580  1.00  0.00
 # 000000000111111111122222222223333333333444444444455555555556666666666
@@ -108,24 +109,34 @@ class AtomList(list):
         box_min, box_max = self.box_min_max()
         return 0.5 * (box_min + box_max)
     
+    def color(self, colorizer):
+        if not hasattr(colorizer, 'color'):
+            colorizer = color.ConstantColorizer(colorizer)
+        for atom in self:
+            atom.colorizer = colorizer
+        
     def load(self, file_name):
-        # It might already be a stream if we opened a URL
-        if hasattr(file_name, 'readline'):
+        if hasattr(file_name, 'readline'): # already a python file stream
             self.load_stream(file_name)
             return
-        # File name might be a url
-        opener = urllib.FancyURLopener()
-        fh = opener.open(file_name)
-        if file_name.endswith(".gz"):
-            buf = StringIO(fh.read())
-            fh.close()
-            fh = gzip.GzipFile(fileobj=buf)
-        try:
-            self.load_stream(fh)
-        except:
-            fh.close()
-            raise
-        fh.close()
+        elif os.path.exists(file_name): # ordinary local file name
+            fh = gzip.open(file_name, 'rb')
+            pos = fh.tell()
+            try:
+                fh.read(1)
+                fh.seek(pos)
+            except:
+                fh.close()
+                fh = open(file_name)
+        else: # Is file_name a URL?
+            opener = urllib.FancyURLopener()
+            fh = opener.open(file_name)
+            if file_name.endswith(".gz"): # gzipped file
+                buf = StringIO(fh.read())
+                fh = gzip.GzipFile(fileobj=buf)
+        with fh as f:
+            self.load_stream(f)
+
             
     def load_stream(self, stream):
         for line in stream:
