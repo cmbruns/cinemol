@@ -2,19 +2,14 @@ from cinemol_ui import Ui_MainWindow
 from size_dialog import SizeDialog
 from atom_size_dialog import AtomSizeDialog
 from cinemol.gui.console import Console
-from cinemol.imposter import SphereImposterArray, sphereImposterShaderProgram
+from cinemol.imposter import sphereImposterShaderProgram
 from cinemol.movie import Movie, KeyFrame
-from cinemol.model import model
-from cinemol.atom import Atom
-import cinemol.color as color
 from cinemol.console_context import cm as command
 import recent_file
-from cinemol.rotation import Vec3
 import cinemol.stereo3d as stereo3d
 from PySide import QtCore
 from PySide.QtGui import *
 from PySide.QtCore import *
-import gzip
 from math import pi
 import re
 import platform
@@ -357,9 +352,8 @@ before you can save a movie.""")
         except:
             self.statusBar().showMessage("Error loading PDB file " 
                              + file_name,
-                             2000)        
-            QMessageBox.warning(self, "Problem opening file", 
-                                file_name)
+                             2000)   
+            raise     
         
     @QtCore.Slot()
     def on_actionOpen_triggered(self):
@@ -380,6 +374,7 @@ before you can save a movie.""")
             pdb_input_dir = QFileInfo(file_name).absoluteDir().canonicalPath()
             settings.setValue("pdb_input_dir", pdb_input_dir)
         except:
-            pass
+            QMessageBox.warning(self, "Problem opening file", 
+                                file_name)
 
             
