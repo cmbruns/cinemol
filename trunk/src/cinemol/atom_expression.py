@@ -143,19 +143,14 @@ class AtomExpression(object):
     Rasmol atom expression
     '''
     def __init__(self, expression):
-        self.expression = expression
-        if "*" == expression:
-            self.always_matches = True
-            return
-        if "" == expression:
-            self.never_matches = True
-            return
-        raise SyntaxError
+        self.matchers = []
+        if hasattr(expression, "matches"):
+            self.matchers.append(expression)
+        else:
+            self.matchers.append(StringMatcher(expression))
 
     def matches(self, atom):
-        if self.always_matches:
-            return True
-        if self.never_matches:
-            return False
-        # TODO
-        return False
+        for matcher in self.matchers:
+            if not matcher.matches(atom):
+                return False
+        return True

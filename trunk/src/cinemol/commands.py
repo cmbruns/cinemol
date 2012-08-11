@@ -8,9 +8,7 @@ from cinemol.rotation import Vec3
 from cinemol.model import model
 from cinemol.atom_expression import AtomExpression
 import cinemol.color as color
-import cinemol.atom
-import cinemol.imposter
-import gzip
+import cinemol.atom as atom
 
 class Commands(object):
     "Command dispatcher for Cinemol command line console and menus"
@@ -46,25 +44,31 @@ class Commands(object):
             self.focus = new_focus
     centre = center
         
+    def color(self, colorizer, atoms=model.selected_atoms):
+        if not hasattr(colorizer, 'color'):
+            colorizer = color.ConstantColorizer(colorizer)
+        for atom in atoms:
+            atom.colorizer = colorizer
+        for rep in model.representations:
+            rep.update_atom_colors()
+
     def load(self, file_name):
         atoms = model.atoms
         atoms[:] = []
-        atoms.colorizer = color.ColorByRasmolCpkNewLighter()
+        atoms.colorizer = color.ColorByRasmolCpk()
         atoms.load(file_name)
         print len(atoms), "atoms found"
         if len(atoms) > 0:
             print "creating representation"
-            sphere_array = cinemol.imposter.SphereImposterArray(atoms)
+            rep = model.default_representation(atoms)
+            model.representations.append(rep)
             ren = self.renderer
-            ren.actors = []
-            self.main_window.bookmarks.clear()
-            ren.actors.append(sphere_array)
             print "centering"
             min_pos, max_pos = atoms.box_min_max()
             new_focus = 0.5 * (max_pos + min_pos)
             ren.camera_position.focus_in_ground = new_focus
             ren.camera_position.distance_to_focus = 4.0 * (max_pos - min_pos).norm()            
-            ren.update()
+            self.refresh()
         
     def refresh(self):
         "Used in script files to redraw the image"
@@ -72,5 +76,15 @@ class Commands(object):
         
     def select(self, atom_expression):
         expr = AtomExpression(atom_expression)
-        model.selected_atoms = model.atoms.select(expr)
+        model.selected_atoms[:] = model.atoms.select(expr)[:]
+
+    def zap(self):
+        print "clearing everything"
+        self.main_window.bookmarks.clear()
+        self.renderer.actors[:] = []
+        model.atoms[:] = []
+        model.bonds[:] = []
+        model.selected_atoms[:] = model.atoms[:]
+        model.representations[:] = []
+
         

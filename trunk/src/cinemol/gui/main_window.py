@@ -343,7 +343,8 @@ before you can save a movie.""")
             self.statusBar().showMessage("Loading PDB file " 
                              + file_name
                              + "...",
-                             0)        
+                             0)
+            command.zap()
             command.load(file_name)
             self.statusBar().showMessage("Finished loading PDB file " 
                              + file_name,
@@ -376,5 +377,6 @@ before you can save a movie.""")
         except:
             QMessageBox.warning(self, "Problem opening file", 
                                 file_name)
+            raise
 
             

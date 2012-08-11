@@ -4,6 +4,7 @@ Created on Jun 19, 2012
 @author: brunsc
 '''
 
+from cinemol.model import model
 import stereo3d
 from skybox import SkyBox
 from imposter import sphereImposterShaderProgram
@@ -53,6 +54,9 @@ class CinemolRenderer(glrenderer.GlRenderer):
         self.sky_box.init_gl()
         for actor in self.actors:
             actor.init_gl()
+        for rep in model.representations:
+            print "init_gl on a representation"
+            rep.init_gl()
         self.shader.init_gl()
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -76,6 +80,8 @@ class CinemolRenderer(glrenderer.GlRenderer):
         self.shader.eye_shift = camera.eye_shift_in_ground
         for actor in self.actors:
             actor.paint_gl()
+        for rep in model.representations:
+            rep.paint_gl()
 
     def paint_gl(self):
         self.render_background()
