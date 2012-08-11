@@ -49,7 +49,7 @@ class Commands(object):
     def load(self, file_name):
         atoms = model.atoms
         atoms[:] = []
-        atoms.colorizer = color.ColorByRasmolCpk()
+        atoms.colorizer = color.ColorByRasmolCpkNewLighter()
         atoms.load(file_name)
         print len(atoms), "atoms found"
         if len(atoms) > 0:

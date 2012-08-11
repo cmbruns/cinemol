@@ -52,7 +52,19 @@ class MainWindow(QMainWindow):
                 self.load_pdb_file, 
                 "input_pdb_files", 
                 self.ui.menuLoad_recent)
+        self.setAcceptDrops(True)
 
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+        
+    def dropEvent(self, event):
+        for url in event.mimeData().urls():
+            s = url.toString()
+            self.load_pdb_file(s)
+        
     @property
     def camera(self):
         return self.ui.glCanvas.renderer.camera_position
@@ -332,7 +344,22 @@ before you can save a movie.""")
 
     @QtCore.Slot(str)
     def load_pdb_file(self, file_name):
-        command.load(file_name)
+        try:
+            self.statusBar().showMessage("Loading PDB file " 
+                             + file_name
+                             + "...",
+                             0)        
+            command.load(file_name)
+            self.statusBar().showMessage("Finished loading PDB file " 
+                             + file_name,
+                             2000)        
+            self.recent_files.add_file(file_name)
+        except:
+            self.statusBar().showMessage("Error loading PDB file " 
+                             + file_name,
+                             2000)        
+            QMessageBox.warning(self, "Problem opening file", 
+                                file_name)
         
     @QtCore.Slot()
     def on_actionOpen_triggered(self):
@@ -352,9 +379,6 @@ before you can save a movie.""")
             # Remember the directory where we found this
             pdb_input_dir = QFileInfo(file_name).absoluteDir().canonicalPath()
             settings.setValue("pdb_input_dir", pdb_input_dir)
-            self.recent_files.add_file(file_name)
-            self.statusBar().showMessage("Finished loading PDB file " + file_name,
-                             5000)        
         except:
             pass
 
