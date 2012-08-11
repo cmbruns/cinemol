@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig()
+
 from gui.main_window import MainWindow
 import console_context
 from commands import Commands

@@ -91,9 +91,9 @@ class Console(QMainWindow):
         self.regular_prompt = ">>> "
         self.more_prompt = "... "
         self.prompt = self.regular_prompt
-        QApplication.clipboard().dataChanged.connect(self.on_clipboard_data_changed)
+        QApplication.clipboard().dataChanged.connect(self.onClipboardDataChanged)
         self.te = self.ui.plainTextEdit
-        self.te.selectionChanged.connect(self.on_selection_changed)
+        self.te.selectionChanged.connect(self.onSelectionChanged)
         self.te.cursorPositionChanged.connect(self.onCursorPositionChanged)
         self.append_blue("Welcome to the Cinemol python console!\n")
         # This header text is intended to look just like the standard python banner
@@ -328,11 +328,11 @@ class Console(QMainWindow):
         QSettings().setValue("script_input_dir", os.path.dirname(file_name))
     
     @QtCore.Slot()
-    def on_clipboard_data_changed(self):
+    def onClipboardDataChanged(self):
         pass
         
     @QtCore.Slot()
-    def on_selection_changed(self):
+    def onSelectionChanged(self):
         pass
     
     @QtCore.Slot()
