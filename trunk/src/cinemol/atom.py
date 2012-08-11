@@ -8,6 +8,8 @@ import cinemol.element as element
 import cinemol.color as color
 from cinemol.rotation import Vec3
 from cinemol.atom_expression import AtomExpression
+import urllib
+from StringIO import StringIO
 import gzip
 import re
 
@@ -107,18 +109,23 @@ class AtomList(list):
         return 0.5 * (box_min + box_max)
     
     def load(self, file_name):
-        # Start by assuming its a gzipped file
-        fh = gzip.open(file_name, 'rb')
-        start_pos = fh.tell()
-        try:
-            fh.read(1)
-            fh.seek(start_pos)
-        except IOError:
-            # OK, maybe its not a gzipped file
+        # It might already be a stream if we opened a URL
+        if hasattr(file_name, 'readline'):
+            self.load_stream(file_name)
+            return
+        # File name might be a url
+        opener = urllib.FancyURLopener()
+        fh = opener.open(file_name)
+        if file_name.endswith(".gz"):
+            buf = StringIO(fh.read())
             fh.close()
-            fh = open(file_name, 'r')
-        with fh as f:
-            self.load_stream(f)
+            fh = gzip.GzipFile(fileobj=buf)
+        try:
+            self.load_stream(fh)
+        except:
+            fh.close()
+            raise
+        fh.close()
             
     def load_stream(self, stream):
         for line in stream:
