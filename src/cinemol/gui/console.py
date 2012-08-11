@@ -16,6 +16,15 @@ import sys
 import os
 
 
+def _escape_html(text):
+    text = text.replace(r'&', r'&amp;')
+    text = text.replace(r'<', r'&lt;')
+    text = text.replace(r'>', r'&gt;')
+    text = text.replace('\n', r'<br>')
+    text = text.replace(' ', r'&nbsp;')
+    return text
+
+
 class ConsoleStdinStream(object):
     def __init__(self, console):
         self.text_edit = console.te
@@ -45,12 +54,7 @@ class ConsoleStderrStream(object):
         
     def write(self, text):
         sys.__stderr__.write(text)
-        cursor = self.text_edit.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        # html = cgi.escape(text)
-        # cursor.insertHtml('<font color="red"><pre>'+html+'</pre></font>')
-        cursor.insertText(text)
-        self.text_edit.setTextCursor(cursor)
+        self.console.append_red(text)
         self.text_edit.ensureCursorVisible()
         self.console.prompt_is_dirty = True
 
@@ -68,10 +72,7 @@ class ConsoleStdoutStream(object):
 
     def write(self, text):
         sys.__stdout__.write(text)
-        cursor = self.text_edit.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        cursor.insertText(text)
-        self.text_edit.setTextCursor(cursor)
+        self.console.append_blue(text)
         self.console.prompt_is_dirty = True
 
 
@@ -93,10 +94,10 @@ class Console(QMainWindow):
         QApplication.clipboard().dataChanged.connect(self.on_clipboard_data_changed)
         self.te = self.ui.plainTextEdit
         self.te.selectionChanged.connect(self.on_selection_changed)
-        self.te.cursorPositionChanged.connect(self.on_cursor_position_changed)
-        self.append("Welcome to the Cinemol python console!")
+        self.te.cursorPositionChanged.connect(self.onCursorPositionChanged)
+        self.append_blue("Welcome to the Cinemol python console!\n")
         # This header text is intended to look just like the standard python banner
-        self.append("Python " + sys.version + " on " + sys.platform)
+        self.append_blue("Python " + sys.version + " on " + sys.platform)
         # self.append('Type "help", "copyright", "credits" or "license" for more information.')
         self.append("") # Need return before prompt
         # make cursor about the size of a letter
@@ -212,7 +213,7 @@ class Console(QMainWindow):
                 # If this is a printing character, make sure the editing console is activated
                 if len(keyEvent.text()) > 0:
                     if not self.cursor_is_in_editing_region(self.te.textCursor()):
-                        self.te.setTextCursor(self.latest_good_cursor.position)
+                        self.te.setTextCursor(self.latest_good_cursor)
         return QMainWindow.eventFilter(self, watched, event)
 
     def run_console_command(self):
@@ -234,8 +235,13 @@ class Console(QMainWindow):
     def place_new_prompt(self, make_visible=True):
         self.te.setUndoRedoEnabled(False)
         # self.pause_command_capture()
-        self.te.moveCursor(QTextCursor.End)
-        self.te.insertPlainText(self.prompt)
+        cursor = self.te.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        cursor.insertHtml('<font color="black">' 
+                  + _escape_html(self.prompt)
+                  + '</font>')
+        self.te.setTextCursor(cursor)
+        # self.te.insertPlainText(self.prompt)
         self.te.moveCursor(QTextCursor.End)
         if make_visible:
             self.te.ensureCursorVisible()
@@ -249,6 +255,22 @@ class Console(QMainWindow):
     
     def append(self, message):
         self.ui.plainTextEdit.appendPlainText(message)
+        
+    def append_red(self, message):
+        cursor = self.te.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        cursor.insertHtml('<font color="red">' 
+                          + _escape_html(message) 
+                          + '</font>')
+        self.te.setTextCursor(cursor)
+
+    def append_blue(self, message):
+        cursor = self.te.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        cursor.insertHtml('<font color="blue">' 
+                          + _escape_html(message) 
+                          + '</font>')
+        self.te.setTextCursor(cursor)
 
     def run_command_string(self, command, end_is_visible = True):
         "Used for both interactive commands and script files"
@@ -314,8 +336,27 @@ class Console(QMainWindow):
         pass
     
     @QtCore.Slot()
-    def on_cursor_position_changed(self):
-        pass
+    def onCursorPositionChanged(self):
+        # Don't allow editing outside the editing area.
+        current_cursor = self.te.textCursor()
+        if self.cursor_is_in_editing_region(current_cursor):
+            # This is a good spot.  Within the editing area
+            self.latest_good_cursor = current_cursor
+            bReadOnly = False
+        else:
+            bReadOnly = True
+        if bReadOnly != self.te.isReadOnly():
+            self.te.setReadOnly(bReadOnly)
+        if bReadOnly:
+            self.ui.actionPaste.setEnabled(False)
+            self.ui.actionCut.setEnabled(False)
+        else:
+            # Performance problem with canPaste() method.
+            # self.te.canPaste() # slow ~120 ms
+            # emit pasteAvailable(self.te.canPaste()) # slow
+            # emit pasteAvailable(!QApplication::clipboard().text().isEmpty())
+            # QApplication::clipboard().text().isEmpty() # slow ~ 120 ms
+            self.ui.actionPaste.setEnabled(True) # whatever...
 
 
 class CommandRing:

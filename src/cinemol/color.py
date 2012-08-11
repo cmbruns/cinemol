@@ -247,7 +247,7 @@ class ColorByRasmolCpk(ColorByElement):
 
 class ColorByRasmolCpkNewLighter(ColorByRasmolCpk):
     def __init__(self):
-        ColorByElement.__init__(self)
+        ColorByRasmolCpk.__init__(self)
         # Rasmol CPK colors "new CPK brighter version"
         self._add(element.carbon, light_gray)
         self._add(element.nitrogen, rasmol_bright_sky_blue)

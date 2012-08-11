@@ -4,6 +4,7 @@ from PySide import QtCore
 from PySide.QtCore import *
 from OpenGL.GL import *
 import numpy
+import array
 from math import pi, cos, sin
 import os
 
@@ -40,7 +41,7 @@ class VertexArrayTest:
         self.vertex_array = numpy.array([0.0,0.0,0.0,1.0, 0.0,0.0,0.0,1.0, 0.0,0.0,0.0,1.0], dtype='float32')
         self.normal_array = numpy.array([1.0,1.0,1.0, -1.0,1.0,1.0, -1.0,-1.0,1.0], dtype='float32')
         self.color_array = numpy.array([0.0,1.0,0.0,1.0, 0.0,1.0,0.0,1.0, 0.0,1.0,0.0,1.0], dtype='float32')
-        self.index_array = numpy.array([0, 1, 2], dtype='uint32')
+        self.index_array = numpy.array([0, 1, 2], dtype='UInt32')
         
     def init_gl(self):
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
@@ -110,6 +111,7 @@ class SphereImposterArray(QObject):
         self.normal_array = numpy.array(list(self._normal_generator(spheres)), dtype='float32')
         self.color_array = numpy.array(list(self._color_generator(spheres)), dtype='float32')
         self.index_array = numpy.array(list(self._index_generator(spheres)), dtype='uint32')
+        # self.index_array = list(self._index_generator(spheres))
         self.vertex_buffer = 0
         self.color_buffer = 0
         self.normal_buffer = 0
@@ -120,7 +122,10 @@ class SphereImposterArray(QObject):
         glDeleteBuffers(1, self.vertex_buffer)
         glDeleteBuffers(1, self.color_buffer)
         glDeleteBuffers(1, self.normal_buffer)
-        glDeleteBuffers(1, self.index_buffer)
+        try:
+            glDeleteBuffers(1, self.index_buffer)
+        except:
+            pass
         
     def init_gl(self):
         if self.is_initialized:

@@ -84,6 +84,9 @@ class Atom(object):
 
 
 class AtomList(list):
+    def __init__(self):
+        self.colorizer = color.green_colorizer
+    
     def box_min_max(self):
         if len(self) < 1:
             return None, None
@@ -123,6 +126,7 @@ class AtomList(list):
             if line[0:4] == "ATOM" or line[0:6] == "HETATM":
                 atom = Atom()
                 atom.from_pdb_atom_string(line)
+                atom.colorizer = self.colorizer
                 self.append(atom)
 
     def select(self, expression):
