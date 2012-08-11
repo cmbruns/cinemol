@@ -33,57 +33,6 @@ class SphereImposterShaderProgram(ShaderProgram):
 sphereImposterShaderProgram = SphereImposterShaderProgram()
 
 cylinderImposterShaderProgram = shader.GreenShaderProgram()
-
-
-class VertexArrayTest:
-    def __init__(self):
-        # self.vertex_array = numpy.array([1.0,1.0,0.0,1.0, -1.0,1.0,0.0,1.0, -1.0,-1.0,0.0,1.0], dtype='float32')
-        self.vertex_array = numpy.array([0.0,0.0,0.0,1.0, 0.0,0.0,0.0,1.0, 0.0,0.0,0.0,1.0], dtype='float32')
-        self.normal_array = numpy.array([1.0,1.0,1.0, -1.0,1.0,1.0, -1.0,-1.0,1.0], dtype='float32')
-        self.color_array = numpy.array([0.0,1.0,0.0,1.0, 0.0,1.0,0.0,1.0, 0.0,1.0,0.0,1.0], dtype='float32')
-        self.index_array = numpy.array([0, 1, 2], dtype='UInt32')
-        
-    def init_gl(self):
-        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
-        # Vertices
-        self.vertex_buffer = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vertex_buffer)
-        glBufferData(GL_ARRAY_BUFFER, self.vertex_array, GL_STATIC_DRAW)
-        # Normals
-        self.normal_buffer = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.normal_buffer)
-        glBufferData(GL_ARRAY_BUFFER, self.normal_array, GL_STATIC_DRAW)
-        # Colors
-        self.color_buffer = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
-        glBufferData(GL_ARRAY_BUFFER, self.color_array, GL_STATIC_DRAW)
-        # Vertex indices
-        self.index_buffer = glGenBuffers(1)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.index_array, GL_STATIC_DRAW)
-        glPopClientAttrib()
-        
-    def paint_gl(self):
-        with sphereImposterShaderProgram:
-            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
-            # Vertices
-            glBindBuffer(GL_ARRAY_BUFFER, self.vertex_buffer)
-            glEnableClientState(GL_VERTEX_ARRAY)
-            glVertexPointer(4, GL_FLOAT, 0, None)
-            # Normals
-            glBindBuffer(GL_ARRAY_BUFFER, self.normal_buffer)
-            glEnableClientState(GL_NORMAL_ARRAY)
-            glNormalPointer(GL_FLOAT, 0, None)
-            # Colors
-            glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
-            glEnableClientState(GL_COLOR_ARRAY)
-            glColorPointer(4, GL_FLOAT, 0, None)
-            # Vertex indices
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
-            glColor3f(1,0,0)
-            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, None)
-            # glDrawArrays(GL_TRIANGLES, 0, 3)
-            glPopClientAttrib()
             
 
 class ImposterQuadArray:
@@ -110,22 +59,13 @@ class SphereImposterArray(QObject):
         self.vertex_array = numpy.array(list(self._vertex_generator(spheres)), dtype='float32')
         self.normal_array = numpy.array(list(self._normal_generator(spheres)), dtype='float32')
         self.color_array = numpy.array(list(self._color_generator(spheres)), dtype='float32')
-        self.index_array = numpy.array(list(self._index_generator(spheres)), dtype='uint32')
+        self.index_array = numpy.array(list(self._index_generator(spheres)), numpy.uint32)
         # self.index_array = list(self._index_generator(spheres))
         self.vertex_buffer = 0
         self.color_buffer = 0
         self.normal_buffer = 0
         self.index_buffer = 0
         self.is_initialized = False
-        
-    def __del__(self):
-        glDeleteBuffers(1, self.vertex_buffer)
-        glDeleteBuffers(1, self.color_buffer)
-        glDeleteBuffers(1, self.normal_buffer)
-        try:
-            glDeleteBuffers(1, self.index_buffer)
-        except:
-            pass
         
     def init_gl(self):
         if self.is_initialized:
