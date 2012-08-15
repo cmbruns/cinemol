@@ -9,7 +9,7 @@ from cinemol.imposter import SphereImposterArray
 class BondLines:
     pass
 
-class SpaceFilling:
+class SpaceFilling(object):
     def __init__(self, atoms):
         self.imposters = SphereImposterArray(atoms)
         
@@ -18,6 +18,6 @@ class SpaceFilling:
         
     def paint_gl(self):
         self.imposters.paint_gl()
-        
+
     def update_atom_colors(self):
         self.imposters.update_atom_colors()

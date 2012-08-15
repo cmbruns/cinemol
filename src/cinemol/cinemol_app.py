@@ -3,8 +3,7 @@ logging.basicConfig()
 
 from gui.main_window import MainWindow
 import console_context
-from commands import Commands
-from scenes import FiveBallScene, TeapotActor
+from scenes import FiveBallScene
 from cinemol_renderer import CinemolRenderer
 from PySide.QtGui import QApplication
 import sys

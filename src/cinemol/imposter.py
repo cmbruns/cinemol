@@ -3,9 +3,7 @@ import shader
 from PySide import QtCore
 from PySide.QtCore import *
 from OpenGL.GL import *
-from OpenGL.GL import glBufferSubData
 import numpy
-import array
 from math import pi, cos, sin
 import os
 
@@ -13,7 +11,7 @@ import os
 class SphereImposterShaderProgram(ShaderProgram):
     def __init__(self):
         ShaderProgram.__init__(self)
-        this_dir, this_filename = os.path.split(__file__)
+        this_dir = os.path.split(__file__)[0]
         self.vertex_shader = open(os.path.join(this_dir, "shaders/sphere_vtx.glsl")).read()
         self.fragment_shader = open(os.path.join(this_dir, "shaders/sphere_frg.glsl")).read()
         self.atom_scale = 1.0
@@ -34,7 +32,8 @@ class SphereImposterShaderProgram(ShaderProgram):
 sphereImposterShaderProgram = SphereImposterShaderProgram()
 
 cylinderImposterShaderProgram = shader.GreenShaderProgram()
-            
+
+passThroughShaderProgram = shader.ShaderProgram()
 
 class ImposterQuadArray:
     def __init__(self):
@@ -44,6 +43,7 @@ class ImposterQuadArray:
     
 class SphereImposterArray(QObject):
     def __init__(self, spheres):
+        # print "SphereImposterArray()", len(spheres)
         self.vertex_count = 4 # one quadrilateral per sphere
         self.triangle_count = self.vertex_count - 2
         self.normal_offsets = []
@@ -54,7 +54,8 @@ class SphereImposterArray(QObject):
         angle = 0.0
         d_angle = 2.0 * pi / self.vertex_count # to next vertex of polygon
         apothem_length = 1.0
-        R = circumradius_length = apothem_length / cos(pi/self.vertex_count)
+        circumradius_length = apothem_length / cos(pi/self.vertex_count)
+        R = circumradius_length
         for v in range(self.vertex_count):
             n = [R * cos(angle), R * sin(angle)]
             self.normal_offsets.append(n, )
@@ -94,10 +95,15 @@ class SphereImposterArray(QObject):
         self.is_initialized = True
                 
     def paint_gl(self):
+        # with passThroughShaderProgram:
         with sphereImposterShaderProgram:
             if not self.is_initialized:
                 self.init_gl()
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+            # Colors
+            glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
+            glEnableClientState(GL_COLOR_ARRAY)
+            glColorPointer(3, GL_FLOAT, 0, None)
             # Vertices
             glBindBuffer(GL_ARRAY_BUFFER, self.vertex_buffer)
             glEnableClientState(GL_VERTEX_ARRAY)
@@ -106,27 +112,24 @@ class SphereImposterArray(QObject):
             glBindBuffer(GL_ARRAY_BUFFER, self.normal_buffer)
             glEnableClientState(GL_NORMAL_ARRAY)
             glNormalPointer(GL_FLOAT, 0, None)
-            # Colors
-            glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
-            glEnableClientState(GL_COLOR_ARRAY)
-            glColorPointer(3, GL_FLOAT, 0, None)
             # Vertex indices
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
             glDrawElements(GL_TRIANGLES, len(self.vertex_array), GL_UNSIGNED_INT, None)
             glPopClientAttrib()
 
     def update_atom_colors(self):
-        c = self.color_array
-        i = 0
-        for x in list(self._color_generator(self.spheres)):
-            c[i] = x
-            i += 1
+        ix = 0
+        for sphere in self.spheres:
+            color = sphere.color
+            for vertex in range(self.vertex_count):
+                for rgb in range(3):
+                    self.color_array[ix] = color[rgb]
+                    ix += 1
         if self.is_initialized:
-            print "updating atom colors"
+            # print "updating atom colors"
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
             glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
-            # glBufferData(GL_ARRAY_BUFFER, c, GL_STATIC_DRAW)
-            glBufferSubData(GL_ARRAY_BUFFER, 0, c)
+            glBufferData(GL_ARRAY_BUFFER, self.color_array, GL_STATIC_DRAW)
             glPopClientAttrib()
 
     def _vertex_generator(self, spheres):
