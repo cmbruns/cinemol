@@ -11,11 +11,12 @@ import cinemol.color as color
 import cinemol.atom as atom
 
 class Commands(object):
+
     "Command dispatcher for Cinemol command line console and menus"
     def __init__(self):
         "Create a new Commands object.  This should be called only once, by the CinemolApp()"
         pass
-        
+
     def _set_app(self, app):
         self.app = app
         self.main_window = app.mainWin
@@ -49,8 +50,10 @@ class Commands(object):
             colorizer = color.ConstantColorizer(colorizer)
         for atom in atoms:
             atom.colorizer = colorizer
-        for rep in model.representations:
-            rep.update_atom_colors()
+        self.renderer.gl_widget.makeCurrent()
+        model.update_atom_colors()
+        self.renderer.gl_widget.doneCurrent()
+        self.refresh()
 
     def load(self, file_name):
         atoms = model.atoms
@@ -86,5 +89,3 @@ class Commands(object):
         model.bonds[:] = []
         model.selected_atoms[:] = model.atoms[:]
         model.representations[:] = []
-
-        

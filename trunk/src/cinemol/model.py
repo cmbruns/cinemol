@@ -17,4 +17,9 @@ class CinemolModel(object):
         self.representations = list()
         self.default_representation = cinemol.representation.SpaceFilling
 
+    def update_atom_colors(self):
+        for rep in self.representations:
+            rep.update_atom_colors()
+        
+
 model = CinemolModel()
