@@ -80,6 +80,11 @@ class Commands(object):
     def select(self, atom_expression):
         expr = AtomExpression(atom_expression)
         model.selected_atoms[:] = model.atoms.select(expr)[:]
+        num = len(model.selected_atoms)
+        if num == 1:
+            print num, "atom selected"
+        else:
+            print num, "atoms selected."
 
     def zap(self):
         print "clearing everything"
