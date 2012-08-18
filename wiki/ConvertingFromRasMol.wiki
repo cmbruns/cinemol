@@ -3,4 +3,8 @@
 =Converting From RasMol=
 
 || *RasMol Command* || *Corresponding Cinemol Command(s)* || *Description* ||
-|| {{{ center {<expression>} }}} || {{{cm.center(<expression>)}}} || Set center of rotation ||
+|| {{{ center {<expression>} }}} || {{{  }}} || Set center of rotation ||
+|| {{{ select(4) }}} || {{{ select(4) }}} || Select residue 4 of all chains ||
+|| || {{{ select(".c*") }}}|| Select all carbon atoms ||
+|| || {{{ select("cys") }}} || Select all cysteine residues||
+|| {{{  }}} || {{{ color(col.yellow) }}} || Color previously selected atoms yellow||
