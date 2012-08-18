@@ -41,7 +41,8 @@ void main()
         log = glGetShaderInfoLog(self.fs)
         if log:
             print "Fragment Shader:", log
-        self.shader_program = glCreateProgram()
+        if self.shader_program == 0:
+            self.shader_program = glCreateProgram()
         glAttachShader(self.shader_program, self.vs)
         glAttachShader(self.shader_program, self.fs)
         glLinkProgram(self.shader_program)

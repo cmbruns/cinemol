@@ -53,6 +53,10 @@ class MainWindow(QMainWindow):
                 self.ui.menuLoad_recent)
         self.setAcceptDrops(True)
 
+    def closeEvent(self, event):
+        self.console.close()
+        QMainWindow.closeEvent(self, event)
+
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             event.accept()
