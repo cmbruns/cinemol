@@ -36,6 +36,10 @@ class MainWindow(QMainWindow):
         stereoActionGroup.addAction(self.ui.actionRow_interleaved)
         stereoActionGroup.addAction(self.ui.actionColumn_interleaved)
         stereoActionGroup.addAction(self.ui.actionChecker_interleaved)
+        # representations
+        repActionGroup = QActionGroup(self)
+        repActionGroup.addAction(self.ui.actionWireframe)
+        repActionGroup.addAction(self.ui.actionSpacefill)
         # size dialog
         self.size_dialog = SizeDialog(self)
         self.size_dialog.size_changed.connect(self.resize_canvas)
@@ -86,6 +90,14 @@ class MainWindow(QMainWindow):
     @QtCore.Slot(bool)
     def on_actionShow_console_triggered(self, checked):
         self.console.setVisible(checked)
+    
+    @QtCore.Slot(bool)
+    def on_actionWireframe_triggered(self, checked):
+        command.wireframe()
+        
+    @QtCore.Slot(bool)
+    def on_actionSpacefill_triggered(self, checked):
+        command.spacefill()
         
     @QtCore.Slot(bool)
     def on_actionLoad_movie_script_triggered(self, checked):
