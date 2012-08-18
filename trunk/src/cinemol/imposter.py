@@ -14,6 +14,19 @@ class SphereImposterShaderProgram(ShaderProgram):
         this_dir = os.path.split(__file__)[0]
         self.vertex_shader = open(os.path.join(this_dir, "shaders/sphere_vtx.glsl")).read()
         self.fragment_shader = open(os.path.join(this_dir, "shaders/sphere_frg.glsl")).read()
+        # experimental geometry shader
+        self.geometry_shader = """
+        #version 120
+        #extension GL_EXT_geometry_shader4 : enable
+         
+        void main() {
+          for(int i = 0; i < gl_VerticesIn; ++i) {
+            gl_FrontColor = gl_FrontColorIn[i];
+            gl_Position = gl_PositionIn[i];
+            EmitVertex();
+          }
+        }
+        """
         self.atom_scale = 1.0
         
     def __enter__(self):
@@ -27,6 +40,17 @@ class SphereImposterShaderProgram(ShaderProgram):
                     bg[0], bg[1], bg[2], bg[3])
         glUniform1f(glGetUniformLocation(self.shader_program, "atom_scale"), self.atom_scale)
         return self
+    
+    def init_gl(self):
+        self.gs = glCreateShader(GL_GEOMETRY_SHADER)
+        glShaderSource(self.gs, self.geometry_shader)
+        glCompileShader(self.gs)
+        log = glGetShaderInfoLog(self.gs)
+        if log:
+            print "Geometry Shader:", log
+        self.shader_program = glCreateProgram()
+        # glAttachShader(self.shader_program, self.gs)
+        ShaderProgram.init_gl(self)
 
 
 sphereImposterShaderProgram = SphereImposterShaderProgram()
