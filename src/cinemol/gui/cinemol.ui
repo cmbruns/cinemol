@@ -96,6 +96,14 @@
      <addaction name="actionGo_to_next_bookmark"/>
      <addaction name="actionClear_all_bookmarks"/>
     </widget>
+    <widget class="QMenu" name="menuRepresentation">
+     <property name="title">
+      <string>Representation</string>
+     </property>
+     <addaction name="actionSpacefill"/>
+     <addaction name="actionWireframe"/>
+    </widget>
+    <addaction name="menuRepresentation"/>
     <addaction name="menuBookmarks"/>
     <addaction name="menuStereo_3D"/>
     <addaction name="actionAtom_size"/>
@@ -347,6 +355,25 @@
   <action name="actionFoo">
    <property name="text">
     <string>Foo</string>
+   </property>
+  </action>
+  <action name="actionWireframe">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wireframe</string>
+   </property>
+  </action>
+  <action name="actionSpacefill">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Spacefill</string>
    </property>
   </action>
  </widget>

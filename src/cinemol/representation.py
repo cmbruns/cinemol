@@ -7,7 +7,9 @@ Created on Aug 9, 2012
 from cinemol.imposter import SphereImposterArray
 
 class BondLines:
-    pass
+    def __init__(self, atoms):
+        pass
+
 
 class SpaceFilling(object):
     def __init__(self, atoms):

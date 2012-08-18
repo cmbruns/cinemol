@@ -22,7 +22,13 @@ def center(position="*"):
 
 def color(colorizer, atoms=cinemol.model.model.selected_atoms):
     cm.color(colorizer, atoms)
-    
+
+def cpk(param=None):
+    cm.cpk(param)
+
+def cpknew(param=None):
+    cm.cpknew(param)
+
 def load(file_name):
     cm.load(file_name)
     
@@ -31,6 +37,12 @@ def refresh():
 
 def select(atom_expression):
     cm.select(atom_expression)
+
+def spacefill(param=None):
+    cm.spacefill(param)
+
+def wireframe(width=1.0):
+    cm.wireframe(width)
 
 def zap():
     cm.zap()

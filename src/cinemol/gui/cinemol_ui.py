@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Thu Aug 16 00:42:30 2012
+# Created: Sat Aug 18 20:27:54 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -40,6 +40,8 @@ class Ui_MainWindow(object):
         self.menuStereo_3D.setObjectName("menuStereo_3D")
         self.menuBookmarks = QtGui.QMenu(self.menuView)
         self.menuBookmarks.setObjectName("menuBookmarks")
+        self.menuRepresentation = QtGui.QMenu(self.menuView)
+        self.menuRepresentation.setObjectName("menuRepresentation")
         self.menuWindow = QtGui.QMenu(self.menubar)
         self.menuWindow.setObjectName("menuWindow")
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -132,6 +134,13 @@ class Ui_MainWindow(object):
         self.actionReset_center.setObjectName("actionReset_center")
         self.actionFoo = QtGui.QAction(MainWindow)
         self.actionFoo.setObjectName("actionFoo")
+        self.actionWireframe = QtGui.QAction(MainWindow)
+        self.actionWireframe.setCheckable(True)
+        self.actionWireframe.setObjectName("actionWireframe")
+        self.actionSpacefill = QtGui.QAction(MainWindow)
+        self.actionSpacefill.setCheckable(True)
+        self.actionSpacefill.setChecked(True)
+        self.actionSpacefill.setObjectName("actionSpacefill")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.menuLoad_recent.menuAction())
         self.menuFile.addSeparator()
@@ -166,6 +175,9 @@ class Ui_MainWindow(object):
         self.menuBookmarks.addAction(self.actionGo_to_previous_bookmark)
         self.menuBookmarks.addAction(self.actionGo_to_next_bookmark)
         self.menuBookmarks.addAction(self.actionClear_all_bookmarks)
+        self.menuRepresentation.addAction(self.actionSpacefill)
+        self.menuRepresentation.addAction(self.actionWireframe)
+        self.menuView.addAction(self.menuRepresentation.menuAction())
         self.menuView.addAction(self.menuBookmarks.menuAction())
         self.menuView.addAction(self.menuStereo_3D.menuAction())
         self.menuView.addAction(self.actionAtom_size)
@@ -187,6 +199,7 @@ class Ui_MainWindow(object):
         self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
         self.menuStereo_3D.setTitle(QtGui.QApplication.translate("MainWindow", "Stereo 3D", None, QtGui.QApplication.UnicodeUTF8))
         self.menuBookmarks.setTitle(QtGui.QApplication.translate("MainWindow", "Bookmarks", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuRepresentation.setTitle(QtGui.QApplication.translate("MainWindow", "Representation", None, QtGui.QApplication.UnicodeUTF8))
         self.menuWindow.setTitle(QtGui.QApplication.translate("MainWindow", "Window", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setText(QtGui.QApplication.translate("MainWindow", "Load molecule...", None, QtGui.QApplication.UnicodeUTF8))
@@ -223,5 +236,7 @@ class Ui_MainWindow(object):
         self.actionAtom_size.setText(QtGui.QApplication.translate("MainWindow", "Adjust atom size...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset_center.setText(QtGui.QApplication.translate("MainWindow", "Recenter view", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFoo.setText(QtGui.QApplication.translate("MainWindow", "Foo", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionWireframe.setText(QtGui.QApplication.translate("MainWindow", "Wireframe", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSpacefill.setText(QtGui.QApplication.translate("MainWindow", "Spacefill", None, QtGui.QApplication.UnicodeUTF8))
 
 from cinemol.cinemol_canvas import CinemolCanvas

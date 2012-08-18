@@ -4,6 +4,7 @@ Created on Jul 29, 2012
 @author: cmbruns
 '''
 
+import cinemol.representation
 from cinemol.rotation import Vec3
 from cinemol.model import model
 from cinemol.atom_expression import AtomExpression
@@ -55,6 +56,14 @@ class Commands(object):
         self.renderer.gl_widget.doneCurrent()
         self.refresh()
 
+    def cpk(self, param):
+        self.spacefill(param)
+        self.color(color.ColorByRasmolCpk())
+
+    def cpknew(self, param):
+        self.spacefill(param)
+        self.color(color.ColorByRasmolCpkNewLighter())
+        
     def load(self, file_name):
         atoms = model.atoms
         atoms[:] = []
@@ -76,7 +85,7 @@ class Commands(object):
     def refresh(self):
         "Used in script files to redraw the image"
         self.renderer.update()
-        
+
     def select(self, atom_expression):
         expr = AtomExpression(atom_expression)
         model.selected_atoms[:] = model.atoms.select(expr)[:]
@@ -86,6 +95,17 @@ class Commands(object):
         else:
             print num, "atoms selected."
 
+    def spacefill(self, param=None):
+        print "spacefill"
+        model.default_representation = cinemol.representation.SpaceFilling
+        # TODO
+    
+    def wireframe(self, width=1.0):
+        print "wireframe"
+        model.default_representation = cinemol.representation.BondLines
+        # TODO
+        
+    
     def zap(self):
         print "clearing everything"
         self.main_window.bookmarks.clear()
