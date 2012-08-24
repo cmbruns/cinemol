@@ -53,7 +53,7 @@ class Commands(object):
             atom.colorizer = colorizer
         self.renderer.gl_widget.makeCurrent()
         model.update_atom_colors()
-        self.renderer.gl_widget.doneCurrent()
+        # self.renderer.gl_widget.doneCurrent()
         self.refresh()
 
     def cpk(self, param):

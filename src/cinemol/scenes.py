@@ -1,5 +1,5 @@
 from actor import Actor
-from imposter import SphereImposterArray, CylinderImposterArray
+from imposter import SphereImposterArray, CylinderImposterArray, NewSphereArray, SharedGLBufferObjects
 from rotation import Vec3
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -58,8 +58,11 @@ class FiveBallScene(Actor):
         sphere.center = Vec3([0,0,0])
         sphere.radius = 1.0
         sphere.color = self.color
+        sphere.index = 0
         # self.sphere_array = VertexArrayTest()
         self.sphere_array = SphereImposterArray([sphere,])
+        buffers = SharedGLBufferObjects([sphere,])
+        # self.sphere_array = NewSphereArray(buffers)
         cylinder = Vec3([0,0,0])
         cylinder.center = Vec3([0,0,0])
         cylinder.radius = 1.0
@@ -71,7 +74,7 @@ class FiveBallScene(Actor):
         self.glut_cylinder.init_gl()
         self.cylinder_array.init_gl()
         
-    def paint_gl(self):
+    def paint_gl(self, camera=None, renderer=None):
         c = self.color
         glColor3f(c[0], c[1], c[2]) # paint spheres blue
         glPushMatrix()
@@ -79,7 +82,7 @@ class FiveBallScene(Actor):
         for p in range(5):
             # Leave a spot for shader sphere
             if 3 == p:
-                self.sphere_array.paint_gl()
+                self.sphere_array.paint_gl(camera, renderer)
             else:
                 self.glut_sphere.paint_gl()
             glTranslate(1.5, 0, 0)

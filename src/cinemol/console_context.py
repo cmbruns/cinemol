@@ -5,12 +5,12 @@ Created on Jul 29, 2012
 '''
 
 from commands import Commands
+cm = Commands() # Needs further initialization by app
+
 import cinemol.color as col
 from cinemol.color import black, green
 import cinemol.model
 
-# This module gets populated programmatically
-cm = Commands() # Needs further initialization by app
 
 def _context():
     return globals()
