@@ -145,6 +145,7 @@ class AtomList(list):
                 atom = Atom()
                 atom.from_pdb_atom_string(line)
                 atom.colorizer = self.colorizer
+                atom.index = len(self)
                 self.append(atom)
 
     def select(self, expression):

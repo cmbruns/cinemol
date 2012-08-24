@@ -7,7 +7,7 @@ Created on Jun 19, 2012
 from cinemol.model import model
 import stereo3d
 from skybox import SkyBox
-from imposter import sphereImposterShaderProgram
+# from imposter import sphereImposterShaderProgram
 from camera import CameraPosition
 from rotation import Rotation
 import glrenderer
@@ -24,7 +24,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         glrenderer.GlRenderer.__init__(self)
         self.camera_position = CameraPosition()
         self.actors = []
-        self.shader = sphereImposterShaderProgram
+        # self.shader = sphereImposterShaderProgram
         self.background_color = [0.8, 0.8, 1.0, 0.0] # sky blue
         self.stereo_mode = stereo3d.Mono()
         self.sky_box = SkyBox()
@@ -57,7 +57,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         for rep in model.representations:
             print "init_gl on a representation"
             rep.init_gl()
-        self.shader.init_gl()
+        # self.shader.init_gl()
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
@@ -73,15 +73,17 @@ class CinemolRenderer(glrenderer.GlRenderer):
     def render_scene(self, camera):
         glClear(GL_DEPTH_BUFFER_BIT)
         self.sky_box.paint_gl(camera)
+        """
         self.shader.zNear = camera.zNear
         self.shader.zFar = camera.zFar
         self.shader.zFocus = camera.zFocus
         self.shader.background_color = self.background_color
         self.shader.eye_shift = camera.eye_shift_in_ground
+        """
         for actor in self.actors:
-            actor.paint_gl()
+            actor.paint_gl(camera, self)
         for rep in model.representations:
-            rep.paint_gl()
+            rep.paint_gl(camera, self)
 
     def paint_gl(self):
         self.render_background()

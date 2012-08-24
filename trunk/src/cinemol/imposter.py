@@ -1,9 +1,11 @@
+
 from shader import ShaderProgram
 import shader
 from PySide import QtCore
 from PySide.QtCore import *
 from OpenGL.GL import *
 import numpy
+import itertools
 from math import pi, cos, sin
 import os
 
@@ -30,6 +32,8 @@ class SphereImposterShaderProgram(ShaderProgram):
         self.atom_scale = 1.0
         
     def __enter__(self):
+        if not self.is_initialized:
+            self.init_gl()
         ShaderProgram.__enter__(self)
         # print self.zNear, type(self.zNear), self.shader_program, glGetUniformLocation(self.shader_program, "zNear")
         glUniform1f(glGetUniformLocation(self.shader_program, "zNear"), self.zNear)
@@ -53,7 +57,7 @@ class SphereImposterShaderProgram(ShaderProgram):
         ShaderProgram.init_gl(self)
 
 
-sphereImposterShaderProgram = SphereImposterShaderProgram()
+# sphereImposterShaderProgram = SphereImposterShaderProgram()
 
 cylinderImposterShaderProgram = shader.GreenShaderProgram()
 
@@ -93,6 +97,7 @@ class SphereImposterArray(QObject):
         self.color_buffer = 0
         self.normal_buffer = 0
         self.index_buffer = 0
+        self.shader = SphereImposterShaderProgram()
         self.is_initialized = False
         
     def init_gl(self):
@@ -118,9 +123,14 @@ class SphereImposterArray(QObject):
         glPopClientAttrib()
         self.is_initialized = True
                 
-    def paint_gl(self):
+    def paint_gl(self, camera=None, renderer=None):
         # with passThroughShaderProgram:
-        with sphereImposterShaderProgram:
+        self.shader.zNear = camera.zNear
+        self.shader.zFar = camera.zFar
+        self.shader.zFocus = camera.zFocus
+        self.shader.background_color = renderer.background_color
+        self.shader.eye_shift = camera.eye_shift_in_ground
+        with self.shader:
             if not self.is_initialized:
                 self.init_gl()
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
@@ -196,6 +206,183 @@ class SphereImposterArray(QObject):
                 yield v0 + t + 1
                 yield vn
             vertex_offset += self.vertex_count
+
+
+class SharedGLBufferObjects(QObject):
+    """
+    Opengl buffer objects to be shared between representations
+        One list of atom center positions
+        One list of atom colors
+        One list of atom van der Waals radii
+    """
+    def __init__(self, atoms):
+        self.center_array = numpy.array(list(itertools.chain.from_iterable(
+                [atom.center for atom in atoms])), dtype='float32')
+        self.color_array = numpy.array(list(itertools.chain.from_iterable(
+                [atom.color for atom in atoms])), dtype='float32')
+        self.vdw_array = numpy.array(list(itertools.chain.from_iterable(
+                [[atom.radius, atom.radius, atom.radius] for atom in atoms])), dtype='float32')
+        self.center_buffer = 0
+        self.color_buffer = 0;
+        self.vdw_buffer = 0;
+        self.is_initialized = False
+        self.atoms = atoms
+        
+    def init_gl(self):
+        if self.is_initialized:
+            return
+        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+        # Atom center positions
+        self.center_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.center_buffer)
+        glBufferData(GL_ARRAY_BUFFER, self.center_array, GL_STATIC_DRAW)
+        # van der Waals radii in normals
+        self.vdw_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vdw_buffer)
+        glBufferData(GL_ARRAY_BUFFER, self.vdw_array, GL_STATIC_DRAW)
+        # Colors
+        self.color_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
+        glBufferData(GL_ARRAY_BUFFER, self.color_array, GL_STATIC_DRAW)
+        #
+        glPopClientAttrib()
+        self.is_initialized = True
+        
+    def paint_gl(self):
+        if not self.is_initialized:
+            self.init_gl()
+        # Colors
+        glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
+        glEnableClientState(GL_COLOR_ARRAY)
+        glColorPointer(3, GL_FLOAT, 0, None)
+        # Vertices
+        glBindBuffer(GL_ARRAY_BUFFER, self.center_buffer)
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glVertexPointer(4, GL_FLOAT, 0, None)
+        # van der Waals radii stuffed into normals
+        glBindBuffer(GL_ARRAY_BUFFER, self.vdw_buffer)
+        glEnableClientState(GL_NORMAL_ARRAY)
+        glNormalPointer(GL_FLOAT, 0, None)
+        
+    def update_atom_colors(self, atoms):
+        self.color_array = numpy.array(
+                [atom.color for atom in atoms], dtype='float32')
+        if self.is_initialized:
+            # print "updating atom colors"
+            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+            glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
+            glBufferData(GL_ARRAY_BUFFER, self.color_array, GL_STATIC_DRAW)
+            glPopClientAttrib()
+
+
+class NewSphereShader(object):
+    def __init__(self):
+        this_dir = os.path.split(__file__)[0]
+        self.vertex_shader_string = open(os.path.join(
+                this_dir,
+                "shaders/sphere2_vrtx.glsl")).read()
+        self.geometry_shader_string = open(os.path.join(
+                this_dir,
+                "shaders/sphere2_geom.glsl")).read()
+        self.fragment_shader_string = open(os.path.join(
+                this_dir,
+                "shaders/sphere2_frag.glsl")).read()
+        self.shader_program = 0
+        self.previous_program = 0
+        self.radius_scale = 1.0
+        self.radius_offset = 0.0
+        self.imposter_edge_count = 4
+        self.is_initialized = False
+        
+    def __enter__(self):
+        if not self.is_initialized:
+            self.init_gl()
+        self.previous_program = glGetIntegerv(GL_CURRENT_PROGRAM)
+        glUseProgram(self.shader_program)
+        print self.shader_program
+        print self.vs
+        print self.fs
+        glUniform1i(glGetUniformLocation(self.shader_program, "imposter_edge_count"), self.imposter_edge_count)
+        glUniform1f(glGetUniformLocation(self.shader_program, "radius_offset"), self.radius_offset)
+        loc1 = glGetUniformLocation(self.shader_program, "radius_scale")
+        glUniform1f(loc1, self.radius_scale)
+        return self
+        
+    def __exit__(self, type, value, tb):
+        glUseProgram(self.previous_program)
+
+    def _init_shader(self, string, shader_type):
+        shader = glCreateShader(shader_type)
+        glShaderSource(shader, string)
+        glCompileShader(shader)
+        log = glGetShaderInfoLog(shader)
+        if log:
+            print "Shader error:", log
+        return shader
+    
+    def init_gl(self):
+        if self.is_initialized:
+            return
+        self.vs = self._init_shader(
+                    self.vertex_shader_string, GL_VERTEX_SHADER)
+        self.gs = self._init_shader(
+                    self.geometry_shader_string, GL_GEOMETRY_SHADER)
+        self.fs = self._init_shader(
+                    self.fragment_shader_string, GL_FRAGMENT_SHADER)
+        if self.shader_program == 0:
+            self.shader_program = glCreateProgram()
+        glAttachShader(self.shader_program, self.vs)
+        glAttachShader(self.shader_program, self.gs)
+        glAttachShader(self.shader_program, self.fs)
+        glLinkProgram(self.shader_program)
+        log = glGetProgramInfoLog(self.shader_program)
+        if log:
+            print "Shader program error:", log
+        self.is_initialized = True;
+
+
+# NewSphereArray depends on existence of SharedBufferObjects before it
+class NewSphereArray(QObject):
+    def __init__(self, shared_buffers):
+        self.shared_buffers = shared_buffers
+        self.radius_scale = 1.0
+        self.radius_offset = 0.0
+        self.vertex_count = 4 # number of sides on imposter backdrop
+        atoms = shared_buffers.atoms
+        self.index_array = numpy.array(
+                [atom.index for atom in atoms], 
+                numpy.uint32)
+        self.shader = NewSphereShader()
+        self.index_buffer = 0
+        self.is_initialized = False
+        
+    def init_gl(self):
+        if self.is_initialized:
+            return
+        # self.shader.init_gl()
+        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+        self.shared_buffers.init_gl()
+        self.index_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.index_array, GL_STATIC_DRAW)        
+        glPopClientAttrib()
+        self.is_initialized = True
+        
+    def paint_gl(self, camera=None, renderer=None):
+        self.shader.radius_offset = self.radius_offset
+        self.shader.radius_scale = self.radius_scale
+        self.shader.imposter_edge_count = self.vertex_count
+        with self.shader:
+            if not self.is_initialized:
+                self.init_gl()
+            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+            self.shared_buffers.paint_gl()
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
+            glDrawElements(GL_POINTS, len(self.index_array), GL_UNSIGNED_INT, None)            
+            glPopClientAttrib()
+        
+    def update_atom_colors(self):
+        self.shared_buffers.update_atom_colors()
 
 
 class CylinderImposterShaderProgram(ShaderProgram):
