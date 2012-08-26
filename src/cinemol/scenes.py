@@ -61,7 +61,7 @@ class QuadScene(Actor):
     def init_one_shader(self, file_name, shader_type):
         this_dir = os.path.split(__file__)[0]
         shader_dir = os.path.join(this_dir, "shaders")
-        print os.path.join(shader_dir, file_name)
+        # print os.path.join(shader_dir, file_name)
         shader_string = open(os.path.join(shader_dir, file_name)).read()
         shader = glCreateShader(shader_type)
         glShaderSource(shader, shader_string)
