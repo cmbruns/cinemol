@@ -3,17 +3,20 @@
 
 inout float radius;
 layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
 
+// a passthrough geometry shader for color and position
 void main()
 {
-    gl_Position = gl_PositionIn[0];
+  for(int i = 0; i < gl_VerticesIn; ++i)
+  {
+    // copy color
+    gl_FrontColor = gl_FrontColorIn[i];
+ 
+    // copy position
+    gl_Position = gl_PositionIn[i];
+ 
+    // done with the vertex
     EmitVertex();
-    gl_Position = gl_PositionIn[1];
-    EmitVertex();
-    gl_Position = gl_PositionIn[2];
-    EmitVertex();
-    // gl_Position = gl_PositionIn[0] + vec4(1,0,0,0);
-    // EmitVertex();
-    // gl_Position = gl_PositionIn[0] + vec4(0,1,0,0);
-    // EndPrimitive();
+  }
 }

@@ -79,7 +79,7 @@ class QuadScene(Actor):
                 "sphere2_frag.glsl", GL_FRAGMENT_SHADER)
         shader_program = glCreateProgram()
         glAttachShader(shader_program, vertex_shader)
-        # glAttachShader(shader_program, geometry_shader)
+        glAttachShader(shader_program, geometry_shader)
         glAttachShader(shader_program, fragment_shader)
         glLinkProgram(shader_program)
         # print shader_program, vertex_shader, fragment_shader
