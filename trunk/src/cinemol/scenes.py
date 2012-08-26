@@ -50,6 +50,7 @@ class TeapotActor(Actor):
 
 
 class QuadScene(Actor):
+    "Demonstrates side by side use of immediate mode and OpenGL 3.0 style"
     def __init__(self):
         self.is_initialized = False
         
@@ -110,8 +111,6 @@ class QuadScene(Actor):
         """
         # New way with 1.50
         glUseProgram(self.shader)
-        # print glGetUniformLocation(self.shader, "modelViewMatrix")
-        # print glGetAttribLocation(self.shader, "vertex")
         glUniformMatrix4fv(
                 glGetUniformLocation(self.shader, "modelViewMatrix"),
                 1, False, glGetDoublev(GL_MODELVIEW_MATRIX).tolist())
@@ -128,7 +127,7 @@ class QuadScene(Actor):
         glEnableVertexAttribArray(vertexIndex)
         glVertexAttribPointer(vertexIndex,
                 3, GL_FLOAT, False, 0, vertex_array)
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+        glDrawArrays(GL_POINTS, 0, 4)
         glUseProgram(0)
     
 
