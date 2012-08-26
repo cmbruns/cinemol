@@ -4,6 +4,7 @@ from rotation import Vec3
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
+import numpy
 
 class GlutSphereActor(Actor):
     def __init__(self, position=[0,0,0], radius=1.0):
@@ -47,6 +48,89 @@ class TeapotActor(Actor):
         glutSolidTeapot(1.0) # thank you GLUT tool kit
         glPopAttrib() # restore GL_FRONT_FACE
 
+
+class QuadScene(Actor):
+    def __init__(self):
+        self.is_initialized = False
+        
+    def init_gl(self):
+        self.shader = self.init_shader()
+        self.is_initialized = True
+    
+    def init_one_shader(self, file_name, shader_type):
+        this_dir = os.path.split(__file__)[0]
+        shader_dir = os.path.join(this_dir, "shaders")
+        print os.path.join(shader_dir, file_name)
+        shader_string = open(os.path.join(shader_dir, file_name)).read()
+        shader = glCreateShader(shader_type)
+        glShaderSource(shader, shader_string)
+        glCompileShader(shader)
+        log = glGetShaderInfoLog(shader)
+        if log:
+            print "Shader error:", log
+        return shader
+    
+    def init_shader(self):
+        vertex_shader = self.init_one_shader(
+                "sphere2_vrtx.glsl", GL_VERTEX_SHADER)
+        geometry_shader = self.init_one_shader(
+                "sphere2_geom.glsl", GL_GEOMETRY_SHADER)
+        fragment_shader = self.init_one_shader(
+                "sphere2_frag.glsl", GL_FRAGMENT_SHADER)
+        shader_program = glCreateProgram()
+        glAttachShader(shader_program, vertex_shader)
+        # glAttachShader(shader_program, geometry_shader)
+        glAttachShader(shader_program, fragment_shader)
+        glLinkProgram(shader_program)
+        # print shader_program, vertex_shader, fragment_shader
+        log = glGetProgramInfoLog(shader_program)
+        if log:
+            print "Shader program error:", log
+        return shader_program
+    
+    def paint_gl(self, camera=None, renderer=None):
+        if not self.is_initialized:
+            self.init_gl()
+        # First square direct mode
+        glColor3d(1,1,0)
+        glBegin(GL_TRIANGLE_STRIP)
+        glVertex3d(-3, 1, 0)
+        glVertex3d(-3,-1, 0)
+        glVertex3d(-1, 1, 0)
+        glVertex3d(-1,-1, 0)
+        glEnd()
+        # second square shader
+        """
+        glBegin(GL_TRIANGLE_STRIP)
+        glVertex3d( 1, 1, 0)
+        glVertex3d( 1,-1, 0)
+        glVertex3d( 3, 1, 0)
+        glVertex3d( 3,-1, 0)
+        glEnd()
+        """
+        # New way with 1.50
+        glUseProgram(self.shader)
+        # print glGetUniformLocation(self.shader, "modelViewMatrix")
+        # print glGetAttribLocation(self.shader, "vertex")
+        glUniformMatrix4fv(
+                glGetUniformLocation(self.shader, "modelViewMatrix"),
+                1, False, glGetDoublev(GL_MODELVIEW_MATRIX).tolist())
+        glUniformMatrix4fv(
+                glGetUniformLocation(self.shader, "projectionMatrix"),
+                1, False, glGetDoublev(GL_PROJECTION_MATRIX).tolist())
+        vertex_array = numpy.array(
+                [ 1,  1, 0,
+                  1, -1, 0,
+                  3,  1, 0,
+                  3, -1 , 0]
+                , dtype='float32')
+        vertexIndex = glGetAttribLocation(self.shader, "vertexPosition");
+        glEnableVertexAttribArray(vertexIndex)
+        glVertexAttribPointer(vertexIndex,
+                3, GL_FLOAT, False, 0, vertex_array)
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+        glUseProgram(0)
+    
 
 class FiveBallScene(Actor):
     def __init__(self):

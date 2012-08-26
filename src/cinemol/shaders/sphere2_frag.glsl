@@ -1,8 +1,8 @@
-#version 120
+#version 150
 
-varying float radius;
+in float radius;
 
 void main()
 {
-    gl_FragColor = vec4(1, 0, 0, 1) * radius;
+    gl_FragColor = vec4(1, 0, 0, 1);
 }

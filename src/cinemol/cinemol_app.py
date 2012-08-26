@@ -3,7 +3,7 @@ logging.basicConfig()
 
 from gui.main_window import MainWindow
 import console_context
-from scenes import FiveBallScene
+from scenes import FiveBallScene, QuadScene
 from cinemol_renderer import CinemolRenderer
 from PySide.QtGui import QApplication
 import sys
@@ -19,6 +19,7 @@ class CinemolApp(object):
         self.app.setApplicationName("Cinemol")
         self.mainWin = MainWindow()
         self.renderer = CinemolRenderer()
+        # self.renderer.actors.append(QuadScene())
         self.renderer.actors.append(FiveBallScene())
         # self.renderer.actors.append(TeapotActor())
         self.mainWin.ui.glCanvas.set_gl_renderer(self.renderer)

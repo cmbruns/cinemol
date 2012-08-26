@@ -6,6 +6,7 @@ Created on Aug 9, 2012
 
 from cinemol.imposter import SphereImposterArray, NewSphereArray, SharedGLBufferObjects
 
+
 class BondLines:
     def __init__(self, atoms):
         pass
