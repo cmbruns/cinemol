@@ -117,6 +117,8 @@ class QuadScene(Actor):
         glUniformMatrix4fv(
                 glGetUniformLocation(self.shader, "projectionMatrix"),
                 1, False, glGetDoublev(GL_PROJECTION_MATRIX).tolist())
+        glUniform1f(glGetUniformLocation(self.shader, "radius_scale"), 1.2)
+        glUniform1f(glGetUniformLocation(self.shader, "radius_offset"), 0.0)
         vertex_array = numpy.array(
                 [ 1,  1, 0,
                   1, -1, 0,
