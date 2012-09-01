@@ -5,7 +5,7 @@ Created on Jun 19, 2012
 '''
 
 from trackball import Trackball
-from PySide.QtOpenGL import QGLWidget, QGLFormat
+from PySide.QtOpenGL import QGLWidget
 from PySide.QtCore import *
 from PySide.QtGui import *
 from PySide import QtCore

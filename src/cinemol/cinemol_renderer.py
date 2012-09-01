@@ -31,6 +31,14 @@ class CinemolRenderer(glrenderer.GlRenderer):
         
     def init_gl(self):
         # print "init_gl"
+        bPrintGLInfo = True
+        if bPrintGLInfo:
+            print "GL Vendor:", glGetString(GL_VENDOR)
+            print "GL Renderer:", glGetString(GL_RENDERER)
+            print "GL Version (string):", glGetString(GL_VERSION)
+            # print glGetInteger(GL_MINOR_VERSION) # exception!?!?
+            # print "GL Version (number):", "%d.%d" % (glGetIntegerv(GL_MAJOR_VERSION), glGetIntegerv(GL_MINOR_VERSION))
+            print "GLSL Version:", glGetString(GL_SHADING_LANGUAGE_VERSION)
         if glInitSeamlessCubeMapARB():
             glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS)
         if glInitFramebufferSrgbEXT():
