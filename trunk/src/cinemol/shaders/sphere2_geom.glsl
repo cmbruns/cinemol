@@ -10,7 +10,7 @@
 const float apothemRatio = cos(3.14159 / numSides); // polygon needs to be larger than circle it encloses
 const float sideTheta = 2.0 * 3.14159 / float(numSides); // angle between polygon vertices
 const float outlineWidthValue = 0.05;
-const float outlineDepth = 3.0; 
+const float outlineDepth = 2.0; 
 
 uniform mat4 projectionMatrix;
 
@@ -34,6 +34,7 @@ out float qe_c;
 
 void main()
 {
+    // pass through color
     gl_FrontColor = gl_FrontColorIn[0];
     
     outlineWidth = outlineWidthValue;
@@ -53,7 +54,8 @@ void main()
     imposterRadius = horizonRatio * atomRadius; // perspective horizon bulge
     float circumradius = (imposterRadius + outlineWidth) / apothemRatio; // polygon corners stick out further
 
-    // Local coordinate system of imposter polygon
+    // Local coordinate system of imposter polygon,
+    // so we can orient the polygon toward the camera
     vec3 pZ = normalize(-sphereCenterInCamera); // minus z axis along view vector
     vec3 pX = normalize(cross(vec3(0,1,0), pZ)); // x orthogonal to y/pZ plane
     vec3 pY = normalize(cross(pZ, pX)); // normalize not needed?
@@ -62,7 +64,6 @@ void main()
         theta += signDTheta * dTheta;
         float sinTheta = sin(theta);
         float cosTheta = cos(theta);
-        // imposterRadiusSquared = imposterRadius * imposterRadius;
         positionInImposter = circumradius * vec2(cosTheta, -sinTheta);
         vec3 delta = pX * positionInImposter.x + pY * positionInImposter.y;
         positionInCamera = sphereCenterInCamera + delta;
