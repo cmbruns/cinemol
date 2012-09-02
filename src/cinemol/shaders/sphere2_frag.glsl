@@ -1,10 +1,13 @@
 #version 150
 
-// TODO: BLINN_PHONG, STEREO, SOLID_CORE
+// Paint a shaded sphere on an imposter polygon
 
-#define LAMBERTIAN_SHADING
-#define CORRECT_DEPTH
-// #define USE_OUTLINES
+// TODO: BLINN_PHONG, STEREO, FOG, SOLID_CORE
+
+// Toggleable effects
+#define LAMBERTIAN_SHADING // use 3d shading
+#define CORRECT_DEPTH // put accurate values into z-buffer
+#define USE_OUTLINES // draw a dark outline around each atom
 
 // ray tracing is required to get correct depth value
 #ifdef CORRECT_DEPTH
@@ -21,11 +24,6 @@ struct LightInfo {
     vec3 lD;
     vec3 lS;
 };
-const LightInfo light = LightInfo(
-    normalize(vec4(1.0, 2.0, 1.0, 0.0)),
-    vec3(1,1,1),
-    vec3(1,1,1),
-    vec3(1,1,1));
     
 struct MaterialInfo {
     vec3 kA;
@@ -34,9 +32,10 @@ struct MaterialInfo {
     float shininess;
 };
 
-const vec4 outlineColor = vec4(0,0,0,1);
+const vec4 outlineColor = vec4(0,0,0,1); // black
 
 uniform mat4 projectionMatrix;
+uniform vec3 lightDirection;
 
 in vec4 gl_FragCoord;
 in vec4 gl_Color;
@@ -51,53 +50,108 @@ in float qe_c;
 in vec3 horizonPlanePosition;
 in float outlineDepthRatio;
 
-out vec4 gl_FragColor;
+
+out vec4 fragColor;
 #ifdef CORRECT_DEPTH
 out float gl_FragDepth;
 #endif
 
-void main()
+
+// Restrict pixels to lie within circular sphere sillhouette
+float cullByRadius() 
 {
-    // Restrict pixels to lie within circular sphere sillhouette
     float radSqr = dot(positionInImposter, positionInImposter);
     float outerEdge = (imposterRadius + outlineWidth);
     outerEdge *= outerEdge;
     if (radSqr > outerEdge) {
         discard;
-        // gl_FragColor = vec4(0,0,1,1); // for debugging
+        // fragColor = vec4(0,0,1,1); // for debugging
         // return;
     }
+    return radSqr;
+}
+
+
+// draw a dark outline around each atom,
+// especially when atom is way in front of whatever is behind it.
+bool drawOutline(in float radSqr)
+{
+    float innerEdge = imposterRadius * imposterRadius;
+    if (radSqr < innerEdge)
+        return false;
+    // TODO - antialias inner edge of rim
+#ifdef CORRECT_DEPTH
     float radius = sqrt(radSqr);
+    vec3 dMin = horizonPlanePosition;
+    vec3 dMax = horizonPlanePosition * outlineDepthRatio;
+    float edginess = clamp((radius - imposterRadius) / outlineWidth, 0, 1);
+    vec3 featheredPosition = mix(dMin, dMax, edginess);
+    vec4 featheredInClip = projectionMatrix * vec4(featheredPosition, 1);
+    gl_FragDepth = featheredInClip.z / featheredInClip.w;
+#endif // CORRECT_DEPTH
+    fragColor = outlineColor;
+    return true;
+}
+
+
+vec4 shadeLambertian(in vec3 surfaceInCamera)
+{
+    LightInfo light = LightInfo(
+	    vec4(normalize(lightDirection), 0.0),
+	    vec3(1,1,1),
+	    vec3(1,1,1),
+	    vec3(1,1,1));
+    
+    // TODO - take shading parameters from attributes
+    // for now, hard code colors for testing
+    MaterialInfo material = MaterialInfo(
+        0.2 * gl_Color.rgb, 
+        0.6 * gl_Color.rgb, 
+        0.2 * vec3(1,1,1), 
+        25.0);
+    vec3 s; // light vector
+    if (light.position.w == 0.0) // light at infinity
+        s = normalize(light.position.xyz);
+    else
+        s = normalize(vec3(light.position - vec4(surfaceInCamera, 1)));
+    vec3 v = normalize(-surfaceInCamera); // view vector
+    vec3 normal = normalize(surfaceInCamera - sphereCenterInCamera);
+    vec3 r = reflect( -s, normal );
+    vec3 ambient = light.lA * material.kA;
+    float sDotN = max(dot(s, normal), 0.0);
+    vec3 diffuse = light.lD * material.kD * sDotN;
+    vec3 specular = vec3(0,0,0);
+    if (sDotN > 0.0) {
+        specular = light.lS * material.kS *
+            pow(max(dot(r,v), 0.0), material.shininess);
+    }
+    return vec4(ambient + specular + diffuse, 1.0);
+}
+
+
+void main()
+{
+    // trim imposter polygon to a perfect circle
+    float radSqr = cullByRadius();
         
 #ifdef USE_OUTLINES
-    float innerEdge = imposterRadius * imposterRadius;
-    // TODO - antialias inner edge of rim
-    if (radSqr >= innerEdge) { // dark rims
-#ifdef CORRECT_DEPTH
-        vec3 dMin = horizonPlanePosition;
-        vec3 dMax = horizonPlanePosition * outlineDepthRatio;
-        float edginess = clamp((radius - imposterRadius) / outlineWidth, 0, 1);
-        vec3 featheredPosition = mix(dMin, dMax, edginess);
-        vec4 featheredInClip = projectionMatrix * vec4(featheredPosition, 1);
-        gl_FragDepth = featheredInClip.z / featheredInClip.w;
-#endif // CORRECT_DEPTH
-        gl_FragColor = outlineColor;
+    // TODO - antialias inner edge of outlines
+    if (drawOutline(radSqr))
         return;
-    }
 #endif
 
-    vec4 color = gl_Color;
-    gl_FragColor = color;
-    
 #ifdef TRACE_RAY
-    float qe_half_a = dot(positionInCamera, positionInCamera);
-    float determinant = qe_half_b*qe_half_b - qe_half_a*qe_c;
-    if (determinant < 0.0) { // outside of sphere
-        // gl_FragColor = vec4(0,0,1,1); // for debugging
+    // Use quadratic formula to solve ray tracing equation
+    float qe_a = dot(positionInCamera, positionInCamera);
+    // (b^2 - 4ac) / 4.0
+    float b2m4acd4 = qe_half_b*qe_half_b - qe_a*qe_c;
+    if (b2m4acd4 < 0.0) { // outside of sphere
+        // fragColor = vec4(0,0,1,1); // for debugging
         // return;
-        // rare pixels fall between outline and sphere tests
 #ifdef USE_OUTLINES
-        gl_FragColor = outlineColor;
+        // rare pixels do fall between outline and sphere tests
+        // TODO - antialias this case
+        fragColor = outlineColor;
         return;
 #else
         discard;
@@ -105,7 +159,7 @@ void main()
     }
     else {
 	    // first intersection is visible surface
-	    float alpha1 = (-qe_half_b - sqrt(determinant))/qe_half_a; // front of sphere
+	    float alpha1 = (-qe_half_b - sqrt(b2m4acd4))/qe_a; // front of sphere
 	    vec3 surfaceInCamera = alpha1 * positionInCamera;
 
 #ifdef CORRECT_DEPTH
@@ -114,31 +168,11 @@ void main()
 #endif // CORRECT_DEPTH
 
 #ifdef LAMBERTIAN_SHADING
-        // TODO - take shading parameters from attributes
-        // for now, hard code colors for testing
-        MaterialInfo material = MaterialInfo(
-            0.3 * color.rgb, 
-            0.6 * color.rgb, 
-            0.1 * vec3(1,1,1), 
-            25.0);
-        vec3 s; // light vector
-        if (light.position.w == 0.0) // light at infinity
-            s = normalize(light.position.xyz);
-        else
-            s = normalize(vec3(light.position - vec4(surfaceInCamera, 1)));
-        vec3 v = normalize(-surfaceInCamera); // view vector
-        vec3 normal = normalize(surfaceInCamera - sphereCenterInCamera);
-        vec3 r = reflect( -s, normal );
-        vec3 ambient = light.lA * material.kA;
-        float sDotN = max(dot(s, normal), 0.0);
-        vec3 diffuse = light.lD * material.kD * sDotN;
-        vec3 specular = vec3(0,0,0);
-        if (sDotN > 0.0) {
-            specular = light.lS * material.kS *
-                pow(max(dot(r,v), 0.0), material.shininess);
-        }
-        gl_FragColor = vec4(ambient + specular + diffuse, 1.0);
+        fragColor = shadeLambertian(surfaceInCamera);
+#else
+        fragColor = gl_Color;
 #endif
+
     }
 #endif // TRACE_RAY
   

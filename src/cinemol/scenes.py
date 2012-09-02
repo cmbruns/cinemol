@@ -49,29 +49,55 @@ class TeapotActor(Actor):
         glPopAttrib() # restore GL_FRONT_FACE
 
 
-class QuadScene(Actor):
-    "Demonstrates side by side use of immediate mode and OpenGL 3.0 style"
+class QuadSceneShader:
     def __init__(self):
         self.is_initialized = False
-        
+        self.shader_program = 0
+        self.previous_program = 0
+        self.light_direction = [1.0, 2.0, 1.0];
+
+    def __enter__(self):
+        self.previous_program = glGetIntegerv(GL_CURRENT_PROGRAM)
+        if not self.is_initialized:
+            self.init_gl()
+        glUseProgram(self.shader_program)
+        glUniformMatrix4fv(
+                glGetUniformLocation(self.shader_program, "modelViewMatrix"),
+                1, False, glGetDoublev(GL_MODELVIEW_MATRIX).tolist())
+        glUniformMatrix4fv(
+                glGetUniformLocation(self.shader_program, "projectionMatrix"),
+                1, False, glGetDoublev(GL_PROJECTION_MATRIX).tolist())
+        glUniform1f(glGetUniformLocation(self.shader_program, "radiusScale"), 
+                    self.radius_scale)
+        glUniform1f(glGetUniformLocation(self.shader_program, "radiusOffset"), 
+                    self.radius_offset)
+        glUniform3fv(glGetUniformLocation(self.shader_program, "lightDirection"), 
+                    1, self.light_direction)
+        #
+        position_handle = glGetAttribLocation(self.shader_program, "atomPosition");
+        glEnableVertexAttribArray(position_handle)
+        glVertexAttribPointer(position_handle,
+                3, GL_FLOAT, False, 0, self.position_array)
+        #
+        color_handle = glGetAttribLocation(self.shader_program, "atomColorSrgb");
+        glEnableVertexAttribArray(color_handle)
+        glVertexAttribPointer(color_handle,
+                3, GL_FLOAT, False, 0, self.color_array)
+        #
+        radius_handle = glGetAttribLocation(self.shader_program, "vdwRadius");
+        glEnableVertexAttribArray(radius_handle)
+        glVertexAttribPointer(radius_handle,
+                1, GL_FLOAT, False, 0, self.radius_array)
+        #
+        glBindFragDataLocation(self.shader_program, 0, "fragColor");
+        return self
+    
+    def __exit__(self, type, value, tb):
+        glUseProgram(self.previous_program)
+
     def init_gl(self):
-        self.shader = self.init_shader()
-        self.is_initialized = True
-    
-    def init_one_shader(self, file_name, shader_type):
-        this_dir = os.path.split(__file__)[0]
-        shader_dir = os.path.join(this_dir, "shaders")
-        # print os.path.join(shader_dir, file_name)
-        shader_string = open(os.path.join(shader_dir, file_name)).read()
-        shader = glCreateShader(shader_type)
-        glShaderSource(shader, shader_string)
-        glCompileShader(shader)
-        log = glGetShaderInfoLog(shader)
-        if log:
-            print "Shader error:", log
-        return shader
-    
-    def init_shader(self):
+        if self.is_initialized:
+            return
         vertex_shader = self.init_one_shader(
                 "sphere2_vrtx.glsl", GL_VERTEX_SHADER)
         geometry_shader = self.init_one_shader(
@@ -87,7 +113,59 @@ class QuadScene(Actor):
         log = glGetProgramInfoLog(shader_program)
         if log:
             print "Shader program error:", log
-        return shader_program
+        self.shader_program = shader_program
+        self.is_initialized = True
+
+    def init_one_shader(self, file_name, shader_type):
+        this_dir = os.path.split(__file__)[0]
+        shader_dir = os.path.join(this_dir, "shaders")
+        # print os.path.join(shader_dir, file_name)
+        shader_string = open(os.path.join(shader_dir, file_name)).read()
+        shader = glCreateShader(shader_type)
+        glShaderSource(shader, shader_string)
+        glCompileShader(shader)
+        log = glGetShaderInfoLog(shader)
+        if log:
+            print "Shader error:", log
+        return shader
+
+
+class AtomGlAttributes:
+    def __init__(self, atoms):
+        pass
+
+class QuadScene(Actor):
+    "Demonstrates side by side use of immediate mode and OpenGL 3.0 style"
+    def __init__(self):
+        self.shader = QuadSceneShader()
+        self.position_array = numpy.array(
+                [ 1,  1, 0,
+                  1, -1, 0,
+                  3,  1, 0,
+                  3, -1 , 0]
+                , dtype='float32')
+        self.color_array = numpy.array(
+                [ 0.6, 0.3, 0,
+                  0.6, 0.3, 0,
+                  0.8, 0.7, 0,
+                  0.6, 0.3, 0]
+                , dtype='float32')
+        self.radius_array = numpy.array(
+                [ 1.0,
+                  0.8,
+                  1.0,
+                  1.0]
+                , dtype='float32')
+        self.index_array = numpy.array(
+                [ 0, 1, 2, 3 ]
+                , dtype='uint32')
+        self.is_initialized = False
+        
+    def init_gl(self):
+        self.atom_index_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.atom_index_buffer)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.index_array, GL_STATIC_DRAW)
+        self.is_initialized = True
     
     def paint_gl(self, camera=None, renderer=None):
         if not self.is_initialized:
@@ -100,7 +178,7 @@ class QuadScene(Actor):
         glVertex3d(-1, 1, 0)
         glVertex3d(-1,-1, 0)
         glEnd()
-        # second square shader
+        # second square uses shader
         """
         glBegin(GL_TRIANGLE_STRIP)
         glVertex3d( 1, 1, 0)
@@ -110,27 +188,15 @@ class QuadScene(Actor):
         glEnd()
         """
         # New way with 1.50
-        glUseProgram(self.shader)
-        glUniformMatrix4fv(
-                glGetUniformLocation(self.shader, "modelViewMatrix"),
-                1, False, glGetDoublev(GL_MODELVIEW_MATRIX).tolist())
-        glUniformMatrix4fv(
-                glGetUniformLocation(self.shader, "projectionMatrix"),
-                1, False, glGetDoublev(GL_PROJECTION_MATRIX).tolist())
-        glUniform1f(glGetUniformLocation(self.shader, "radius_scale"), 1.2)
-        glUniform1f(glGetUniformLocation(self.shader, "radius_offset"), 0.0)
-        vertex_array = numpy.array(
-                [ 1,  1, 0,
-                  1, -1, 0,
-                  3,  1, 0,
-                  3, -1 , 0]
-                , dtype='float32')
-        vertexIndex = glGetAttribLocation(self.shader, "vertexPosition");
-        glEnableVertexAttribArray(vertexIndex)
-        glVertexAttribPointer(vertexIndex,
-                3, GL_FLOAT, False, 0, vertex_array)
-        glDrawArrays(GL_POINTS, 0, 4)
-        glUseProgram(0)
+        self.shader.radius_scale = 1.2
+        self.shader.radius_offset = 0.0
+        self.shader.position_array = self.position_array
+        self.shader.color_array = self.color_array
+        self.shader.radius_array = self.radius_array
+        with self.shader:
+            # glDrawArrays(GL_POINTS, 0, 4)
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.atom_index_buffer)
+            glDrawElements(GL_POINTS, len(self.index_array), GL_UNSIGNED_INT, None)
     
 
 class FiveBallScene(Actor):
