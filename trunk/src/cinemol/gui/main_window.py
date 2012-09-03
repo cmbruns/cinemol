@@ -1,3 +1,4 @@
+import cinemol.cinemol_globals as cinemol_globals
 from cinemol_ui import Ui_MainWindow
 from size_dialog import SizeDialog
 from atom_size_dialog import AtomSizeDialog
@@ -74,7 +75,7 @@ class MainWindow(QMainWindow):
 
     @QtCore.Slot(float)
     def set_atom_scale(self, s):
-        sphereImposterShaderProgram.atom_scale = s
+        cinemol_globals.atom_scale = s
         self.ui.glCanvas.update()
 
     @QtCore.Slot(bool)

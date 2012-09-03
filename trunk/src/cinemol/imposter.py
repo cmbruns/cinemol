@@ -1,4 +1,5 @@
 
+import cinemol_globals
 from shader import ShaderProgram
 import shader
 from PySide import QtCore
@@ -309,7 +310,7 @@ class Sphere2Shader:
                 glGetUniformLocation(self.shader_program, "projectionMatrix"),
                 1, False, glGetDoublev(GL_PROJECTION_MATRIX).tolist())
         glUniform1f(glGetUniformLocation(self.shader_program, "radiusScale"), 
-                    self.radius_scale)
+                    self.radius_scale * cinemol_globals.atom_scale)
         glUniform1f(glGetUniformLocation(self.shader_program, "radiusOffset"), 
                     self.radius_offset)
         glUniform3fv(glGetUniformLocation(self.shader_program, "lightDirection"), 
