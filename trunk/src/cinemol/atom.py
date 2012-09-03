@@ -136,17 +136,18 @@ class AtomList(list):
                 fh = gzip.GzipFile(fileobj=buf)
         with fh as f:
             self.load_stream(f)
-
+            
+    def load_line(self, line):
+        if line[0:4] == "ATOM" or line[0:6] == "HETATM":
+            atom = Atom()
+            atom.from_pdb_atom_string(line)
+            atom.colorizer = self.colorizer
+            atom.index = len(self)
+            self.append(atom)    
             
     def load_stream(self, stream):
         for line in stream:
-            # if line.startswith("ATOM") or line.startswith("HETATM"):
-            if line[0:4] == "ATOM" or line[0:6] == "HETATM":
-                atom = Atom()
-                atom.from_pdb_atom_string(line)
-                atom.colorizer = self.colorizer
-                atom.index = len(self)
-                self.append(atom)
+            self.load_line(line)
 
     def select(self, expression):
         expr = AtomExpression(expression)
