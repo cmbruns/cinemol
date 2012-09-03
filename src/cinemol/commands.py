@@ -37,7 +37,7 @@ class Commands(object):
         "Shift the center of rotation and viewing to pos, in nanometers"
         try:
             self.focus = pos
-        except TypeError:
+        except (TypeError, IndexError):
             # Not a vector?  Must be an atom expression
             new_focus = Vec3([0,0,0])
             atoms = model.atoms.select(pos)
