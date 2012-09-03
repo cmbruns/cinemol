@@ -17,6 +17,7 @@ class CinemolModel(object):
         self.selected_atoms[:] = self.atoms[:]
         self.representations = dict()
         self.representations['spacefill'] = cinemol.representation.SpaceFilling()
+        self.representations['wireframe'] = cinemol.representation.BondLines()
         self.atom_attributes = imposter.atom_attributes
         self.atom_scale = 1.0
         self.default_representation = 'spacefill'
