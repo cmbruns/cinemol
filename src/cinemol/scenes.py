@@ -48,13 +48,18 @@ class TeapotActor(Actor):
         glutSolidTeapot(1.0) # thank you GLUT tool kit
         glPopAttrib() # restore GL_FRONT_FACE
 
+################################
+# Dev area for geometry shader approach
 
-class QuadSceneShader:
+class Sphere2Shader:
     def __init__(self):
         self.is_initialized = False
         self.shader_program = 0
         self.previous_program = 0
         self.light_direction = [1.0, 2.0, 1.0];
+        self.position_attrib = 0
+        self.color_attrib = 1
+        self.radius_attrib = 2
 
     def __enter__(self):
         self.previous_program = glGetIntegerv(GL_CURRENT_PROGRAM)
@@ -73,26 +78,47 @@ class QuadSceneShader:
                     self.radius_offset)
         glUniform3fv(glGetUniformLocation(self.shader_program, "lightDirection"), 
                     1, self.light_direction)
-        #
-        position_handle = glGetAttribLocation(self.shader_program, "atomPosition");
-        glEnableVertexAttribArray(position_handle)
-        glVertexAttribPointer(position_handle,
-                3, GL_FLOAT, False, 0, self.position_array)
-        #
-        color_handle = glGetAttribLocation(self.shader_program, "atomColorSrgb");
-        glEnableVertexAttribArray(color_handle)
-        glVertexAttribPointer(color_handle,
-                3, GL_FLOAT, False, 0, self.color_array)
-        #
-        radius_handle = glGetAttribLocation(self.shader_program, "vdwRadius");
-        glEnableVertexAttribArray(radius_handle)
-        glVertexAttribPointer(radius_handle,
-                1, GL_FLOAT, False, 0, self.radius_array)
-        #
         glBindFragDataLocation(self.shader_program, 0, "fragColor");
+        # Positions
+        glBindBuffer(GL_ARRAY_BUFFER, self.position_buffer)
+        glEnableVertexAttribArray(self.position_attrib)
+        glVertexAttribPointer(self.position_attrib, 3,
+                              GL_FLOAT, False, 0, None)
+        # Colors
+        glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
+        glEnableVertexAttribArray(self.color_attrib)
+        glVertexAttribPointer(self.color_attrib, 3,
+                              GL_FLOAT, False, 0, None)
+        # Radii
+        glBindBuffer(GL_ARRAY_BUFFER, self.radius_buffer)
+        glEnableVertexAttribArray(self.radius_attrib)
+        glVertexAttribPointer(self.radius_attrib, 1,
+                              GL_FLOAT, False, 0, None)
+        """
+        if buffer_way:
+            # TODO - colors atoms red
+            # glBindVertexArray(self.color_array_handle)
+            glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer_handle)
+            glVertexAttribPointer(self.color_attrib, 3,
+                                  GL_FLOAT, False, 0, 0)
+            glEnableVertexAttribArray(self.color_attrib)
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
+            # glBindVertexArray(0)
+        else:
+            # Colors atoms correctly
+            glEnableVertexAttribArray(self.color_attrib)
+            glVertexAttribPointer(self.color_attrib,
+                    3, GL_FLOAT, False, 0, self.color_array)
+        #
+        glEnableVertexAttribArray(self.radius_attrib)
+        glVertexAttribPointer(self.radius_attrib,
+                1, GL_FLOAT, False, 0, self.radii)
+        """
+        #
         return self
     
     def __exit__(self, type, value, tb):
+        glDisableVertexAttribArray(self.position_attrib)
         glUseProgram(self.previous_program)
 
     def init_gl(self):
@@ -108,6 +134,9 @@ class QuadSceneShader:
         glAttachShader(shader_program, vertex_shader)
         glAttachShader(shader_program, geometry_shader)
         glAttachShader(shader_program, fragment_shader)
+        glBindAttribLocation(shader_program, self.position_attrib, "atomPosition")
+        glBindAttribLocation(shader_program, self.color_attrib, "atomColorSrgb")
+        glBindAttribLocation(shader_program, self.radius_attrib, "vdwRadius")
         glLinkProgram(shader_program)
         # print shader_program, vertex_shader, fragment_shader
         log = glGetProgramInfoLog(shader_program)
@@ -130,27 +159,103 @@ class QuadSceneShader:
         return shader
 
 
-class AtomGlAttributes:
-    def __init__(self, atoms):
-        pass
+class AtomAttributeArray:
+    "Lists of atom attributes that can be used as OpenGL array objects"
+    def __init__(self, attribute_name, attribute_index, stride):
+        self.attribute_name = attribute_name
+        self.attribute_index = attribute_index
+        self.stride = stride
+        self._array = numpy.array([], dtype='float32')
+        self._has_new_atoms = False # to trigger copy from python source
+        self._values_changed = False # to trigger OpengGL array update
+        self.is_initialized = False
 
-class QuadScene(Actor):
+    def init_gl(self):
+        if self.is_initialized:
+            return
+        self.array_handle = glGenVertexArrays(1)
+        glBindVertexArray(self.array_handle)
+        self.buffer_handle = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.buffer)
+        glBufferData(GL_ARRAY_BUFFER, self._array, GL_STATIC_DRAW)
+        glVertexAttribPointer(self.attribute_index, self.stride,
+                    GL_FLOAT, False, 0, 0)
+        glEnableVertexAttribArray(self.attribute_index)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glBindVertexArray(0)
+        self.is_initialized = True
+        
+    def paint_gl(self):
+        use_buffers = False
+        if use_buffers:
+            glBindBuffer(GL_ARRAY_BUFFER, self.buffer)
+            glVertexAttribPointer(self.attribute_index, self.stride,
+                    GL_FLOAT, False, 0, 0)
+            glEnableVertexAttribArray(self.attribute_index)
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
+        else:
+            glEnableVertexAttribArray(self.attribute_index)
+            glVertexAttribPointer(self.attribute_index, self.stride,
+                    GL_FLOAT, False, 0, self._array)
+        
+    def update_all_atoms(self, atoms):
+        expected_size = self.stride() * len(atoms)
+        if len(self._array) != expected_size:
+            self._array = numpy.zeros([expected_size,], dtype='float32')
+            self._has_new_atoms = True
+        index = 0
+        for atom in atoms:
+            vals = atom.getattr(self.attribute_name)
+            if (self.stride == 1):
+                vals = [vals,]
+            for i in range(self.stride):
+                value = vals[i]
+                if self[index] != value:
+                    self._values_changed = True
+                    self[index] = value
+                index += 1
+
+
+class Atoms2:
+    def __init__(self, atoms):
+        self._atoms = list()
+        self.gl_arrays = list()
+        self.gl_arrays.append(AtomAttributeArray("center", 3, len(self.gl_arrays)))
+        self.gl_arrays.append(AtomAttributeArray("color", 3, len(self.gl_arrays)))
+        self.gl_arrays.append(AtomAttributeArray("radius", 1, len(self.gl_arrays)))
+        self.is_initialized = False
+        
+    def init_gl(self):
+        if self.is_initialized:
+            return
+        for array in self.gl_arrays:
+            array.init_gl()
+        self.is_initialized = True
+        
+    def paint_gl(self):
+        if not self.is_initialized:
+            self.init_gl()
+        for array in self.gl_arrays:
+            array.paint_gl()
+    
+
+class Sphere2TestScene(Actor):
     "Demonstrates side by side use of immediate mode and OpenGL 3.0 style"
     def __init__(self):
-        self.shader = QuadSceneShader()
-        self.position_array = numpy.array(
+        self.shader = Sphere2Shader()
+        self.positions = numpy.array(
                 [ 1,  1, 0,
                   1, -1, 0,
                   3,  1, 0,
                   3, -1 , 0]
                 , dtype='float32')
-        self.color_array = numpy.array(
+        self.colors = numpy.array(
                 [ 0.6, 0.3, 0,
                   0.6, 0.3, 0,
                   0.8, 0.7, 0,
                   0.6, 0.3, 0]
                 , dtype='float32')
-        self.radius_array = numpy.array(
+        self.radii = numpy.array(
                 [ 1.0,
                   0.8,
                   1.0,
@@ -162,9 +267,25 @@ class QuadScene(Actor):
         self.is_initialized = False
         
     def init_gl(self):
+        # Positions
+        self.position_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.position_buffer)
+        glBufferData(GL_ARRAY_BUFFER, self.positions, GL_STATIC_DRAW)
+        # Colors
+        self.color_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.color_buffer)
+        glBufferData(GL_ARRAY_BUFFER, self.colors, GL_STATIC_DRAW)
+        # Radii
+        self.radius_buffer = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.radius_buffer)
+        glBufferData(GL_ARRAY_BUFFER, self.radii, GL_STATIC_DRAW)
+        # Atom indices
         self.atom_index_buffer = glGenBuffers(1)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.atom_index_buffer)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.index_array, GL_STATIC_DRAW)
+        # 
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
         self.is_initialized = True
     
     def paint_gl(self, camera=None, renderer=None):
@@ -190,14 +311,18 @@ class QuadScene(Actor):
         # New way with 1.50
         self.shader.radius_scale = 1.2
         self.shader.radius_offset = 0.0
-        self.shader.position_array = self.position_array
-        self.shader.color_array = self.color_array
-        self.shader.radius_array = self.radius_array
+        self.shader.position_buffer = self.position_buffer
+        self.shader.color_buffer = self.color_buffer
+        self.shader.radius_buffer = self.radius_buffer
         with self.shader:
-            # glDrawArrays(GL_POINTS, 0, 4)
+            # Use integer indices to access atom sphere data
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.atom_index_buffer)
             glDrawElements(GL_POINTS, len(self.index_array), GL_UNSIGNED_INT, None)
+            # clean up
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
     
+##########################################
 
 class FiveBallScene(Actor):
     def __init__(self):
