@@ -6,6 +6,7 @@ Created on Jul 29, 2012
 
 import atom
 import cinemol.representation
+import cinemol.imposter as imposter
 
 class CinemolModel(object):
     "Model as in model-view-controller"
@@ -14,9 +15,11 @@ class CinemolModel(object):
         self.bonds = atom.BondList()
         self.selected_atoms = atom.AtomList()
         self.selected_atoms[:] = self.atoms[:]
-        self.representations = list()
+        self.representations = dict()
+        self.representations['spacefill'] = cinemol.representation.SpaceFilling()
+        self.atom_attributes = imposter.atom_attributes
         self.atom_scale = 1.0
-        self.default_representation = cinemol.representation.SpaceFilling
+        self.default_representation = 'spacefill'
 
     def update_atom_colors(self):
         for rep in self.representations:

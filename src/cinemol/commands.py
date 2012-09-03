@@ -4,7 +4,7 @@ Created on Jul 29, 2012
 @author: cmbruns
 '''
 
-import cinemol.representation
+from cinemol.imposter import atom_attributes
 from cinemol.rotation import Vec3
 from cinemol.model import model
 from cinemol.atom_expression import AtomExpression
@@ -71,9 +71,10 @@ class Commands(object):
         atoms.load(file_name)
         print len(atoms), "atoms found"
         if len(atoms) > 0:
+            atom_attributes.add_atoms(atoms)
             print "creating representation"
-            rep = model.default_representation(atoms)
-            model.representations.append(rep)
+            rep = model.default_representation
+            model.representations[rep].add_atoms(atoms)
             ren = self.renderer
             print "centering"
             min_pos, max_pos = atoms.box_min_max()
@@ -95,14 +96,19 @@ class Commands(object):
         else:
             print num, "atoms selected."
 
-    def spacefill(self, param=None):
+    def spacefill(self, param=True):
         print "spacefill"
-        model.default_representation = cinemol.representation.SpaceFilling
-        # TODO
+        if param is True:
+            model.default_representation = 'spacefill'
+            model.representations['spacefill'].add_atoms(model.selected_atoms)
+        elif param is False:
+            model.representations['spacefill'].remove_atoms(model.selected_atoms)
+        # TODO other options
+        self.refresh()
     
     def wireframe(self, width=1.0):
         print "wireframe"
-        model.default_representation = cinemol.representation.BondLines
+        model.default_representation = 'wireframe'
         # TODO
         
     
@@ -113,4 +119,6 @@ class Commands(object):
         model.atoms[:] = []
         model.bonds[:] = []
         model.selected_atoms[:] = model.atoms[:]
-        model.representations[:] = []
+        for rep in model.representations.values():
+            rep.clear()
+        atom_attributes.clear()

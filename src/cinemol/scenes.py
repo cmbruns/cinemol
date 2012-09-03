@@ -1,7 +1,7 @@
 from atom import Atom, AtomList
 import color
 from actor import Actor
-from imposter import SphereImposterArray, CylinderImposterArray, AtomGLAttributes, Sphere2Shader
+from imposter import SphereImposterArray, CylinderImposterArray, atom_attributes, Sphere2Shader
 from rotation import Vec3
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -71,7 +71,7 @@ class Sphere2TestScene(Actor):
         for atom in self.atoms:
             atom.colorizer = color.ColorByRasmolCpk()
         #
-        self.atom_attributes = AtomGLAttributes(self.atoms)
+        self.atom_attributes = atom_attributes
         #
         self.index_array = numpy.array(
                 [ x for x in range(len(self.atoms)) ]
@@ -141,7 +141,7 @@ class FiveBallScene(Actor):
         sphere.index = 0
         # self.sphere_array = VertexArrayTest()
         self.sphere_array = SphereImposterArray([sphere,])
-        buffers = AtomGLAttributes([sphere,])
+        buffers = atom_attributes
         # self.sphere_array = NewSphereArray(buffers)
         cylinder = Vec3([0,0,0])
         cylinder.center = Vec3([0,0,0])

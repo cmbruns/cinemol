@@ -38,7 +38,7 @@ def refresh():
 def select(atom_expression):
     cm.select(atom_expression)
 
-def spacefill(param=None):
+def spacefill(param=True):
     cm.spacefill(param)
 
 def wireframe(width=1.0):
