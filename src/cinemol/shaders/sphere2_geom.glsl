@@ -9,8 +9,8 @@
 
 const float apothemRatio = cos(3.14159 / numSides); // polygon needs to be larger than circle it encloses
 const float sideTheta = 2.0 * 3.14159 / float(numSides); // angle between polygon vertices
-const float outlineWidthValue = 0.05;
-const float outlineDepth = 2.0; 
+const float outlineWidthValue = 0.02;
+const float outlineDepth = 1.5; 
 
 uniform mat4 projectionMatrix;
 

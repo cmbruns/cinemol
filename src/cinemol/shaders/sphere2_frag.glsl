@@ -72,6 +72,12 @@ float cullByRadius()
 }
 
 
+float edgeDepth() 
+{
+    vec4 edgeInClip = projectionMatrix * vec4(horizonPlanePosition, 1);
+    return edgeInClip.z / edgeInClip.w;
+}
+
 // draw a dark outline around each atom,
 // especially when atom is way in front of whatever is behind it.
 bool drawOutline(in float radSqr)
@@ -152,6 +158,9 @@ void main()
         // rare pixels do fall between outline and sphere tests
         // TODO - antialias this case
         fragColor = outlineColor;
+#ifdef CORRECT_DEPTH
+        gl_FragDepth = edgeDepth();
+#endif // CORRECT_DEPTH
         return;
 #else
         discard;
