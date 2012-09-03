@@ -228,11 +228,15 @@ class AtomAttributeArray:
         glBufferData(GL_ARRAY_BUFFER, self._array, GL_STATIC_DRAW)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
         self.is_initialized = True
-        
+
     def paint_gl(self):
         if not self.is_initialized:
             self.init_gl()
         glBindBuffer(GL_ARRAY_BUFFER, self.buffer)
+        if self._values_changed or self._has_new_atoms:
+            glBufferData(GL_ARRAY_BUFFER, self._array, GL_STATIC_DRAW)
+            self._values_changed = False
+            self._has_new_atoms = False
         glEnableVertexAttribArray(self.attribute_index)
         glVertexAttribPointer(self.attribute_index, self.stride,
                 GL_FLOAT, False, 0, None)
@@ -279,8 +283,8 @@ class AtomGLAttributes:
         for array in self.gl_arrays:
             array.paint_gl()
         
-    def update_atom_colors(self, atoms):
-        self.gl_arrays[1].update_all_atoms(atoms)
+    def update_atom_colors(self):
+        self.gl_arrays[1].update_all_atoms(self.atoms)
 
 
 class Sphere2Shader:
