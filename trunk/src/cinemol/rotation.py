@@ -6,7 +6,6 @@ Created on Jun 20, 2012
 
 from math import cos, sin, sqrt, atan2, pi, acos
 from sys import float_info
-from PySide.QtCore import QObject
 
 
 class UnitVec3(object):
@@ -189,6 +188,7 @@ class Quaternion:
     def dot(self, rhs):
         return sum([self[i]*rhs[i] for i in range(4)])
         
+    @staticmethod
     def slerp(qA, qB, alpha, spin=0.0):
         """
         Spherical linear interpolation of quaternions.
@@ -245,10 +245,10 @@ class CoordinateAxis:
 
     def third_axis(self, other):
         assert(self != other)
-        next = self.next_axis()
-        if next == other:
+        next_axis = self.next_axis()
+        if next_axis == other:
             return other.next_axis()
-        return next
+        return next_axis
     
     def is_reverse_cyclical(self, other):
         return self.previous_axis() == other        
@@ -337,7 +337,7 @@ class Rotation(object):
         if axis2 == axis3:
             return setRotationFromTwoAnglesTwoAxes(bodyOrSpace, angle1, axis1, angle2+angle3, axis3)
         # If using a SpaceRotationSequence, switch the order of the axes and the angles.
-        if bodyOrSpace == SpaceRotationSequence:
+        if body_or_space == SpaceRotationSequence:
             angle1, angle3 = angle3, angle1
             axis1, axis3 = axis3, axis1
         # If using a reverse cyclical, negate the signs of the angles.
@@ -396,7 +396,7 @@ class Rotation(object):
         # Need to know if using a forward or reverse cyclical
         plusMinus = 1.0;  minusPlus = -1.0
         if axis1.is_reverse_cyclical(axis2):
-             plusMinus = -1.0;  minusPlus = 1.0
+            plusMinus = -1.0;  minusPlus = 1.0
         # Shortcut to the elements of the rotation matrix
         R = self
         # Calculate theta2 using lots of information in the rotation matrix

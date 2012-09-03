@@ -62,7 +62,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         self.sky_box.init_gl()
         for actor in self.actors:
             actor.init_gl()
-        for rep in model.representations:
+        for rep in model.representations.values():
             print "init_gl on a representation"
             rep.init_gl()
         # self.shader.init_gl()
@@ -90,7 +90,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         """
         for actor in self.actors:
             actor.paint_gl(camera, self)
-        for rep in model.representations:
+        for rep in model.representations.values():
             rep.paint_gl(camera, self)
 
     def paint_gl(self):

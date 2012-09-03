@@ -220,6 +220,12 @@ class AtomAttributeArray:
         self._values_changed = False # to trigger OpengGL array update
         self.is_initialized = False
 
+    def clear(self):
+        if len(self._array) > 0:
+            self._array = numpy.array([], dtype='float32')
+            self._has_new_atoms = True
+            self._values_changed = True
+        
     def init_gl(self):
         if self.is_initialized:
             return
@@ -260,15 +266,25 @@ class AtomAttributeArray:
 
 
 class AtomGLAttributes:
-    def __init__(self, atoms):
-        self.atoms = atoms
+    def __init__(self):
+        self.atoms = None
         self.gl_arrays = list()
         self.gl_arrays.append(AtomAttributeArray("center", 0, 3))
         self.gl_arrays.append(AtomAttributeArray("color", 1, 3))
         self.gl_arrays.append(AtomAttributeArray("radius", 2, 1))
-        for att in self.gl_arrays:
-            att.update_all_atoms(atoms)
         self.is_initialized = False
+        
+    def add_atoms(self, atoms):
+        if (self.atoms == None) or (len(self.atoms) == 0):
+            self.set_atoms(atoms)
+            return
+        # TODO - combine
+        self.set_atoms(atoms)
+        
+    def clear(self):
+        for att in self.gl_arrays:
+            att.clear()
+        self.atoms = None
         
     def init_gl(self):
         if self.is_initialized:
@@ -282,9 +298,19 @@ class AtomGLAttributes:
             self.init_gl()
         for array in self.gl_arrays:
             array.paint_gl()
+    
+    def set_atoms(self, atoms):
+        self.atoms = atoms
+        for att in self.gl_arrays:
+            att.update_all_atoms(atoms)
         
     def update_atom_colors(self):
+        if self.atoms is None:
+            return
         self.gl_arrays[1].update_all_atoms(self.atoms)
+
+
+atom_attributes = AtomGLAttributes()
 
 
 class Sphere2Shader:
@@ -372,26 +398,52 @@ class Sphere2Array(QObject):
         self.radius_scale = 1.0
         self.radius_offset = 0.0
         atoms = atom_attributes.atoms
+        na = 0
+        if atoms is not None:
+            na = len(atoms)
         self.index_array = numpy.array(
-                [x for x in range(len(atoms))], 
+                [x for x in range(na)], 
                 numpy.uint32)
         self.shader = Sphere2Shader()
         self.index_buffer = 0
+        self.atoms_changed = False
         self.is_initialized = False
         
+    def add_atoms(self, atoms):
+        if len(atoms) < 1:
+            return
+        index_set = set(self.index_array)
+        bChanged = False
+        for atom in atoms:
+            index = atom.index
+            if not index in index_set:
+                index_set.add(index)
+                bChanged = True
+        if bChanged:
+            self.index_array = numpy.array(list(index_set), numpy.uint32)
+            self.atoms_changed = True
+        
+    def clear(self):
+        self.index_array = numpy.array([], numpy.int32)
+        
     def init_gl(self):
+        if len(self.index_array) == 0:
+            return
         if self.is_initialized:
             return
         self.atom_attributes.init_gl()
         self.index_buffer = glGenBuffers(1)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.index_array, GL_STATIC_DRAW)
+        self.atoms_changed = False
         # clean up
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
         self.is_initialized = True
         
     def paint_gl(self, camera=None, renderer=None):
+        if len(self.index_array) == 0:
+            return
         if not self.is_initialized:
             self.init_gl()
         self.shader.radius_offset = self.radius_offset
@@ -399,10 +451,27 @@ class Sphere2Array(QObject):
         with self.shader:
             self.atom_attributes.paint_gl()
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
+            if self.atoms_changed:
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.index_array, GL_STATIC_DRAW)
+                self.atoms_changed = False
             glDrawElements(GL_POINTS, len(self.index_array), GL_UNSIGNED_INT, None)            
             # clean up
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
             glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+    def remove_atoms(self, atoms):
+        if len(atoms) < 1:
+            return
+        index_set = set(self.index_array)
+        bChanged = False
+        for atom in atoms:
+            index = atom.index
+            if index in index_set:
+                index_set.remove(index)
+                bChanged = True
+        if bChanged:
+            self.index_array = numpy.array(list(index_set), numpy.uint32)
+            self.atoms_changed = True
 
     def update_atom_colors(self):
         self.atom_attributes.update_atom_colors()
