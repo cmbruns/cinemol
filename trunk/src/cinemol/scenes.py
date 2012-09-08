@@ -7,6 +7,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import numpy
+import sys
 
 class GlutSphereActor(Actor):
     def __init__(self, position=[0,0,0], radius=1.0):
@@ -150,6 +151,7 @@ class FiveBallScene(Actor):
         self.cylinder_array = CylinderImposterArray([cylinder,])
         
     def init_gl(self):
+        glutInit(sys.argv)
         self.sphere_array.init_gl()
         self.glut_cylinder.init_gl()
         self.cylinder_array.init_gl()
