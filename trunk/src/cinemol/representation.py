@@ -19,7 +19,24 @@ class BondLines:
         self.shader = WireFrameShader()
         self.bonds_changed = False
         self.is_initialized = False
+        self.atom_attributes = atom_attributes
     
+    def add_atoms(self, atoms):
+        atom_ix = set()
+        for atom in atoms:
+            atom_ix.add(atom.index)
+        bond_indices = list()
+        for atom in atoms:
+            for bond in atom.bonds:
+                if not bond in atom_ix:
+                    continue # bonded atom not in list
+                if bond < atom.index:
+                    continue # only use one of two bond directions
+                bond_indices.append(atom.index)
+                bond_indices.append(bond)
+        self.index_array = numpy.array(bond_indices, numpy.uint32)
+        self.bonds_changed = True
+            
     def clear(self):
         self.bond_set.clear()
         self.atom_set.clear()
@@ -34,6 +51,7 @@ class BondLines:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.index_array, GL_STATIC_DRAW)
         self.bonds_changed = False
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+        glLineWidth(4)
         self.is_initialized = True
         
     def paint_gl(self, camera=None, renderer=None):
@@ -51,6 +69,10 @@ class BondLines:
             # clean up
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
             glBindBuffer(GL_ARRAY_BUFFER, 0)
+            
+    def set_radius(self, width):
+        # TODO set line width
+        pass
 
 
 class SpaceFilling(object):

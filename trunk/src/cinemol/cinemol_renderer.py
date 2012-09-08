@@ -79,7 +79,6 @@ class CinemolRenderer(glrenderer.GlRenderer):
         glClear(GL_COLOR_BUFFER_BIT)
         
     def render_scene(self, camera):
-        glClear(GL_DEPTH_BUFFER_BIT)
         self.sky_box.paint_gl(camera)
         """
         self.shader.zNear = camera.zNear
@@ -88,6 +87,10 @@ class CinemolRenderer(glrenderer.GlRenderer):
         self.shader.background_color = self.background_color
         self.shader.eye_shift = camera.eye_shift_in_ground
         """
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LEQUAL)
+        glDepthMask(True)
+        glClear(GL_DEPTH_BUFFER_BIT)
         for actor in self.actors:
             actor.paint_gl(camera, self)
         for rep in model.representations.values():
