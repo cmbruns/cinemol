@@ -97,24 +97,25 @@ class Commands(object):
             print num, "atoms selected."
 
     def spacefill(self, param=True):
-        repName = 'spacefill'
-        rep = model.representations[repName]
+        self.use_representation('spacefill', param)
+    
+    def use_representation(self, rep_name, param):
+        rep = model.representations[rep_name]
         if param is False: # hide atoms
             rep.remove_atoms(model.selected_atoms)
         else:
-            model.default_representation = repName
+            model.default_representation = rep_name
             rep.add_atoms(model.selected_atoms)
             if param is True: # radius value
                 rep.set_radius(0.0)
             else:
                 radius = float(param)
                 rep.set_radius(radius)
-        self.refresh()
-    
+        self.refresh()        
+        
     def wireframe(self, width=1.0):
         print "wireframe"
-        model.default_representation = 'wireframe'
-        # TODO
+        self.use_representation('wireframe', width)
         
     
     def zap(self):

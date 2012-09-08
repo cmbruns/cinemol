@@ -11,6 +11,7 @@ from cinemol.atom_expression import AtomExpression
 import urllib
 from StringIO import StringIO
 import gzip
+import math
 import re
 import os
 
@@ -51,6 +52,7 @@ class Atom(object):
     def __init__(self):
         self.colorizer = color.green_colorizer
         self.element = element.unknown
+        self.bonds = set()
 
     def from_pdb_atom_string(self, line):
         try:
@@ -70,11 +72,13 @@ class Atom(object):
             element_symbol = self.full_name[0:2].strip().upper()
             if "H" in element_symbol and len(self.name) == 4:
                 element_symbol = "H"
+            # Remove digits from element symbol
+            element_symbol = element_symbol.strip("0123456789")
             self.element = element.from_symbol(element_symbol)
             if self.element is element.unknown and self.full_name.startswith(" "):
                 self.element = element.from_symbol(self.full_name[1:3])
             # TODO - element, radius, color
-        except:
+        except ():
             raise SyntaxError("Bad PDB atom line: " + line)
         
     @property
@@ -109,6 +113,43 @@ class AtomList(list):
         box_min, box_max = self.box_min_max()
         return 0.5 * (box_min + box_max)
     
+    def compute_bonds(self):
+        bond_count = 0
+        hash3d = dict()
+        cutoff = 0.17
+        cutoffSqr = cutoff * cutoff
+        # Insert atoms into hash
+        for atom in self:
+            cubelet_index = tuple([int(math.floor(x/cutoff)) for x in atom.center])
+            # Search for bonded atoms already in hash
+            # Examine all neighboring cubelets
+            x0, y0, z0 = cubelet_index
+            for x in (x0-1, x0, x0+1):
+                for y in (y0-1, y0, y0+1):
+                    for z in (z0-1, z0, z0+1):
+                        v = tuple([x,y,z])
+                        if not v in hash3d: # no such cubelet
+                            continue
+                        cubelet = hash3d[v]
+                        for atom2 in cubelet:
+                            if atom2 is atom: # same atom
+                                continue
+                            dv = atom.center - atom2.center
+                            d2 = dv.dot(dv)
+                            if d2 > cutoffSqr:
+                                continue # too far
+                            if d2 < 0.003:
+                                continue # too close
+                            # just right
+                            bond_count += 1
+                            atom.bonds.add(atom2.index)
+                            atom2.bonds.add(atom.index)
+                            print "bonding", atom.name, atom2.name, math.sqrt(d2)
+            if not cubelet_index in hash3d:
+                hash3d[cubelet_index] = list()
+            hash3d[cubelet_index].append(atom)
+        print bond_count, "bonds found"
+        
     def color(self, colorizer):
         if not hasattr(colorizer, 'color'):
             colorizer = color.ConstantColorizer(colorizer)
@@ -136,6 +177,9 @@ class AtomList(list):
                 fh = gzip.GzipFile(fileobj=buf)
         with fh as f:
             self.load_stream(f)
+        print "Computing bonds..."
+        self.compute_bonds()
+        print "Finished computing bonds"
             
     def load_line(self, line):
         if line[0:4] == "ATOM" or line[0:6] == "HETATM":
