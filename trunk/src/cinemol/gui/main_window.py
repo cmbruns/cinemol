@@ -82,6 +82,7 @@ class MainWindow(QMainWindow):
     @QtCore.Slot(bool)
     def on_actionReset_center_triggered(self, checked):
         command.center("*")
+        command.refresh()
         
     @QtCore.Slot(bool)
     def on_actionAtom_size_triggered(self, checked):
@@ -103,6 +104,7 @@ class MainWindow(QMainWindow):
             command.select("*")
         command.spacefill(False)
         command.wireframe()
+        command.refresh()
 
     @QtCore.Slot(bool)
     def on_actionSpacefill_triggered(self, checked):
@@ -110,6 +112,7 @@ class MainWindow(QMainWindow):
             command.select("*")
         command.wireframe(False)
         command.spacefill()
+        command.refresh()
         
     @QtCore.Slot(bool)
     def on_actionLoad_movie_script_triggered(self, checked):
@@ -372,7 +375,8 @@ before you can save a movie.""")
             command.load(file_name)
             self.statusBar().showMessage("Finished loading PDB file " 
                              + file_name,
-                             2000)        
+                             2000)   
+            command.refresh()     
             self.recent_files.add_file(file_name)
         except:
             self.statusBar().showMessage("Error loading PDB file " 

@@ -72,10 +72,14 @@ float cullByRadius()
 }
 
 
-float edgeDepth() 
+// http://gamedev.stackexchange.com/questions/16588/computing-gl-fragdepth
+float getFragDepth(in vec3 positionInCamera) 
 {
-    vec4 edgeInClip = projectionMatrix * vec4(horizonPlanePosition, 1);
-    return edgeInClip.z / edgeInClip.w;
+    vec4 positionInClip = projectionMatrix * vec4(positionInCamera, 1);
+    float ndcDepth = positionInClip.z / positionInClip.w;
+    float result = ((gl_DepthRange.diff * ndcDepth) +
+        gl_DepthRange.near + gl_DepthRange.far) / 2.0;
+    return result;
 }
 
 // draw a dark outline around each atom,
@@ -92,8 +96,7 @@ bool drawOutline(in float radSqr)
     vec3 dMax = horizonPlanePosition * outlineDepthRatio;
     float edginess = clamp((radius - imposterRadius) / outlineWidth, 0, 1);
     vec3 featheredPosition = mix(dMin, dMax, edginess);
-    vec4 featheredInClip = projectionMatrix * vec4(featheredPosition, 1);
-    gl_FragDepth = featheredInClip.z / featheredInClip.w;
+    gl_FragDepth = getFragDepth(featheredPosition);
 #endif // CORRECT_DEPTH
     fragColor = outlineColor;
     return true;
@@ -159,7 +162,7 @@ void main()
         // TODO - antialias this case
         fragColor = outlineColor;
 #ifdef CORRECT_DEPTH
-        gl_FragDepth = edgeDepth();
+        gl_FragDepth = getFragDepth(horizonPlanePosition);
 #endif // CORRECT_DEPTH
         return;
 #else
@@ -172,8 +175,7 @@ void main()
 	    vec3 surfaceInCamera = alpha1 * positionInCamera;
 
 #ifdef CORRECT_DEPTH
-	    vec4 surfaceInClip = projectionMatrix * vec4(surfaceInCamera, 1);
-	    gl_FragDepth = surfaceInClip.z / surfaceInClip.w;
+	    gl_FragDepth = getFragDepth(surfaceInCamera);
 #endif // CORRECT_DEPTH
 
 #ifdef LAMBERTIAN_SHADING
