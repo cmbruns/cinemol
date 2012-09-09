@@ -80,7 +80,7 @@ class Commands(object):
             min_pos, max_pos = atoms.box_min_max()
             new_focus = 0.5 * (max_pos + min_pos)
             ren.camera_position.focus_in_ground = new_focus
-            ren.camera_position.distance_to_focus = 4.0 * (max_pos - min_pos).norm()            
+            ren.camera_position.distance_to_focus = 4.0 * ((max_pos - min_pos).norm() + 0.3)           
             self.refresh()
         
     def refresh(self):
@@ -114,7 +114,7 @@ class Commands(object):
         self.refresh()        
         
     def wireframe(self, width=1.0):
-        print "wireframe"
+        # print "wireframe"
         self.use_representation('wireframe', width)
         
     

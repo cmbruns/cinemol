@@ -23,7 +23,7 @@ class CinemolModel(object):
         self.default_representation = 'spacefill'
 
     def update_atom_colors(self):
-        for rep in self.representations:
+        for rep in self.representations.values():
             rep.update_atom_colors()
         
 
