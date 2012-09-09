@@ -144,7 +144,7 @@ class AtomList(list):
                             bond_count += 1
                             atom.bonds.add(atom2.index)
                             atom2.bonds.add(atom.index)
-                            print "bonding", atom.name, atom2.name, math.sqrt(d2)
+                            # print "bonding", atom.name, atom2.name, math.sqrt(d2)
             if not cubelet_index in hash3d:
                 hash3d[cubelet_index] = list()
             hash3d[cubelet_index].append(atom)
