@@ -31,7 +31,6 @@ class Commands(object):
     @focus.setter
     def focus(self, value):
         self.camera.focus_in_ground = Vec3(value)
-        self.refresh()
 
     def center(self, pos="*"):
         "Shift the center of rotation and viewing to pos, in nanometers"
@@ -53,8 +52,6 @@ class Commands(object):
             atom.colorizer = colorizer
         self.renderer.gl_widget.makeCurrent()
         model.update_atom_colors()
-        # self.renderer.gl_widget.doneCurrent()
-        self.refresh()
 
     def cpk(self, param):
         self.spacefill(param)
@@ -75,17 +72,22 @@ class Commands(object):
             print "creating representation"
             rep = model.default_representation
             model.representations[rep].add_atoms(atoms)
-            ren = self.renderer
-            print "centering"
-            min_pos, max_pos = atoms.box_min_max()
-            new_focus = 0.5 * (max_pos + min_pos)
-            ren.camera_position.focus_in_ground = new_focus
-            ren.camera_position.distance_to_focus = 4.0 * ((max_pos - min_pos).norm() + 0.3)           
-            self.refresh()
-        
+            self.reset()
+
     def refresh(self):
         "Used in script files to redraw the image"
         self.renderer.update()
+        
+    def reset(self):
+        atoms = model.atoms
+        if len(atoms) < 1:
+            return
+        ren = self.renderer
+        print "centering"
+        min_pos, max_pos = atoms.box_min_max()
+        new_focus = 0.5 * (max_pos + min_pos)
+        ren.camera_position.focus_in_ground = new_focus
+        ren.camera_position.distance_to_focus = 4.0 * ((max_pos - min_pos).norm() + 0.3)           
 
     def select(self, atom_expression):
         expr = AtomExpression(atom_expression)
@@ -110,8 +112,7 @@ class Commands(object):
                 rep.set_radius(0.0)
             else:
                 radius = float(param)
-                rep.set_radius(radius)
-        self.refresh()        
+                rep.set_radius(radius)      
         
     def wireframe(self, width=1.0):
         # print "wireframe"
