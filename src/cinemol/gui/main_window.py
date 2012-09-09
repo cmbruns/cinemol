@@ -8,6 +8,7 @@ from cinemol.movie import Movie, KeyFrame
 from cinemol.console_context import cm as command
 import recent_file
 import cinemol.stereo3d as stereo3d
+from cinemol.model import model
 from PySide import QtCore
 from PySide.QtGui import *
 from PySide.QtCore import *
@@ -98,10 +99,16 @@ class MainWindow(QMainWindow):
     
     @QtCore.Slot(bool)
     def on_actionWireframe_triggered(self, checked):
+        if len(model.selected_atoms) < 1:
+            command.select("*")
+        command.spacefill(False)
         command.wireframe()
-        
+
     @QtCore.Slot(bool)
     def on_actionSpacefill_triggered(self, checked):
+        if len(model.selected_atoms) < 1:
+            command.select("*")
+        command.wireframe(False)
         command.spacefill()
         
     @QtCore.Slot(bool)

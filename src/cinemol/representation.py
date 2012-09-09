@@ -13,7 +13,7 @@ import numpy
 class BondLines:
     def __init__(self):
         self.bond_set = set()
-        self.atom_set = set()
+        self.atom_ix_set = set()
         self.index_array = numpy.array([], numpy.uint32)
         self.index_buffer = 0
         self.shader = WireFrameShader()
@@ -22,24 +22,30 @@ class BondLines:
         self.atom_attributes = atom_attributes
     
     def add_atoms(self, atoms):
-        atom_ix = set()
+        if len(atoms) < 1:
+            return
         for atom in atoms:
-            atom_ix.add(atom.index)
-        bond_indices = list()
+            self.atom_ix_set.add(atom.index)
         for atom in atoms:
             for bond in atom.bonds:
-                if not bond in atom_ix:
+                if not bond in self.atom_ix_set:
                     continue # bonded atom not in list
+                bond_tuple = tuple([atom.index, bond])
                 if bond < atom.index:
-                    continue # only use one of two bond directions
-                bond_indices.append(atom.index)
-                bond_indices.append(bond)
-        self.index_array = numpy.array(bond_indices, numpy.uint32)
-        self.bonds_changed = True
+                    # only use one of two bond directions
+                    bond_tuple = tuple([bond, atom.index])
+                if not bond_tuple in self.bond_set:
+                    self.bond_set.add(bond_tuple)
+                    self.bonds_changed = True
+        if self.bonds_changed:
+            bond_indices = list()
+            for bond in self.bond_set:
+                bond_indices.extend(bond)
+            self.index_array = numpy.array(bond_indices, numpy.uint32)
             
     def clear(self):
         self.bond_set.clear()
-        self.atom_set.clear()
+        self.atom_ix_set.clear()
         self.index_array = numpy.array([], numpy.uint32)
     
     def init_gl(self):
@@ -70,9 +76,34 @@ class BondLines:
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
             glBindBuffer(GL_ARRAY_BUFFER, 0)
             
+    def remove_atoms(self, atoms):
+        if len(atoms) < 1:
+            return
+        removed_atom_ix = set()
+        for atom in atoms:
+            if not atom.index in self.atom_ix_set:
+                continue
+            removed_atom_ix.add(atom.index)
+        self.atom_ix_set -= removed_atom_ix
+        removed_bonds = set()
+        for bond in self.bond_set:
+            for ix in bond:
+                if ix in removed_atom_ix:
+                    removed_bonds.add(bond)
+        self.bond_set = self.bond_set - removed_bonds
+        if len(removed_bonds) > 1:
+            self.bonds_changed = True
+            bond_indices = list()
+            for bond in self.bond_set:
+                bond_indices.extend(bond)
+            self.index_array = numpy.array(bond_indices, numpy.uint32)
+
     def set_radius(self, width):
         # TODO set line width
         pass
+    
+    def update_atom_colors(self):
+        self.atom_attributes.update_atom_colors()
 
 
 class SpaceFilling(object):
