@@ -88,7 +88,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         self.shader.eye_shift = camera.eye_shift_in_ground
         """
         glEnable(GL_DEPTH_TEST)
-        glDepthFunc(GL_LEQUAL)
+        # glDepthFunc(GL_LEQUAL)
         glDepthMask(True)
         glClear(GL_DEPTH_BUFFER_BIT)
         for actor in self.actors:
