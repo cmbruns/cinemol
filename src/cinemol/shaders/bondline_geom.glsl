@@ -5,7 +5,7 @@ uniform mat4 projectionMatrix;
 uniform float lineWidth = 0.02;
 
 layout (lines) in;
-layout (triangle_strip, max_vertices = 8) out;
+layout (triangle_strip, max_vertices = 16) out;
 
 out vec2 quadPosition; // For discarding rounded end
 
@@ -17,24 +17,36 @@ void draw_half_bond(in vec3 atomPos, in vec3 midPos, in float lineWidth)
     vec3 z = normalize(cross(x, y));
     float len1 = length(midPos - atomPos);
     float capLen = lineWidth/2.0; // rounded end cap
-    float bondLength = len1 + capLen; // includes rounded cap
+    float bondLength = len1;
     
     // quadrilateral vertices
     vec3 q1 = midPos + 0.5 * lineWidth * y;
     vec3 q2 = q1 - lineWidth * y;
     vec3 q3 = q2 - bondLength * x;
     vec3 q4 = q3 + lineWidth * y;
-    quadPosition = vec2(-len1/capLen, 1.0);
+    quadPosition = vec2(0.0, 0.0);
     gl_Position = projectionMatrix * vec4(q1, 1);
     EmitVertex();
-    quadPosition = vec2(-len1/capLen, -1.0);
     gl_Position = projectionMatrix * vec4(q2, 1);
     EmitVertex();
-    quadPosition = vec2(1.0, 1.0);
     gl_Position = projectionMatrix * vec4(q4, 1);
     EmitVertex();
-    quadPosition = vec2(1.0, -1.0);
     gl_Position = projectionMatrix * vec4(q3, 1);
+    EmitVertex();
+    EndPrimitive();
+    
+    // Send a second user-facing quad with a circle at the bond end
+    quadPosition = vec2(1.0, 1.0);
+    gl_Position = projectionMatrix * vec4(atomPos + capLen*vec3(quadPosition,0), 1);
+    EmitVertex();
+    quadPosition = vec2(-1.0, 1.0);
+    gl_Position = projectionMatrix * vec4(atomPos + capLen*vec3(quadPosition,0), 1);
+    EmitVertex();
+    quadPosition = vec2(1.0, -1.0);
+    gl_Position = projectionMatrix * vec4(atomPos + capLen*vec3(quadPosition,0), 1);
+    EmitVertex();
+    quadPosition = vec2(-1.0, -1.0);
+    gl_Position = projectionMatrix * vec4(atomPos + capLen*vec3(quadPosition,0), 1);
     EmitVertex();
     EndPrimitive();
 }
