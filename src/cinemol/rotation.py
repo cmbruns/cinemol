@@ -188,13 +188,14 @@ class Quaternion:
     def dot(self, rhs):
         return sum([self[i]*rhs[i] for i in range(4)])
         
-    @staticmethod
-    def slerp(qA, qB, alpha, spin=0.0):
+    # @staticmethod
+    def slerp(self, qB, alpha, spin=0.0):
         """
         Spherical linear interpolation of quaternions.
         From page 448 of "Visualizing Quaternions" by Andrew J. Hanson
         (mmmbop)
         """
+        qA = self
         # self is qA
         cos_t = qA.dot(qB)
         # If qB is on opposite hemisphere from qA, use -qB instead
