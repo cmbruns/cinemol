@@ -1,6 +1,7 @@
 from actor import Actor
 from OpenGL.GL import *
 import cinemol.cinemol_globals as cinemol_globals
+import re
 import os
 
 
@@ -111,6 +112,17 @@ class Shader150:
         shader_dir = os.path.join(this_dir, "shaders")
         # print os.path.join(shader_dir, file_name)
         shader_string = open(os.path.join(shader_dir, file_name)).read()
+        # Look for include directive
+        # e.g. #pragma include "shared_functions.glsl"
+        pragma_regexp = r'^#pragma include[ \t]+"([A-Za-z0-9_.]+)"[ \t]*$'
+        include = re.search(pragma_regexp, shader_string, flags=re.MULTILINE)
+        if include:
+            include_file_name = include.group(1)
+            # print "pragma found:", include_file_name
+            include_string = open(os.path.join(shader_dir, include_file_name)).read()
+            shader_string = re.sub(pragma_regexp, include_string, 
+                                   shader_string, count=1, flags=re.MULTILINE)
+            # print shader_string
         shader = glCreateShader(shader_type)
         glShaderSource(shader, shader_string)
         glCompileShader(shader)
@@ -165,6 +177,39 @@ class Sphere2Shader(Shader150):
     
 
 class WireFrameShader(Shader150):
+    def __init__(self):
+        Shader150.__init__(self)
+    
+    def __enter__(self):
+        Shader150.__enter__(self)
+        return self
+    
+    def init_gl(self):
+        if self.is_initialized:
+            return
+        vertex_shader = self.init_one_shader(
+                "bondline_vrtx.glsl", GL_VERTEX_SHADER)
+        geometry_shader = self.init_one_shader(
+                "bondline_geom.glsl", GL_GEOMETRY_SHADER)
+        fragment_shader = self.init_one_shader(
+                "bondline_frag.glsl", GL_FRAGMENT_SHADER)
+        shader_program = glCreateProgram()
+        glAttachShader(shader_program, vertex_shader)
+        glAttachShader(shader_program, geometry_shader)
+        glAttachShader(shader_program, fragment_shader)
+        glBindAttribLocation(shader_program, self.position_attrib, "atomPosition")
+        glBindAttribLocation(shader_program, self.color_attrib, "atomColorLinear")
+        glBindAttribLocation(shader_program, self.radius_attrib, "vdwRadius")
+        glLinkProgram(shader_program)
+        # print shader_program, vertex_shader, fragment_shader
+        log = glGetProgramInfoLog(shader_program)
+        if log:
+            print "Shader program error:", log
+        self.shader_program = shader_program
+        self.is_initialized = True
+
+
+class BondCylinderShader(Shader150):
     def __init__(self):
         Shader150.__init__(self)
     

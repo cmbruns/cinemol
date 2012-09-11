@@ -18,19 +18,8 @@
 #define TRACE_RAY
 #endif
 
-struct LightInfo {
-    vec4 position;
-    vec3 lA;
-    vec3 lD;
-    vec3 lS;
-};
-    
-struct MaterialInfo {
-    vec3 kA;
-    vec3 kD;
-    vec3 kS;
-    float shininess;
-};
+// pragma include is something I made up and parse specially
+#pragma include "shared_functions.glsl"
 
 const vec4 outlineColor = vec4(0,0,0,1); // black
 
@@ -71,17 +60,6 @@ float cullByRadius()
     return radSqr;
 }
 
-
-// http://gamedev.stackexchange.com/questions/16588/computing-gl-fragdepth
-float getFragDepth(in vec3 positionInCamera) 
-{
-    vec4 positionInClip = projectionMatrix * vec4(positionInCamera, 1);
-    float ndcDepth = positionInClip.z / positionInClip.w;
-    float result = ((gl_DepthRange.diff * ndcDepth) +
-        gl_DepthRange.near + gl_DepthRange.far) / 2.0;
-    return result;
-}
-
 // draw a dark outline around each atom,
 // especially when atom is way in front of whatever is behind it.
 bool drawOutline(in float radSqr)
@@ -96,7 +74,7 @@ bool drawOutline(in float radSqr)
     vec3 dMax = horizonPlanePosition * outlineDepthRatio;
     float edginess = clamp((radius - imposterRadius) / outlineWidth, 0, 1);
     vec3 featheredPosition = mix(dMin, dMax, edginess);
-    gl_FragDepth = getFragDepth(featheredPosition);
+    gl_FragDepth = fragDepthFromCameraPosition(featheredPosition, projectionMatrix);
 #endif // CORRECT_DEPTH
     fragColor = outlineColor;
     return true;
@@ -162,7 +140,7 @@ void main()
         // TODO - antialias this case
         fragColor = outlineColor;
 #ifdef CORRECT_DEPTH
-        gl_FragDepth = getFragDepth(horizonPlanePosition);
+        gl_FragDepth = fragDepthFromCameraPosition(horizonPlanePosition, projectionMatrix);
 #endif // CORRECT_DEPTH
         return;
 #else
@@ -175,7 +153,7 @@ void main()
 	    vec3 surfaceInCamera = alpha1 * positionInCamera;
 
 #ifdef CORRECT_DEPTH
-	    gl_FragDepth = getFragDepth(surfaceInCamera);
+	    gl_FragDepth = fragDepthFromCameraPosition(surfaceInCamera, projectionMatrix);
 #endif // CORRECT_DEPTH
 
 #ifdef LAMBERTIAN_SHADING

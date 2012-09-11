@@ -5,22 +5,22 @@ Created on Aug 9, 2012
 '''
 
 from cinemol.imposter import SphereImposterArray, Sphere2Array, atom_attributes
-from shader import WireFrameShader
+from shader import WireFrameShader, BondCylinderShader
 from OpenGL.GL import *
 import numpy
 
 
-class BondLines:
+class BondRepBase:
+    "Base class for BondLines and BondCylinders"
     def __init__(self):
         self.bond_set = set()
         self.atom_ix_set = set()
         self.index_array = numpy.array([], numpy.uint32)
         self.index_buffer = 0
-        self.shader = WireFrameShader()
         self.bonds_changed = False
         self.is_initialized = False
         self.atom_attributes = atom_attributes
-    
+
     def add_atoms(self, atoms):
         if len(atoms) < 1:
             return
@@ -104,6 +104,18 @@ class BondLines:
     
     def update_atom_colors(self):
         self.atom_attributes.update_atom_colors()
+
+
+class BondCylinders(BondRepBase):
+    def __init__(self):
+        BondRepBase.__init__(self)
+        self.shader = BondCylinderShader()
+
+
+class BondLines(BondRepBase):
+    def __init__(self):
+        BondRepBase.__init__(self)
+        self.shader = WireFrameShader()
 
 
 class SpaceFilling(object):
