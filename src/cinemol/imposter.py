@@ -374,6 +374,7 @@ class Sphere2Array(QObject):
             self.init_gl()
         self.shader.radius_offset = self.radius_offset
         self.shader.radius_scale = self.radius_scale
+        self.shader.eye_shift = camera.eye_shift_in_ground
         with self.shader:
             self.atom_attributes.paint_gl()
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.index_buffer)
