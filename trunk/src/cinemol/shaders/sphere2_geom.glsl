@@ -9,10 +9,11 @@
 
 const float apothemRatio = cos(3.14159 / numSides); // polygon needs to be larger than circle it encloses
 const float sideTheta = 2.0 * 3.14159 / float(numSides); // angle between polygon vertices
-const float outlineWidthValue = 0.02;
+const float outlineWidthValue = 0.001;
 const float outlineDepth = 1.5; 
 
 uniform mat4 projectionMatrix;
+uniform float eye_shift = 0.0; // for asymmetric frustum stereo
 
 layout (points) in;
 layout (triangle_strip, max_vertices = numSides) out;
@@ -20,8 +21,8 @@ layout (triangle_strip, max_vertices = numSides) out;
 in float radius[];
 
 out vec2 positionInImposter;
-out vec3 positionInCamera;
-out vec3 sphereCenterInCamera;
+out vec3 positionInEye;
+out vec3 sphereCenterInEye;
 out vec3 horizonPlanePosition; // for feathering outlines
 out float outlineDepthRatio;
 
@@ -39,9 +40,13 @@ void main()
     
     outlineWidth = outlineWidthValue;
     
-    sphereCenterInCamera = gl_PositionIn[0].xyz;
+    vec3 sphereCenterInCamera = gl_PositionIn[0].xyz;
+    // Asymmetric frustum stereo
+    vec3 eyeInCamera = vec3(-eye_shift, 0, 0);
+    sphereCenterInEye = sphereCenterInCamera - eyeInCamera;
+    
     // horizon bulges larger than midline disk in perspective projection
-    float cameraDistanceSqr = dot(sphereCenterInCamera, sphereCenterInCamera);
+    float cameraDistanceSqr = dot(sphereCenterInEye, sphereCenterInEye);
     // d/sqrt(d^2-r^2) correction for perpective horizon
     float horizonRatio = sqrt(cameraDistanceSqr / (cameraDistanceSqr - radius[0]*radius[0]));
 
@@ -56,7 +61,7 @@ void main()
 
     // Local coordinate system of imposter polygon,
     // so we can orient the polygon toward the camera
-    vec3 pZ = normalize(-sphereCenterInCamera); // minus z axis along view vector
+    vec3 pZ = normalize(-sphereCenterInEye); // minus z axis along view vector
     vec3 pX = normalize(cross(vec3(0,1,0), pZ)); // x orthogonal to y/pZ plane
     vec3 pY = normalize(cross(pZ, pX)); // normalize not needed?
     for(int v = 0; v < numSides; ++v)  // one vertex at a time, starting at top middle
@@ -66,10 +71,12 @@ void main()
         float cosTheta = cos(theta);
         positionInImposter = circumradius * vec2(cosTheta, -sinTheta);
         vec3 delta = pX * positionInImposter.x + pY * positionInImposter.y;
-        positionInCamera = sphereCenterInCamera + delta;
+        vec3 positionInCamera = sphereCenterInCamera + delta;
         gl_Position = projectionMatrix * vec4(positionInCamera, 1);
-        qe_half_b = -1.0 * dot(positionInCamera, sphereCenterInCamera);
-        qe_c = dot(sphereCenterInCamera, sphereCenterInCamera) - atomRadius*atomRadius;
+        //
+        positionInEye = positionInCamera - eyeInCamera;
+        qe_half_b = -1.0 * dot(positionInEye, sphereCenterInEye);
+        qe_c = dot(sphereCenterInEye, sphereCenterInEye) - atomRadius*atomRadius;
 
         // precompute parameters for outlines
         horizonPlanePosition = positionInCamera / horizonRatio;

@@ -31,8 +31,8 @@ in vec4 gl_Color;
 in float imposterRadius;
 in float outlineWidth;
 in vec2 positionInImposter;
-in vec3 positionInCamera;
-in vec3 sphereCenterInCamera;
+in vec3 positionInEye;
+in vec3 sphereCenterInEye;
 in float qe_half_b;
 in float qe_c;
 // outlines
@@ -55,7 +55,7 @@ float cullByRadius()
     if (radSqr > outerEdge) {
         discard;
         // fragColor = vec4(0,0,1,1); // for debugging
-        // return;
+        // return radSqr;
     }
     return radSqr;
 }
@@ -81,7 +81,7 @@ bool drawOutline(in float radSqr)
 }
 
 
-vec4 shadeLambertian(in vec3 surfaceInCamera)
+vec4 shadeLambertian(in vec3 surfaceInEye)
 {
     LightInfo light = LightInfo(
 	    vec4(normalize(lightDirection), 0.0),
@@ -100,9 +100,9 @@ vec4 shadeLambertian(in vec3 surfaceInCamera)
     if (light.position.w == 0.0) // light at infinity
         s = normalize(light.position.xyz);
     else
-        s = normalize(vec3(light.position - vec4(surfaceInCamera, 1)));
-    vec3 v = normalize(-surfaceInCamera); // view vector
-    vec3 normal = normalize(surfaceInCamera - sphereCenterInCamera);
+        s = normalize(vec3(light.position - vec4(surfaceInEye, 1)));
+    vec3 v = normalize(-surfaceInEye); // view vector
+    vec3 normal = normalize(surfaceInEye - sphereCenterInEye);
     vec3 r = reflect( -s, normal );
     vec3 ambient = light.lA * material.kA;
     float sDotN = max(dot(s, normal), 0.0);
@@ -129,7 +129,7 @@ void main()
 
 #ifdef TRACE_RAY
     // Use quadratic formula to solve ray tracing equation
-    float qe_a = dot(positionInCamera, positionInCamera);
+    float qe_a = dot(positionInEye, positionInEye);
     // (b^2 - 4ac) / 4.0
     float b2m4acd4 = qe_half_b*qe_half_b - qe_a*qe_c;
     if (b2m4acd4 < 0.0) { // outside of sphere
@@ -150,14 +150,14 @@ void main()
     else {
 	    // first intersection is visible surface
 	    float alpha1 = (-qe_half_b - sqrt(b2m4acd4))/qe_a; // front of sphere
-	    vec3 surfaceInCamera = alpha1 * positionInCamera;
+	    vec3 surfaceInEye = alpha1 * positionInEye;
 
 #ifdef CORRECT_DEPTH
-	    gl_FragDepth = fragDepthFromCameraPosition(surfaceInCamera, projectionMatrix);
+	    gl_FragDepth = fragDepthFromCameraPosition(surfaceInEye, projectionMatrix);
 #endif // CORRECT_DEPTH
 
 #ifdef LAMBERTIAN_SHADING
-        fragColor = shadeLambertian(surfaceInCamera);
+        fragColor = shadeLambertian(surfaceInEye);
 #else
         fragColor = gl_Color;
 #endif

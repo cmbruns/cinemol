@@ -139,6 +139,7 @@ class Sphere2Shader(Shader150):
         self.light_direction = [1.0, 2.0, 1.0];
         self.radius_scale = 1.0
         self.radius_offset = 2.0
+        self.eye_shift = 0.0
 
     def __enter__(self):
         Shader150.__enter__(self)
@@ -148,6 +149,7 @@ class Sphere2Shader(Shader150):
                     self.radius_offset)
         glUniform3fv(glGetUniformLocation(self.shader_program, "lightDirection"), 
                     1, self.light_direction)
+        glUniform1f(glGetUniformLocation(self.shader_program, "eye_shift"), self.eye_shift)
         #
         return self
     
