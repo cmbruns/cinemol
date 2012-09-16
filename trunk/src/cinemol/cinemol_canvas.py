@@ -5,6 +5,7 @@ Created on Jun 19, 2012
 '''
 
 from trackball import Trackball
+from rotation import Vec3, Rotation
 from PySide.QtOpenGL import QGLWidget
 from PySide.QtCore import *
 from PySide.QtGui import *
@@ -21,6 +22,7 @@ class CinemolCanvas(QGLWidget):
         QCoreApplication.instance().aboutToQuit.connect(self.clean_up_before_quit)
         self.trackball = Trackball()
         self.preferredSize = None
+        self.setFocusPolicy(Qt.WheelFocus)
         
     # delegate opengl tasks to separate non-qt-gui Renderer object
     def set_gl_renderer(self, renderer):
@@ -70,6 +72,19 @@ class CinemolCanvas(QGLWidget):
     def save_lenticular_series(self, file_name, angle, count=18):
         self.save_lenticular_series_requested.emit(file_name, angle, count)
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Left:        
+            r = Rotation().set_from_angle_about_unit_vector(-0.05, [0, 0, -1])
+            self.trackball.rotation_incremented.emit(r)
+        elif event.key() == Qt.Key_Right:
+            r = Rotation().set_from_angle_about_unit_vector( 0.05, [0, 0, -1])
+            self.trackball.rotation_incremented.emit(r)
+        elif event.key() == Qt.Key_Up:
+            self.trackball.pixel_translated.emit(0, 0, 50);
+        elif event.key() == Qt.Key_Down:
+            self.trackball.pixel_translated.emit(0, 0, -50);
+        QGLWidget.keyPressEvent(self, event) # not my event
+        
     # Delegate mouse events to trackball class
     def mouseMoveEvent(self, event):
         self.trackball.mouseMoveEvent(event, self.size())

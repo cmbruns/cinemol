@@ -9,11 +9,11 @@
 
 const float apothemRatio = cos(3.14159 / numSides); // polygon needs to be larger than circle it encloses
 const float sideTheta = 2.0 * 3.14159 / float(numSides); // angle between polygon vertices
-const float outlineWidthValue = 0.001;
 const float outlineDepth = 1.5; 
 
 uniform mat4 projectionMatrix;
 uniform float eye_shift = 0.0; // for asymmetric frustum stereo
+uniform float outlineWidth = 0.001;
 
 layout (points) in;
 layout (triangle_strip, max_vertices = numSides) out;
@@ -27,7 +27,6 @@ out vec3 horizonPlanePosition; // for feathering outlines
 out float outlineDepthRatio;
 
 out float imposterRadius;
-out float outlineWidth;
 
 // Quadratic equation paramers for fragment shader ray tracing
 out float qe_half_b;
@@ -37,8 +36,6 @@ void main()
 {
     // pass through color
     gl_FrontColor = gl_FrontColorIn[0];
-    
-    outlineWidth = outlineWidthValue;
     
     vec3 sphereCenterInCamera = gl_PositionIn[0].xyz;
     // Asymmetric frustum stereo
