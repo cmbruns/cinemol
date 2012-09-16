@@ -7,7 +7,7 @@
 // Toggleable effects
 #define LAMBERTIAN_SHADING // use 3d shading
 #define CORRECT_DEPTH // put accurate values into z-buffer
-// #define USE_OUTLINES // draw a dark outline around each atom
+#define USE_OUTLINES // draw a dark outline around each atom
 
 // ray tracing is required to get correct depth value
 #ifdef CORRECT_DEPTH
@@ -25,11 +25,11 @@ const vec4 outlineColor = vec4(0,0,0,1); // black
 
 uniform mat4 projectionMatrix;
 uniform vec3 lightDirection;
+uniform float outlineWidth = 0.001;
 
 in vec4 gl_FragCoord;
 in vec4 gl_Color;
 in float imposterRadius;
-in float outlineWidth;
 in vec2 positionInImposter;
 in vec3 positionInEye;
 in vec3 sphereCenterInEye;
@@ -71,6 +71,9 @@ bool drawOutline(in float radSqr)
 #ifdef CORRECT_DEPTH
     float radius = sqrt(radSqr);
     vec3 dMin = horizonPlanePosition;
+    float cullCheck = fragDepthFromCameraPosition(dMin, projectionMatrix);
+    if (cullCheck < 0)
+        discard;
     vec3 dMax = horizonPlanePosition * outlineDepthRatio;
     float edginess = clamp((radius - imposterRadius) / outlineWidth, 0, 1);
     vec3 featheredPosition = mix(dMin, dMax, edginess);

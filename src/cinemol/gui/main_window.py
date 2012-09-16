@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         for url in event.mimeData().urls():
             s = url.toString()
             self.load_pdb_file(s)
-        
+
     @property
     def camera(self):
         return self.ui.glCanvas.renderer.camera_position
