@@ -148,7 +148,7 @@ class Sphere2Shader(Shader150):
                     self.radius_scale * cinemol_globals.atom_scale)
         glUniform1f(glGetUniformLocation(self.shader_program, "radiusOffset"), 
                     self.radius_offset)
-        glUniform3fv(glGetUniformLocation(self.shader_program, "lightDirection"), 
+        glUniform4fv(glGetUniformLocation(self.shader_program, "lightDirection"), 
                     1, self.light_direction)
         glUniform1f(glGetUniformLocation(self.shader_program, "eye_shift"), self.eye_shift)
         glUniform1f(glGetUniformLocation(self.shader_program, "outlineWidth"), 
@@ -215,11 +215,17 @@ class WireFrameShader(Shader150):
 
 
 class BondCylinderShader(Shader150):
-    def __init__(self):
+    def __init__(self, radius=0.02):
         Shader150.__init__(self)
+        self.radius = radius
+        self.light_direction = [1, 0, 1, 0]
     
     def __enter__(self):
         Shader150.__enter__(self)
+        glUniform1f(glGetUniformLocation(self.shader_program, "radius"), 
+            self.radius)
+        glUniform4fv(glGetUniformLocation(self.shader_program, "lightDirection"), 
+                    1, self.light_direction)
         return self
     
     def init_gl(self):

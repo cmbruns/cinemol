@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         repActionGroup = QActionGroup(self)
         repActionGroup.addAction(self.ui.actionWireframe)
         repActionGroup.addAction(self.ui.actionSpacefill)
+        repActionGroup.addAction(self.ui.actionSticks)
         # size dialog
         self.size_dialog = SizeDialog(self)
         self.size_dialog.size_changed.connect(self.resize_canvas)
@@ -95,12 +96,12 @@ class MainWindow(QMainWindow):
             dialog.set_value(old_scale)
         
     @QtCore.Slot(bool)
-    def on_actionCylinders_triggered(self, checked):
+    def on_actionSticks_triggered(self, checked):
         if len(model.selected_atoms) < 1:
             command.select("*")
         command.spacefill(False)
         command.wireframe(False)
-        command.cylinders()
+        command.sticks()
         command.refresh()
 
     @QtCore.Slot(bool)
@@ -112,7 +113,7 @@ class MainWindow(QMainWindow):
         if len(model.selected_atoms) < 1:
             command.select("*")
         command.spacefill(False)
-        command.cylinders(False)
+        command.sticks(False)
         command.wireframe()
         command.refresh()
 
@@ -121,7 +122,7 @@ class MainWindow(QMainWindow):
         if len(model.selected_atoms) < 1:
             command.select("*")
         command.wireframe(False)
-        command.cylinders(False)
+        command.sticks(False)
         command.spacefill()
         command.refresh()
         

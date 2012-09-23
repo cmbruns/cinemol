@@ -2,7 +2,7 @@
 
 #pragma include "shared_functions.glsl"
 
-uniform vec3 lightDirection = normalize(vec3(1,1,1));
+uniform vec4 lightDirection = vec4(normalize(vec3(1,1,1)), 0);
 uniform mat4 projectionMatrix;
 
 in vec4 gl_Color;

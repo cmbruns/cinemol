@@ -27,10 +27,11 @@ float fragDepthFromCameraPosition(in vec3 positionInCamera, in mat4 projectionMa
     return fragDepthFromClipPosition(positionInClip);
 }
 
-vec4 shadeLambertian(in vec3 positionInEye, in vec3 normalInEye, in vec4 color, in vec3 lightDirection)
+vec4 shadeLambertian(in vec3 positionInEye, in vec3 normalInEye, in vec4 color, in vec4 lightDirection)
 {
+    // TODO - non-infinity lights
     LightInfo light = LightInfo(
-        vec4(normalize(lightDirection), 0.0),
+        vec4(normalize(lightDirection.xyz), 0.0),
         vec3(1,1,1),
         vec3(1,1,1),
         vec3(1,1,1));

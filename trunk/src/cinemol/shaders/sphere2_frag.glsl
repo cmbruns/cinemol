@@ -7,7 +7,7 @@
 // Toggleable effects
 #define LAMBERTIAN_SHADING // use 3d shading
 #define CORRECT_DEPTH // put accurate values into z-buffer
-#define USE_OUTLINES // draw a dark outline around each atom
+// #define USE_OUTLINES // draw a dark outline around each atom
 
 // ray tracing is required to get correct depth value
 #ifdef CORRECT_DEPTH
@@ -24,7 +24,7 @@
 const vec4 outlineColor = vec4(0,0,0,1); // black
 
 uniform mat4 projectionMatrix;
-uniform vec3 lightDirection = normalize(vec3(1,1,1));
+uniform vec4 lightDirection = vec4(normalize(vec3(1,1,1)), 0);
 uniform float outlineWidth = 0.001;
 
 in vec4 gl_FragCoord;

@@ -28,6 +28,8 @@ class CinemolRenderer(glrenderer.GlRenderer):
         self.background_color = [0.8, 0.8, 1.0, 0.0] # sky blue
         self.stereo_mode = stereo3d.Mono()
         self.sky_box = SkyBox()
+        # direction to skybox sun
+        self.light_direction = [0.352, 0.812, 0.465, 0.0]
         
     def init_gl(self):
         # print "init_gl"
@@ -54,7 +56,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         glEnable(GL_LIGHT0)
         glMaterialfv(GL_FRONT, GL_SPECULAR, [1.0, 1.0, 1.0, 1.0])
         glMaterialfv(GL_FRONT, GL_SHININESS, [100.0])
-        glLightfv(GL_LIGHT0, GL_POSITION, [222.0, 512.0, 293.0, 0.0])
+        glLightfv(GL_LIGHT0, GL_POSITION, self.light_direction)
         glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.8, 0.8, 0.8, 1.0])
         glLightfv(GL_LIGHT0, GL_SPECULAR, [1.0, 1.0, 1.0, 1.0])
         glLightModelfv(GL_LIGHT_MODEL_AMBIENT, [0.15, 0.15, 0.15, 0.0])

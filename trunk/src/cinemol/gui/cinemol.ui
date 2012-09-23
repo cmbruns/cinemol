@@ -102,7 +102,7 @@
      </property>
      <addaction name="actionSpacefill"/>
      <addaction name="actionWireframe"/>
-     <addaction name="actionCylinders"/>
+     <addaction name="actionSticks"/>
     </widget>
     <addaction name="menuRepresentation"/>
     <addaction name="menuBookmarks"/>
@@ -377,9 +377,12 @@
     <string>Spacefill</string>
    </property>
   </action>
-  <action name="actionCylinders">
+  <action name="actionSticks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Cylinders</string>
+    <string>Sticks</string>
    </property>
   </action>
  </widget>

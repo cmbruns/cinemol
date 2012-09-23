@@ -5,7 +5,7 @@ Created on Aug 9, 2012
 '''
 
 from cinemol.imposter import SphereImposterArray, Sphere2Array, atom_attributes
-from shader import WireFrameShader, BondCylinderShader
+from shader import WireFrameShader, BondCylinderShader, Sphere2Shader
 from OpenGL.GL import *
 import numpy
 
@@ -107,15 +107,62 @@ class BondRepBase:
 
 
 class BondCylinders(BondRepBase):
-    def __init__(self):
+    def __init__(self, radius=0.02):
         BondRepBase.__init__(self)
         self.shader = BondCylinderShader()
+        self.shader.radius = radius
+        
+    def paint_gl(self, camera=None, renderer=None):
+        if renderer is not None:
+            self.shader.light_direction = renderer.light_direction
+        BondRepBase.paint_gl(self, camera, renderer)
+        
+    def set_radius(self, radius):
+        self.shader.radius = radius
 
 
 class BondLines(BondRepBase):
     def __init__(self):
         BondRepBase.__init__(self)
         self.shader = WireFrameShader()
+
+
+class Sticks():
+    def __init__(self, radius=0.02):
+        self.bond_rep = BondCylinders()
+        self.atom_rep = SpaceFilling()
+        self.set_radius(radius)
+
+    def add_atoms(self, atoms):
+        self.bond_rep.add_atoms(atoms)
+        self.atom_rep.add_atoms(atoms)
+        
+    def clear(self):
+        self.bond_rep.clear()
+        self.atom_rep.clear()
+        
+    def init_gl(self):
+        self.bond_rep.init_gl()
+        self.atom_rep.init_gl()
+
+    def paint_gl(self, camera=None, renderer=None):
+        self.bond_rep.paint_gl(camera, renderer)
+        self.atom_rep.set_radius(self.radius)
+        self.atom_rep.paint_gl(camera, renderer)
+        
+    def remove_atoms(self, atoms):
+        self.bond_rep.remove_atoms(atoms)
+        self.atom_rep.remove_atoms(atoms)
+        
+    def set_radius(self, radius):
+        self.radius = radius
+        self.bond_rep.set_radius(radius)
+        self.atom_rep.set_radius(radius)
+
+    def update_atom_colors(self):
+        self.bond_rep.update_atom_colors()
+        self.atom_rep.update_atom_colors()
+
 
 
 class SpaceFilling(object):

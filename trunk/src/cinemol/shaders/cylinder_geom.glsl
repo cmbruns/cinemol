@@ -7,9 +7,12 @@ uniform float radius = 0.02;
 layout (lines) in;
 layout (triangle_strip, max_vertices = 16) out;
 
+// Quadratic equation "a" component is non-linear, so we need to finish
+// the computation in the fragment shader.  Hence "undot"
 out vec3 qe_undot_half_a;
 out float qe_c;
 out float qe_half_b;
+// 
 out vec3 positionInCamera;
 out vec3 cylCen;
 out vec3 cylAxis;
@@ -38,6 +41,7 @@ void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos, in float radius, i
     if (dot(nudge, cylCen) > 0) 
         nudge = -nudge;
     // only nudge far edge
+    // NOTE - sometimes BOTH ends are "far", if viewer is in the middle
     if (dot(midPos - atomPos, midPos) > 0) {
         q1 += nudge;
         q2 += nudge;
@@ -57,8 +61,8 @@ void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos, in float radius, i
         dot(cylCen, vec3( x.x*x.z,  x.y*x.z, -x.x*x.x - x.y*x.y)));
     
     positionInCamera = q1;
-    qe_undot_half_a = cross(positionInCamera, cylAxis);
     qe_half_b = dot(positionInCamera, qe_undot_b_part);
+    qe_undot_half_a = cross(positionInCamera, cylAxis);
     gl_Position = projectionMatrix * vec4(positionInCamera, 1);
     EmitVertex();
     
@@ -83,7 +87,7 @@ void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos, in float radius, i
     EndPrimitive();
 }
 
-#pragma include "shared_functions.glsl"
+// #pragma include "shared_functions.glsl"
 
 void main()
 {

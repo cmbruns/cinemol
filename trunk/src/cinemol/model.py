@@ -16,7 +16,7 @@ class CinemolModel(object):
         self.selected_atoms = atom.AtomList()
         self.selected_atoms[:] = self.atoms[:]
         self.representations = dict()
-        self.representations['cylinders'] = cinemol.representation.BondCylinders()
+        self.representations['sticks'] = cinemol.representation.Sticks()
         self.representations['spacefill'] = cinemol.representation.SpaceFilling()
         self.representations['wireframe'] = cinemol.representation.BondLines()
         self.atom_attributes = imposter.atom_attributes
