@@ -61,6 +61,9 @@ class Commands(object):
         self.spacefill(param)
         self.color(color.ColorByRasmolCpkNewLighter())
         
+    def cylinders(self, width=1.0):
+        self.use_representation('cylinders', width)        
+    
     def load(self, file_name):
         atoms = model.atoms
         atoms[:] = []
@@ -116,8 +119,7 @@ class Commands(object):
         
     def wireframe(self, width=1.0):
         # print "wireframe"
-        self.use_representation('wireframe', width)
-        
+        self.use_representation('wireframe', width)        
     
     def zap(self):
         print "clearing everything"
