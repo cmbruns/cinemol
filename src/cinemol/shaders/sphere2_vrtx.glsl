@@ -10,12 +10,13 @@ in float vdwRadius;
 
 out float radius;
 out vec4 gl_FrontColor;
-out vec4 gl_Position;
+out vec4 atomColor;
+// out vec4 gl_Position;
 
 void main()
 {
     // vec3 atomColorLinear = pow(atomColorSrgb, vec3(2.2)); // approximately
-    gl_FrontColor = vec4(atomColorLinear, 1);
+    atomColor = vec4(atomColorLinear, 1);
     // gl_FrontColor = vec4(0.5, 0, 0.5, 1.0);
     
     radius = vdwRadius * radiusScale + radiusOffset;

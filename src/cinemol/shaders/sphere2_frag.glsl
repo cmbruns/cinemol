@@ -28,7 +28,7 @@ uniform vec4 lightDirection = vec4(normalize(vec3(1,1,1)), 0);
 uniform float outlineWidth = 0.001;
 
 in vec4 gl_FragCoord;
-in vec4 gl_Color;
+in vec4 sphereColor;
 in float imposterRadius;
 in vec2 positionInImposter;
 in vec3 positionInEye;
@@ -126,9 +126,9 @@ void main()
 
 #ifdef LAMBERTIAN_SHADING
         vec3 normal = normalize(surfaceInEye - sphereCenterInEye);
-        fragColor = shadeLambertian(surfaceInEye, normal, gl_Color, lightDirection);
+        fragColor = shadeLambertian(surfaceInEye, normal, sphereColor, lightDirection);
 #else
-        fragColor = gl_Color;
+        fragColor = sphereColor;
 #endif
 
     }

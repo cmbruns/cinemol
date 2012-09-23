@@ -19,12 +19,14 @@ layout (points) in;
 layout (triangle_strip, max_vertices = numSides) out;
 
 in float radius[];
+in vec4 atomColor[];
 
 out vec2 positionInImposter;
 out vec3 positionInEye;
 out vec3 sphereCenterInEye;
 out vec3 horizonPlanePosition; // for feathering outlines
 out float outlineDepthRatio;
+out vec4 sphereColor;
 
 out float imposterRadius;
 
@@ -35,7 +37,7 @@ out float qe_c;
 void main()
 {
     // pass through color
-    gl_FrontColor = gl_FrontColorIn[0];
+    sphereColor = atomColor[0];
     
     vec3 sphereCenterInCamera = gl_PositionIn[0].xyz;
     // Asymmetric frustum stereo
