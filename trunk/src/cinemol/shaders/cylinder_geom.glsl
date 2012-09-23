@@ -19,6 +19,8 @@ out vec3 positionInCamera;
 out vec3 cylCen;
 out vec3 cylAxis;
 out float maxCDistSqr; // points farther than this are not in segment
+out vec4 color1;
+out vec4 color2;
 
 void sendVertex(vec3 pos, mat4 projectionMatrix, vec3 qe_undot_b_part) 
 {
@@ -29,7 +31,7 @@ void sendVertex(vec3 pos, mat4 projectionMatrix, vec3 qe_undot_b_part)
     EmitVertex();
 }
 
-void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos0, in float radius, in mat4 projectionMatrix)
+void draw_bond_cylinder(in vec3 atomPos, in vec3 midPos0, in float radius, in mat4 projectionMatrix)
 {
     vec3 bondVec = midPos0 - atomPos;
     vec3 midPos = midPos0; // Ensure that the middle is fully covered
@@ -93,17 +95,8 @@ void main()
     vec3 p2 = gl_PositionIn[1].xyz; // second atom
     vec3 middle = 0.5 * (p1 + p2); // bond midpoint
     
-    //////////////////////////////////////////////
-    //// Segment 1 of 2: first atom to middle ////
-    //////////////////////////////////////////////
-    // Use color of first atom for bond segment
-    gl_FrontColor = atomColor[0];
-    draw_half_bond_cylinder(p1, middle, radius, projectionMatrix);
-    
-    ///////////////////////////////////////////////
-    //// Segment 2 of 2: middle to second atom ////
-    ///////////////////////////////////////////////
-    // Use color of first atom for bond segment
-    gl_FrontColor = atomColor[1];    
-    draw_half_bond_cylinder(p2, middle, radius, projectionMatrix);
+    color1 = atomColor[0];
+    color2 = atomColor[1];
+
+    draw_bond_cylinder(p1, p2, radius, projectionMatrix);
 }
