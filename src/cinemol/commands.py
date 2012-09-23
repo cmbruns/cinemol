@@ -32,6 +32,9 @@ class Commands(object):
     def focus(self, value):
         self.camera.focus_in_ground = Vec3(value)
 
+    def ball_and_stick(self, param=True):
+        self.use_representation('ball_and_stick', param)
+
     def center(self, pos="*"):
         "Shift the center of rotation and viewing to pos, in nanometers"
         try:

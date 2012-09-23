@@ -103,6 +103,7 @@
      <addaction name="actionSpacefill"/>
      <addaction name="actionWireframe"/>
      <addaction name="actionSticks"/>
+     <addaction name="actionBall_Stick"/>
     </widget>
     <addaction name="menuRepresentation"/>
     <addaction name="menuBookmarks"/>
@@ -383,6 +384,11 @@
    </property>
    <property name="text">
     <string>Sticks</string>
+   </property>
+  </action>
+  <action name="actionBall_Stick">
+   <property name="text">
+    <string>Ball and Stick</string>
    </property>
   </action>
  </widget>

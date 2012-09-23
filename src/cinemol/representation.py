@@ -147,7 +147,6 @@ class Sticks():
 
     def paint_gl(self, camera=None, renderer=None):
         self.bond_rep.paint_gl(camera, renderer)
-        self.atom_rep.set_radius(self.radius)
         self.atom_rep.paint_gl(camera, renderer)
         
     def remove_atoms(self, atoms):
@@ -163,6 +162,21 @@ class Sticks():
         self.bond_rep.update_atom_colors()
         self.atom_rep.update_atom_colors()
 
+
+class BallAndStick(Sticks):
+    def __init__(self, ball_radius=0.050, stick_radius=0.015):
+        Sticks.__init__(self, ball_radius)
+        self.ball_radius = ball_radius
+        self.stick_radius = stick_radius
+        self.set_radius(ball_radius, stick_radius)
+
+    def set_radius(self, ball_radius, stick_radius=None):
+        if ball_radius > 0.0:
+            self.ball_radius = ball_radius
+            if stick_radius is None:
+                self.stick_radius = 0.3 * ball_radius
+            self.bond_rep.set_radius(self.stick_radius)
+            self.atom_rep.set_radius(self.ball_radius)
 
 
 class SpaceFilling(object):
