@@ -7,6 +7,8 @@ uniform float radius = 0.02;
 layout (lines) in;
 layout (triangle_strip, max_vertices = 24) out;
 
+in vec4 atomColor[];
+
 // Quadratic equation "a" component is non-linear, so we need to finish
 // the computation in the fragment shader.  Hence "undot"
 out vec3 qe_undot_half_a;
@@ -38,7 +40,7 @@ void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos0, in float radius, 
 
     // local coordinate system for expanding to polygon
     vec3 x = normalize(bondVec); // along bond direction
-    vec3 y = normalize(cross(vec3(0,0,-1), x)); // width direction not along view axis
+    vec3 y = normalize(cross(vec3(0, 0, -1), x)); // width direction not along view axis
     vec3 z = normalize(cross(x, y));
 
     // precompute quadratic equation terms to ease ray tracing in fragment shader
@@ -95,13 +97,13 @@ void main()
     //// Segment 1 of 2: first atom to middle ////
     //////////////////////////////////////////////
     // Use color of first atom for bond segment
-    gl_FrontColor = gl_FrontColorIn[0];
+    gl_FrontColor = atomColor[0];
     draw_half_bond_cylinder(p1, middle, radius, projectionMatrix);
     
     ///////////////////////////////////////////////
     //// Segment 2 of 2: middle to second atom ////
     ///////////////////////////////////////////////
     // Use color of first atom for bond segment
-    gl_FrontColor = gl_FrontColorIn[1];    
+    gl_FrontColor = atomColor[1];    
     draw_half_bond_cylinder(p2, middle, radius, projectionMatrix);
 }

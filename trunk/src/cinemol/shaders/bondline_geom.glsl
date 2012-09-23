@@ -7,6 +7,8 @@ uniform float lineWidth = 0.02;
 layout (lines) in;
 layout (triangle_strip, max_vertices = 16) out;
 
+in vec4 atomColor[];
+
 #pragma include "shared_functions.glsl"
 
 out vec2 quadPosition;
@@ -73,13 +75,13 @@ void main()
     //// Segment 1 of 2: first atom to middle ////
     //////////////////////////////////////////////
     // Use color of first atom for bond segment
-    gl_FrontColor = gl_FrontColorIn[0];
+    gl_FrontColor = atomColor[0];
     draw_half_bond(p1, middle, lineWidth, projectionMatrix);
     
     ///////////////////////////////////////////////
     //// Segment 2 of 2: middle to second atom ////
     ///////////////////////////////////////////////
     // Use color of first atom for bond segment
-    gl_FrontColor = gl_FrontColorIn[1];    
+    gl_FrontColor = atomColor[1];    
     draw_half_bond(p2, middle, lineWidth, projectionMatrix);
 }
