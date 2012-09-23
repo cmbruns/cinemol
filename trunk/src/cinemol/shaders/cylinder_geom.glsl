@@ -18,23 +18,29 @@ out vec3 cylCen;
 out vec3 cylAxis;
 out float maxCDistSqr; // points farther than this are not in segment
 
-void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos, in float radius, in mat4 projectionMatrix)
+void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos0, in float radius, in mat4 projectionMatrix)
 {
+    vec3 bondVec = midPos0 - atomPos;
+    vec3 midPos = midPos0 + 0.01 * bondVec; // Ensure that the middle is fully covered
+    float bondLengthSqr = dot(bondVec, bondVec);
+    float bondLength = sqrt(bondLengthSqr);
+    maxCDistSqr = 0.25 * bondLengthSqr + radius * radius;
+    cylCen = 0.5 * (atomPos + midPos); // center of cylinder segment
+
     // local coordinate system for expanding to polygon
-    vec3 x = normalize(midPos - atomPos); // along bond direction
-    vec3 y = normalize(cross(midPos, x)); // width direction not along view axis
+    vec3 x = normalize(bondVec); // along bond direction
+    vec3 y = normalize(cross(cylCen, x)); // width direction not along view axis
     vec3 z = normalize(cross(x, y));
-    float bondLength = length(midPos - atomPos);
+
+    vec3 dx = 0.51 * bondVec; // Add a bit of extra canvas just in case
+    vec3 dy = radius * y;
     
     // quadrilateral vertices
-    vec3 q1 = midPos + radius * y;
-    vec3 q2 = q1 - 2.0 * radius * y;
-    vec3 q3 = q2 - bondLength * x;
-    vec3 q4 = q3 + 2.0 * radius * y;
+    vec3 q1 = cylCen + dx + dy;
+    vec3 q2 = cylCen + dx - dy;
+    vec3 q3 = cylCen - dx - dy;
+    vec3 q4 = cylCen - dx + dy;
     
-    cylCen = 0.5 * (atomPos + midPos); // center of cylinder segment
-    // Add tiny amount (1e-6) to avoid pixels of sky at middle of bond
-    maxCDistSqr = 0.25 * bondLength * bondLength + radius * radius + 1e-6;
     
     // nudge the far end to cover cylinder bulge
     vec3 nudge = z * radius;
