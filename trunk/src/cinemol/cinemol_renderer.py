@@ -33,7 +33,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         
     def init_gl(self):
         # print "init_gl"
-        bPrintGLInfo = True
+        bPrintGLInfo = False
         if bPrintGLInfo:
             print "GL Vendor:", glGetString(GL_VENDOR)
             print "GL Renderer:", glGetString(GL_RENDERER)
@@ -65,7 +65,7 @@ class CinemolRenderer(glrenderer.GlRenderer):
         for actor in self.actors:
             actor.init_gl()
         for rep in model.representations.values():
-            print "init_gl on a representation"
+            # print "init_gl on a representation"
             rep.init_gl()
         # self.shader.init_gl()
         glEnable(GL_BLEND)

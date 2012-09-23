@@ -38,11 +38,11 @@ void main()
         glShaderSource(self.fs, self.fragment_shader)
         glCompileShader(self.vs)
         log = glGetShaderInfoLog(self.vs)
-        if log:
+        if log and log != "Vertex shader was successfully compiled to run on hardware.":
             print "Vertex Shader:", log
         glCompileShader(self.fs)
         log = glGetShaderInfoLog(self.fs)
-        if log:
+        if log and log != "Fragment shader was successfully compiled to run on hardware.":
             print "Fragment Shader:", log
         if self.shader_program == 0:
             self.shader_program = glCreateProgram()
@@ -127,7 +127,7 @@ class Shader150:
         glShaderSource(shader, shader_string)
         glCompileShader(shader)
         log = glGetShaderInfoLog(shader)
-        if log:
+        if log and not re.match("^(Vertex|Fragment|Geometry) shader was successfully compiled to run on hardware.$", log):
             print "Shader error:", log
         return shader
 
