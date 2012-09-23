@@ -51,8 +51,12 @@ def spacefill(param=True):
     cm.spacefill(param)
     cm.refresh()
 
-def wireframe(width=1.0):
+def wireframe(width=0.02):
     cm.wireframe(width)
+    cm.refresh()
+
+def sticks(radius=0.02):
+    cm.sticks(radius)
     cm.refresh()
 
 def zap():
