@@ -33,7 +33,8 @@ void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos, in float radius, i
     vec3 q4 = q3 + 2.0 * radius * y;
     
     cylCen = 0.5 * (atomPos + midPos); // center of cylinder segment
-    maxCDistSqr = 0.25 * bondLength * bondLength + radius * radius;
+    // Add tiny amount (1e-6) to avoid pixels of sky at middle of bond
+    maxCDistSqr = 0.25 * bondLength * bondLength + radius * radius + 1e-6;
     
     // nudge the far end to cover cylinder bulge
     vec3 nudge = z * radius;
