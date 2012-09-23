@@ -61,9 +61,6 @@ class Commands(object):
         self.spacefill(param)
         self.color(color.ColorByRasmolCpkNewLighter())
         
-    def cylinders(self, width=1.0):
-        self.use_representation('cylinders', width)        
-    
     def load(self, file_name):
         atoms = model.atoms
         atoms[:] = []
@@ -104,6 +101,9 @@ class Commands(object):
     def spacefill(self, param=True):
         self.use_representation('spacefill', param)
     
+    def sticks(self, radius=0.025):
+        self.use_representation('sticks', radius)        
+    
     def use_representation(self, rep_name, param):
         rep = model.representations[rep_name]
         if param is False: # hide atoms
@@ -117,7 +117,7 @@ class Commands(object):
                 radius = float(param)
                 rep.set_radius(radius)      
         
-    def wireframe(self, width=1.0):
+    def wireframe(self, width=0.02):
         # print "wireframe"
         self.use_representation('wireframe', width)        
     
