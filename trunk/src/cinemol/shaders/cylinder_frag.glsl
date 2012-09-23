@@ -21,7 +21,7 @@ void main()
     // discard points outside the cylinder by inspecting one term of the quadratic equation
     float qe_half_a = dot(qe_undot_half_a, qe_undot_half_a);
     float qeDeterminant = qe_half_b * qe_half_b - qe_half_a * qe_c;
-    if (qeDeterminant <= 0.0) {
+    if (qeDeterminant < 0.0) {
         discard;
         fragColor = vec4(1,1,0,1);
         return;
