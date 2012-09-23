@@ -23,7 +23,8 @@ void main()
     float qeDeterminant = qe_half_b * qe_half_b - qe_half_a * qe_c;
     if (qeDeterminant < 0.0) {
         discard;
-        fragColor = vec4(1,1,0,1);
+        gl_FragDepth = fragDepthFromCameraPosition(positionInCamera, projectionMatrix);
+        fragColor = vec4(1,0,0,1);
         return;
     }
     
@@ -33,6 +34,7 @@ void main()
     vec3 dc = surfaceInCamera - cylCen;
     if (dot(dc, dc) > maxCDistSqr) { // beyond end of cylinder
         discard;
+        gl_FragDepth = fragDepthFromCameraPosition(positionInCamera, projectionMatrix);
         fragColor = vec4(0,1,0,1);
         return;
     }

@@ -5,7 +5,7 @@ uniform mat4 projectionMatrix;
 uniform float radius = 0.02;
 
 layout (lines) in;
-layout (triangle_strip, max_vertices = 16) out;
+layout (triangle_strip, max_vertices = 24) out;
 
 // Quadratic equation "a" component is non-linear, so we need to finish
 // the computation in the fragment shader.  Hence "undot"
@@ -18,46 +18,29 @@ out vec3 cylCen;
 out vec3 cylAxis;
 out float maxCDistSqr; // points farther than this are not in segment
 
+void sendVertex(vec3 pos, mat4 projectionMatrix, vec3 qe_undot_b_part) 
+{
+    positionInCamera = pos;
+    qe_half_b = dot(positionInCamera, qe_undot_b_part);
+    qe_undot_half_a = cross(positionInCamera, cylAxis);
+    gl_Position = projectionMatrix * vec4(positionInCamera, 1);
+    EmitVertex();
+}
+
 void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos0, in float radius, in mat4 projectionMatrix)
 {
     vec3 bondVec = midPos0 - atomPos;
-    vec3 midPos = midPos0 + 0.01 * bondVec; // Ensure that the middle is fully covered
+    vec3 midPos = midPos0; // Ensure that the middle is fully covered
     float bondLengthSqr = dot(bondVec, bondVec);
     float bondLength = sqrt(bondLengthSqr);
-    maxCDistSqr = 0.25 * bondLengthSqr + radius * radius;
+    maxCDistSqr = 1.00 * (0.25 * bondLengthSqr + radius * radius);
     cylCen = 0.5 * (atomPos + midPos); // center of cylinder segment
 
     // local coordinate system for expanding to polygon
     vec3 x = normalize(bondVec); // along bond direction
-    vec3 y = normalize(cross(cylCen, x)); // width direction not along view axis
+    vec3 y = normalize(cross(vec3(0,0,-1), x)); // width direction not along view axis
     vec3 z = normalize(cross(x, y));
 
-    vec3 dx = 0.51 * bondVec; // Add a bit of extra canvas just in case
-    vec3 dy = radius * y;
-    
-    // quadrilateral vertices
-    vec3 q1 = cylCen + dx + dy;
-    vec3 q2 = cylCen + dx - dy;
-    vec3 q3 = cylCen - dx - dy;
-    vec3 q4 = cylCen - dx + dy;
-    
-    
-    // nudge the far end to cover cylinder bulge
-    vec3 nudge = z * radius;
-    // always nudge toward camera
-    if (dot(nudge, cylCen) > 0) 
-        nudge = -nudge;
-    // only nudge far edge
-    // NOTE - sometimes BOTH ends are "far", if viewer is in the middle
-    if (dot(midPos - atomPos, midPos) > 0) {
-        q1 += nudge;
-        q2 += nudge;
-    }
-    if (dot(atomPos - midPos, atomPos) > 0) {
-        q3 += nudge;
-        q4 += nudge;
-    }
-    
     // precompute quadratic equation terms to ease ray tracing in fragment shader
     cylAxis = x;
     vec3 cxa = cross(cylCen, cylAxis);
@@ -67,30 +50,36 @@ void draw_half_bond_cylinder(in vec3 atomPos, in vec3 midPos0, in float radius, 
         dot(cylCen, vec3( x.x*x.y, -x.x*x.x - x.z*x.z, x.y*x.z)),
         dot(cylCen, vec3( x.x*x.z,  x.y*x.z, -x.x*x.x - x.y*x.y)));
     
-    positionInCamera = q1;
-    qe_half_b = dot(positionInCamera, qe_undot_b_part);
-    qe_undot_half_a = cross(positionInCamera, cylAxis);
-    gl_Position = projectionMatrix * vec4(positionInCamera, 1);
-    EmitVertex();
+    // horizon bulges larger than midline disk in perspective projection
+    float cameraDistanceSqr0 = dot(atomPos, atomPos);
+    float cameraDistanceSqr1 = dot(midPos, midPos);
+    float cameraDistanceSqr = min(cameraDistanceSqr0, cameraDistanceSqr1);
+    // d/sqrt(d^2-r^2) correction for perpective horizon
+    float horizonRatio = sqrt(cameraDistanceSqr / (cameraDistanceSqr - radius*radius));
+
+    vec3 dx = 1.01 * 0.50 * bondVec; // Add a bit of extra canvas just in case
+    vec3 dy = 1.01 * radius * y * horizonRatio;
+    vec3 dz = 1.01 * radius * z;
     
-    positionInCamera = q2;
-    qe_half_b = dot(positionInCamera, qe_undot_b_part);
-    qe_undot_half_a = cross(positionInCamera, cylAxis);
-    gl_Position = projectionMatrix * vec4(positionInCamera, 1);
-    EmitVertex();
+    // axial quadrilateral
+    sendVertex(cylCen + dx + dy, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen + dx - dy, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen - dx + dy, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen - dx - dy, projectionMatrix, qe_undot_b_part);
+    EndPrimitive();
     
-    positionInCamera = q4;
-    qe_half_b = dot(positionInCamera, qe_undot_b_part);
-    qe_undot_half_a = cross(positionInCamera, cylAxis);
-    gl_Position = projectionMatrix * vec4(positionInCamera, 1);
-    EmitVertex();
-    
-    positionInCamera = q3;
-    qe_half_b = dot(positionInCamera, qe_undot_b_part);
-    qe_undot_half_a = cross(positionInCamera, cylAxis);
-    gl_Position = projectionMatrix * vec4(positionInCamera, 1);
-    EmitVertex();
-    
+    // end cap 1 - at bond center
+    sendVertex(cylCen + dx + dy + dz, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen + dx + dy - dz, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen + dx - dy + dz, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen + dx - dy - dz, projectionMatrix, qe_undot_b_part);
+    EndPrimitive();
+
+    // end cap 2 - at atom position
+    sendVertex(cylCen - dx + dy + dz, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen - dx - dy + dz, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen - dx + dy - dz, projectionMatrix, qe_undot_b_part);
+    sendVertex(cylCen - dx - dy - dz, projectionMatrix, qe_undot_b_part);
     EndPrimitive();
 }
 
