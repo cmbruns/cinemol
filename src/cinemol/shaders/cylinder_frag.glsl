@@ -13,6 +13,8 @@ in vec3 positionInCamera;
 in vec3 cylCen;
 in vec3 cylAxis;
 in float maxCDistSqr; // points farther than this are not in segment
+in vec4 color1;
+in vec4 color2;
 
 out vec4 fragColor;
 
@@ -41,10 +43,16 @@ void main()
     
     vec3 normal = normalize(dc - dot(dc, cylAxis) * cylAxis);
     
-    // Pass through color
-    fragColor = gl_Color;
+    // color by atom
+    if (dot(dc, cylAxis) <= 0)
+        fragColor = color1;
+    else
+        fragColor = color2;
     
-    fragColor = shadeLambertian(surfaceInCamera, normal, gl_Color, lightDirection);
+    // Pass through color
+    // fragColor = gl_Color;
+    
+    fragColor = shadeLambertian(surfaceInCamera, normal, fragColor, lightDirection);
     
     gl_FragDepth = fragDepthFromCameraPosition(surfaceInCamera, projectionMatrix);
 }
