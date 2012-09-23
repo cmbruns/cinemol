@@ -228,9 +228,9 @@ class BondCylinderShader(Shader150):
         vertex_shader = self.init_one_shader(
                 "bondline_vrtx.glsl", GL_VERTEX_SHADER)
         geometry_shader = self.init_one_shader(
-                "bondline_geom.glsl", GL_GEOMETRY_SHADER)
+                "cylinder_geom.glsl", GL_GEOMETRY_SHADER)
         fragment_shader = self.init_one_shader(
-                "bondline_frag.glsl", GL_FRAGMENT_SHADER)
+                "cylinder_frag.glsl", GL_FRAGMENT_SHADER)
         shader_program = glCreateProgram()
         glAttachShader(shader_program, vertex_shader)
         glAttachShader(shader_program, geometry_shader)

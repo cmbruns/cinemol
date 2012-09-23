@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Sat Aug 18 20:27:54 2012
+# Created: Sun Sep 23 00:05:45 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -141,6 +141,8 @@ class Ui_MainWindow(object):
         self.actionSpacefill.setCheckable(True)
         self.actionSpacefill.setChecked(True)
         self.actionSpacefill.setObjectName("actionSpacefill")
+        self.actionCylinders = QtGui.QAction(MainWindow)
+        self.actionCylinders.setObjectName("actionCylinders")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.menuLoad_recent.menuAction())
         self.menuFile.addSeparator()
@@ -177,6 +179,7 @@ class Ui_MainWindow(object):
         self.menuBookmarks.addAction(self.actionClear_all_bookmarks)
         self.menuRepresentation.addAction(self.actionSpacefill)
         self.menuRepresentation.addAction(self.actionWireframe)
+        self.menuRepresentation.addAction(self.actionCylinders)
         self.menuView.addAction(self.menuRepresentation.menuAction())
         self.menuView.addAction(self.menuBookmarks.menuAction())
         self.menuView.addAction(self.menuStereo_3D.menuAction())
@@ -238,5 +241,6 @@ class Ui_MainWindow(object):
         self.actionFoo.setText(QtGui.QApplication.translate("MainWindow", "Foo", None, QtGui.QApplication.UnicodeUTF8))
         self.actionWireframe.setText(QtGui.QApplication.translate("MainWindow", "Wireframe", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSpacefill.setText(QtGui.QApplication.translate("MainWindow", "Spacefill", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCylinders.setText(QtGui.QApplication.translate("MainWindow", "Cylinders", None, QtGui.QApplication.UnicodeUTF8))
 
 from cinemol.cinemol_canvas import CinemolCanvas

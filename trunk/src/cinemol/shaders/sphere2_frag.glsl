@@ -24,7 +24,7 @@
 const vec4 outlineColor = vec4(0,0,0,1); // black
 
 uniform mat4 projectionMatrix;
-uniform vec3 lightDirection;
+uniform vec3 lightDirection = normalize(vec3(1,1,1));
 uniform float outlineWidth = 0.001;
 
 in vec4 gl_FragCoord;
@@ -84,41 +84,6 @@ bool drawOutline(in float radSqr)
 }
 
 
-vec4 shadeLambertian(in vec3 surfaceInEye)
-{
-    LightInfo light = LightInfo(
-	    vec4(normalize(lightDirection), 0.0),
-	    vec3(1,1,1),
-	    vec3(1,1,1),
-	    vec3(1,1,1));
-    
-    // TODO - take shading parameters from attributes
-    // for now, hard code colors for testing
-    MaterialInfo material = MaterialInfo(
-        0.2 * gl_Color.rgb, 
-        0.6 * gl_Color.rgb, 
-        0.2 * vec3(1,1,1), 
-        25.0);
-    vec3 s; // light vector
-    if (light.position.w == 0.0) // light at infinity
-        s = normalize(light.position.xyz);
-    else
-        s = normalize(vec3(light.position - vec4(surfaceInEye, 1)));
-    vec3 v = normalize(-surfaceInEye); // view vector
-    vec3 normal = normalize(surfaceInEye - sphereCenterInEye);
-    vec3 r = reflect( -s, normal );
-    vec3 ambient = light.lA * material.kA;
-    float sDotN = max(dot(s, normal), 0.0);
-    vec3 diffuse = light.lD * material.kD * sDotN;
-    vec3 specular = vec3(0,0,0);
-    if (sDotN > 0.0) {
-        specular = light.lS * material.kS *
-            pow(max(dot(r,v), 0.0), material.shininess);
-    }
-    return vec4(ambient + specular + diffuse, 1.0);
-}
-
-
 void main()
 {
     // trim imposter polygon to a perfect circle
@@ -160,7 +125,8 @@ void main()
 #endif // CORRECT_DEPTH
 
 #ifdef LAMBERTIAN_SHADING
-        fragColor = shadeLambertian(surfaceInEye);
+        vec3 normal = normalize(surfaceInEye - sphereCenterInEye);
+        fragColor = shadeLambertian(surfaceInEye, normal, gl_Color, lightDirection);
 #else
         fragColor = gl_Color;
 #endif

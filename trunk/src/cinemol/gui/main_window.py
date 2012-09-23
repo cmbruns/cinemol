@@ -95,6 +95,15 @@ class MainWindow(QMainWindow):
             dialog.set_value(old_scale)
         
     @QtCore.Slot(bool)
+    def on_actionCylinders_triggered(self, checked):
+        if len(model.selected_atoms) < 1:
+            command.select("*")
+        command.spacefill(False)
+        command.wireframe(False)
+        command.cylinders()
+        command.refresh()
+
+    @QtCore.Slot(bool)
     def on_actionShow_console_triggered(self, checked):
         self.console.setVisible(checked)
     
@@ -103,6 +112,7 @@ class MainWindow(QMainWindow):
         if len(model.selected_atoms) < 1:
             command.select("*")
         command.spacefill(False)
+        command.cylinders(False)
         command.wireframe()
         command.refresh()
 
@@ -111,6 +121,7 @@ class MainWindow(QMainWindow):
         if len(model.selected_atoms) < 1:
             command.select("*")
         command.wireframe(False)
+        command.cylinders(False)
         command.spacefill()
         command.refresh()
         
