@@ -96,11 +96,22 @@ class MainWindow(QMainWindow):
             dialog.set_value(old_scale)
         
     @QtCore.Slot(bool)
+    def on_actionBall_Stick_triggered(self, checked):
+        if len(model.selected_atoms) < 1:
+            command.select("*")
+        command.spacefill(False)
+        command.wireframe(False)
+        command.sticks(False)
+        command.ball_and_stick()
+        command.refresh()
+
+    @QtCore.Slot(bool)
     def on_actionSticks_triggered(self, checked):
         if len(model.selected_atoms) < 1:
             command.select("*")
         command.spacefill(False)
         command.wireframe(False)
+        command.ball_and_stick(False)
         command.sticks()
         command.refresh()
 
@@ -114,6 +125,7 @@ class MainWindow(QMainWindow):
             command.select("*")
         command.spacefill(False)
         command.sticks(False)
+        command.ball_and_stick(False)
         command.wireframe()
         command.refresh()
 
@@ -123,6 +135,7 @@ class MainWindow(QMainWindow):
             command.select("*")
         command.wireframe(False)
         command.sticks(False)
+        command.ball_and_stick(False)
         command.spacefill()
         command.refresh()
         

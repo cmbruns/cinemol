@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Sun Sep 23 13:21:48 2012
+# Created: Mon Sep 24 00:34:08 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -144,6 +144,8 @@ class Ui_MainWindow(object):
         self.actionSticks = QtGui.QAction(MainWindow)
         self.actionSticks.setCheckable(True)
         self.actionSticks.setObjectName("actionSticks")
+        self.actionBall_Stick = QtGui.QAction(MainWindow)
+        self.actionBall_Stick.setObjectName("actionBall_Stick")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.menuLoad_recent.menuAction())
         self.menuFile.addSeparator()
@@ -181,6 +183,7 @@ class Ui_MainWindow(object):
         self.menuRepresentation.addAction(self.actionSpacefill)
         self.menuRepresentation.addAction(self.actionWireframe)
         self.menuRepresentation.addAction(self.actionSticks)
+        self.menuRepresentation.addAction(self.actionBall_Stick)
         self.menuView.addAction(self.menuRepresentation.menuAction())
         self.menuView.addAction(self.menuBookmarks.menuAction())
         self.menuView.addAction(self.menuStereo_3D.menuAction())
@@ -243,5 +246,6 @@ class Ui_MainWindow(object):
         self.actionWireframe.setText(QtGui.QApplication.translate("MainWindow", "Wireframe", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSpacefill.setText(QtGui.QApplication.translate("MainWindow", "Spacefill", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSticks.setText(QtGui.QApplication.translate("MainWindow", "Sticks", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionBall_Stick.setText(QtGui.QApplication.translate("MainWindow", "Ball and Stick", None, QtGui.QApplication.UnicodeUTF8))
 
 from cinemol.cinemol_canvas import CinemolCanvas
