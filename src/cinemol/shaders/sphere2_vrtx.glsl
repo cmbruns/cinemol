@@ -9,6 +9,7 @@ in vec3 atomColorLinear;
 in float vdwRadius;
 
 out float radius;
+out vec4 gl_FrontColor;
 out vec4 gl_Position;
 
 void main()
