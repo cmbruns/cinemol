@@ -40,9 +40,11 @@ class MainWindow(QMainWindow):
         stereoActionGroup.addAction(self.ui.actionChecker_interleaved)
         # representations
         repActionGroup = QActionGroup(self)
-        repActionGroup.addAction(self.ui.actionWireframe)
+        repActionGroup.addAction(self.ui.actionBackbone)
+        repActionGroup.addAction(self.ui.actionBall_Stick)
         repActionGroup.addAction(self.ui.actionSpacefill)
         repActionGroup.addAction(self.ui.actionSticks)
+        repActionGroup.addAction(self.ui.actionWireframe)
         # size dialog
         self.size_dialog = SizeDialog(self)
         self.size_dialog.size_changed.connect(self.resize_canvas)
@@ -96,49 +98,48 @@ class MainWindow(QMainWindow):
             dialog.set_value(old_scale)
         
     @QtCore.Slot(bool)
-    def on_actionBall_Stick_triggered(self, checked):
-        if len(model.selected_atoms) < 1:
-            command.select("*")
-        command.spacefill(False)
-        command.wireframe(False)
-        command.sticks(False)
-        command.ball_and_stick()
-        command.refresh()
-
-    @QtCore.Slot(bool)
-    def on_actionSticks_triggered(self, checked):
-        if len(model.selected_atoms) < 1:
-            command.select("*")
-        command.spacefill(False)
-        command.wireframe(False)
-        command.ball_and_stick(False)
-        command.sticks()
-        command.refresh()
-
-    @QtCore.Slot(bool)
     def on_actionShow_console_triggered(self, checked):
         self.console.setVisible(checked)
     
-    @QtCore.Slot(bool)
-    def on_actionWireframe_triggered(self, checked):
+    ### BEGIN REPRESENTATIONS ###
+    
+    def set_rep_command(self, rep_command):
+        # If nothing is selected, select everything
         if len(model.selected_atoms) < 1:
             command.select("*")
-        command.spacefill(False)
-        command.sticks(False)
-        command.ball_and_stick(False)
-        command.wireframe()
-        command.refresh()
+        # Turn off other representations
+        for rep in (command.backbone, 
+                    command.ball_and_stick, 
+                    command.spacefill,
+                    command.sticks,
+                    command.wireframe):
+            if rep is not rep_command:
+                rep(False)
+        rep_command(True)
+        command.refresh()                 
+
+    @QtCore.Slot(bool)
+    def on_actionBackbone_triggered(self, checked):
+        self.set_rep_command(command.backbone)
+        
+    @QtCore.Slot(bool)
+    def on_actionBall_Stick_triggered(self, checked):
+        self.set_rep_command(command.ball_and_stick)
 
     @QtCore.Slot(bool)
     def on_actionSpacefill_triggered(self, checked):
-        if len(model.selected_atoms) < 1:
-            command.select("*")
-        command.wireframe(False)
-        command.sticks(False)
-        command.ball_and_stick(False)
-        command.spacefill()
-        command.refresh()
+        self.set_rep_command(command.spacefill)
         
+    @QtCore.Slot(bool)
+    def on_actionWireframe_triggered(self, checked):
+        self.set_rep_command(command.wireframe)
+
+    @QtCore.Slot(bool)
+    def on_actionSticks_triggered(self, checked):
+        self.set_rep_command(command.sticks)
+
+    ### END REPRESENTATIONS ###
+
     @QtCore.Slot(bool)
     def on_actionLoad_movie_script_triggered(self, checked):
         self.bookmarks.clear()
@@ -301,7 +302,7 @@ before you can save a movie.""")
         frame_number = 0
         froot, fext = os.path.splitext(base_file_name)
         for frame in self.bookmarks.play(real_time=False):
-            num_string = '_%03d' % (frame_number + 1)
+            num_string = '_%05d' % (frame_number + 1)
             file_name = froot + num_string + fext
             self.camera.state = frame.camera_state
             # TODO - potential OpenGL thread problems

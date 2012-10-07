@@ -32,6 +32,9 @@ class Commands(object):
     def focus(self, value):
         self.camera.focus_in_ground = Vec3(value)
 
+    def backbone(self, param=True):
+        self.use_representation('backbone', param)
+
     def ball_and_stick(self, param=True):
         self.use_representation('ball_and_stick', param)
 
@@ -115,10 +118,10 @@ class Commands(object):
             model.default_representation = rep_name
             rep.add_atoms(model.selected_atoms)
             if param is True: # radius value
-                rep.set_radius(0.0)
+                pass
+                # rep.set_radius(0.0)
             else:
-                radius = float(param)
-                rep.set_radius(radius)      
+                rep.set_radius(float(param))      
         
     def wireframe(self, width=0.02):
         # print "wireframe"

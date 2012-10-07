@@ -105,6 +105,8 @@ class BondRepBase:
     def update_atom_colors(self):
         self.atom_attributes.update_atom_colors()
 
+class Backbone(BondRepBase):
+    pass
 
 class BondCylinders(BondRepBase):
     def __init__(self, radius=0.02):

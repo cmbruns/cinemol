@@ -100,10 +100,11 @@
      <property name="title">
       <string>Representation</string>
      </property>
-     <addaction name="actionSpacefill"/>
-     <addaction name="actionWireframe"/>
-     <addaction name="actionSticks"/>
+     <addaction name="actionBackbone"/>
      <addaction name="actionBall_Stick"/>
+     <addaction name="actionSpacefill"/>
+     <addaction name="actionSticks"/>
+     <addaction name="actionWireframe"/>
     </widget>
     <addaction name="menuRepresentation"/>
     <addaction name="menuBookmarks"/>
@@ -389,6 +390,11 @@
   <action name="actionBall_Stick">
    <property name="text">
     <string>Ball and Stick</string>
+   </property>
+  </action>
+  <action name="actionBackbone">
+   <property name="text">
+    <string>Backbone</string>
    </property>
   </action>
  </widget>

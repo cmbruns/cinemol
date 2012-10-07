@@ -16,6 +16,7 @@ class CinemolModel(object):
         self.selected_atoms = atom.AtomList()
         self.selected_atoms[:] = self.atoms[:]
         self.representations = dict()
+        self.representations['backbone'] = cinemol.representation.Backbone()
         self.representations['ball_and_stick'] = cinemol.representation.BallAndStick()
         self.representations['spacefill'] = cinemol.representation.SpaceFilling()
         self.representations['sticks'] = cinemol.representation.Sticks()
