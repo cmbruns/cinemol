@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'cinemol.ui'
 #
-# Created: Mon Sep 24 00:34:08 2012
+# Created: Sun Oct 07 10:41:27 2012
 #      by: pyside-uic 0.2.14 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -146,6 +146,8 @@ class Ui_MainWindow(object):
         self.actionSticks.setObjectName("actionSticks")
         self.actionBall_Stick = QtGui.QAction(MainWindow)
         self.actionBall_Stick.setObjectName("actionBall_Stick")
+        self.actionBackbone = QtGui.QAction(MainWindow)
+        self.actionBackbone.setObjectName("actionBackbone")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.menuLoad_recent.menuAction())
         self.menuFile.addSeparator()
@@ -180,10 +182,11 @@ class Ui_MainWindow(object):
         self.menuBookmarks.addAction(self.actionGo_to_previous_bookmark)
         self.menuBookmarks.addAction(self.actionGo_to_next_bookmark)
         self.menuBookmarks.addAction(self.actionClear_all_bookmarks)
-        self.menuRepresentation.addAction(self.actionSpacefill)
-        self.menuRepresentation.addAction(self.actionWireframe)
-        self.menuRepresentation.addAction(self.actionSticks)
+        self.menuRepresentation.addAction(self.actionBackbone)
         self.menuRepresentation.addAction(self.actionBall_Stick)
+        self.menuRepresentation.addAction(self.actionSpacefill)
+        self.menuRepresentation.addAction(self.actionSticks)
+        self.menuRepresentation.addAction(self.actionWireframe)
         self.menuView.addAction(self.menuRepresentation.menuAction())
         self.menuView.addAction(self.menuBookmarks.menuAction())
         self.menuView.addAction(self.menuStereo_3D.menuAction())
@@ -247,5 +250,6 @@ class Ui_MainWindow(object):
         self.actionSpacefill.setText(QtGui.QApplication.translate("MainWindow", "Spacefill", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSticks.setText(QtGui.QApplication.translate("MainWindow", "Sticks", None, QtGui.QApplication.UnicodeUTF8))
         self.actionBall_Stick.setText(QtGui.QApplication.translate("MainWindow", "Ball and Stick", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionBackbone.setText(QtGui.QApplication.translate("MainWindow", "Backbone", None, QtGui.QApplication.UnicodeUTF8))
 
 from cinemol.cinemol_canvas import CinemolCanvas

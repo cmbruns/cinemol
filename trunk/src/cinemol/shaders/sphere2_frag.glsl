@@ -7,7 +7,7 @@
 // Toggleable effects
 #define LAMBERTIAN_SHADING // use 3d shading
 #define CORRECT_DEPTH // put accurate values into z-buffer
-// #define USE_OUTLINES // draw a dark outline around each atom
+#define USE_OUTLINES // draw a dark outline around each atom
 
 // ray tracing is required to get correct depth value
 #ifdef CORRECT_DEPTH
