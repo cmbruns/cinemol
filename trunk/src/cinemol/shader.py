@@ -114,7 +114,8 @@ class Shader150:
         shader_string = open(os.path.join(shader_dir, file_name)).read()
         # Look for include directive
         # e.g. #pragma include "shared_functions.glsl"
-        pragma_regexp = r'^#pragma include[ \t]+"([A-Za-z0-9_.]+)"[ \t]*$'
+        # pragma_regexp = r'^#pragma include[ \t]+"([A-Za-z0-9_.]+)"[ \t]*$'
+        pragma_regexp = r'^#pragma include[ \t]+"([A-Za-z0-9_.]+)"'
         include = re.search(pragma_regexp, shader_string, flags=re.MULTILINE)
         if include:
             include_file_name = include.group(1)
